@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "A decision right attached to an execution.",
+  "properties": {
+    "evidence_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Where the right is documented.",
+      "title": "Evidence Ref"
+    },
+    "holder_role": {
+      "description": "Role holding the right.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Holder Role",
+      "type": "string"
+    },
+    "scope": {
+      "description": "What the right covers.",
+      "enum": [
+        "release",
+        "reject",
+        "return",
+        "hold",
+        "approve_design",
+        "transfer_custody",
+        "commit_spend",
+        "displace_allocation"
+      ],
+      "title": "Scope",
+      "type": "string"
+    }
+  },
+  "required": [
+    "holder_role",
+    "scope"
+  ],
+  "title": "AuthorityRef",
+  "type": "object"
+}

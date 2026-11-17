@@ -1,0 +1,133 @@
+{
+  "additionalProperties": false,
+  "description": "One closed pass of the ray in one arm.",
+  "properties": {
+    "anomalous": {
+      "description": "Condensation without activation having come first.",
+      "title": "Anomalous",
+      "type": "boolean"
+    },
+    "arm": {
+      "description": "Arm.",
+      "enum": [
+        "real-on",
+        "real-off",
+        "null-on",
+        "null-off"
+      ],
+      "title": "Arm",
+      "type": "string"
+    },
+    "closed_by": {
+      "description": "Splice that closed the pass.",
+      "enum": [
+        "cross_up",
+        "cross_down",
+        "apex_top",
+        "apex_bottom"
+      ],
+      "title": "Closed By",
+      "type": "string"
+    },
+    "droplets": {
+      "description": "Nucleations in the pass.",
+      "minimum": 0,
+      "title": "Droplets",
+      "type": "integer"
+    },
+    "index": {
+      "description": "Pass number (shared across arms).",
+      "minimum": 0,
+      "title": "Index",
+      "type": "integer"
+    },
+    "ion_free": {
+      "description": "Of those, nucleations that needed no ions.",
+      "minimum": 0,
+      "title": "Ion Free",
+      "type": "integer"
+    },
+    "min_margin": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Smallest barrier minus supersaturation seen in the slab; negative means condensation.",
+      "title": "Min Margin"
+    },
+    "order": {
+      "description": "Order class.",
+      "enum": [
+        "cond-off",
+        "cond-noact",
+        "cond-first",
+        "act-first",
+        "act-only",
+        "quiet"
+      ],
+      "title": "Order",
+      "type": "string"
+    },
+    "p_peak": {
+      "description": "Peak post-condensation P (after gain).",
+      "minimum": 0,
+      "title": "P Peak",
+      "type": "number"
+    },
+    "t0": {
+      "description": "Pass start time.",
+      "title": "T0",
+      "type": "number"
+    },
+    "t1": {
+      "description": "Pass end time.",
+      "title": "T1",
+      "type": "number"
+    },
+    "t_activation": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "First time mean slab ion load reached I*.",
+      "title": "T Activation"
+    },
+    "t_condensation": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "First nucleation time.",
+      "title": "T Condensation"
+    }
+  },
+  "required": [
+    "arm",
+    "index",
+    "t0",
+    "t1",
+    "closed_by",
+    "order",
+    "anomalous",
+    "droplets",
+    "ion_free",
+    "p_peak"
+  ],
+  "title": "PassRecord",
+  "type": "object"
+}

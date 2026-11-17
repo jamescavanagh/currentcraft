@@ -1,0 +1,212 @@
+{
+  "$defs": {
+    "CapabilityRecord": {
+      "additionalProperties": false,
+      "description": "One capability after translation: what it pulls from where and what it injects where.",
+      "properties": {
+        "capability_class": {
+          "description": "transform / control (P_mu) or hold / transport (refined P_gamma x P_eta).",
+          "enum": [
+            "transform",
+            "control",
+            "hold",
+            "transport"
+          ],
+          "title": "Capability Class",
+          "type": "string"
+        },
+        "evidence_count": {
+          "description": "Executions that evidence the capability.",
+          "minimum": 0,
+          "title": "Evidence Count",
+          "type": "integer"
+        },
+        "evidenced": {
+          "description": "At least one binding names an evidence_ref (else asserted only).",
+          "title": "Evidenced",
+          "type": "boolean"
+        },
+        "injects": {
+          "description": "(operand, buffer) places it puts into: M+ column.",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Injects",
+          "type": "array"
+        },
+        "nonconsuming": {
+          "default": false,
+          "description": "Reads or undecided checks: identity extension.",
+          "title": "Nonconsuming",
+          "type": "boolean"
+        },
+        "process": {
+          "description": "Translated process id.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Process",
+          "type": "string"
+        },
+        "pulls": {
+          "description": "(operand, buffer) places it takes from: M- column.",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Pulls",
+          "type": "array"
+        },
+        "resource_id": {
+          "description": "Executing resource.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "stages": {
+          "description": "Stages where it was executed.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Stages",
+          "type": "array"
+        }
+      },
+      "required": [
+        "process",
+        "resource_id",
+        "capability_class",
+        "pulls",
+        "injects",
+        "evidence_count",
+        "evidenced",
+        "stages"
+      ],
+      "title": "CapabilityRecord",
+      "type": "object"
+    },
+    "TranslationGap": {
+      "additionalProperties": false,
+      "description": "A record that did not translate. Reported, never guessed: unknown is not 0.",
+      "properties": {
+        "execution_id": {
+          "description": "Execution that did not translate.",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Incidence involved, if any.",
+          "title": "Object Id"
+        },
+        "reason": {
+          "description": "Why.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "execution_id",
+        "reason"
+      ],
+      "title": "TranslationGap",
+      "type": "object"
+    },
+    "TranslationReport": {
+      "additionalProperties": false,
+      "properties": {
+        "deviations": {
+          "default": [
+            "who-vs-where: buffers are places and resources execute; HFGT fuses them in transformation resources M",
+            "control executions map to transformation processes at their buffer (extension)",
+            "reads and undecided checks are non-consuming identities: pull and inject the same operand (extension)",
+            "exchange has no HFGT class yet and is reported as a gap"
+          ],
+          "description": "Documented departures from the paper.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Deviations",
+          "type": "array"
+        },
+        "gaps": {
+          "default": [],
+          "description": "Everything that did not translate.",
+          "items": {
+            "$ref": "#/$defs/TranslationGap"
+          },
+          "title": "Gaps",
+          "type": "array"
+        },
+        "n_executions": {
+          "description": "Executions read.",
+          "minimum": 0,
+          "title": "N Executions",
+          "type": "integer"
+        },
+        "n_translated": {
+          "description": "Executions that produced at least one capability.",
+          "minimum": 0,
+          "title": "N Translated",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "n_executions",
+        "n_translated"
+      ],
+      "title": "TranslationReport",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Output of translate(): semantic records only, no arrays.",
+  "properties": {
+    "capabilities": {
+      "description": "E_S in canonical order (sorted node ids).",
+      "items": {
+        "$ref": "#/$defs/CapabilityRecord"
+      },
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "report": {
+      "$ref": "#/$defs/TranslationReport",
+      "description": "Gaps and coverage."
+    }
+  },
+  "required": [
+    "capabilities",
+    "report"
+  ],
+  "title": "HfgtTranslation",
+  "type": "object"
+}

@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "description": "A place or container where operands sit: B_S. Never a person, never an object.",
+  "properties": {
+    "buffer_id": {
+      "description": "Buffer id referenced by at_buffer / origin_buffer / destination_buffer.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Buffer Id",
+      "type": "string"
+    },
+    "evidence_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Where the buffer is evidenced.",
+      "title": "Evidence Ref"
+    },
+    "kind": {
+      "description": "store holds, work transforms, custody marks a handover point.",
+      "enum": [
+        "store",
+        "work",
+        "custody"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human-readable label.",
+      "title": "Label"
+    }
+  },
+  "required": [
+    "buffer_id",
+    "kind"
+  ],
+  "title": "Buffer",
+  "type": "object"
+}

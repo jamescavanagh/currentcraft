@@ -1,0 +1,232 @@
+{
+  "$defs": {
+    "FieldGrid": {
+      "additionalProperties": false,
+      "description": "Square sampling grid on [-extent, extent]^2. Row 0 is y = +extent (image order).",
+      "properties": {
+        "extent": {
+          "default": 2.0,
+          "description": "Half-width of the grid in model units.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Extent",
+          "type": "number"
+        },
+        "size": {
+          "default": 32,
+          "description": "Cells per side (G).",
+          "maximum": 256,
+          "minimum": 8,
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "title": "FieldGrid",
+      "type": "object"
+    },
+    "FieldParams": {
+      "additionalProperties": false,
+      "description": "Kernel constants shared by every simulator. Defaults match the labeling bench.",
+      "properties": {
+        "scale": {
+          "default": 6.0,
+          "description": "Overall circulation scale (divided by N).",
+          "exclusiveMinimum": 0,
+          "title": "Scale",
+          "type": "number"
+        },
+        "seeds": {
+          "default": 40,
+          "description": "Newton seed grid per side for critical points.",
+          "maximum": 200,
+          "minimum": 8,
+          "title": "Seeds",
+          "type": "integer"
+        },
+        "softening": {
+          "default": 0.02,
+          "description": "Added to r^2 to avoid singular cores.",
+          "exclusiveMinimum": 0,
+          "title": "Softening",
+          "type": "number"
+        }
+      },
+      "title": "FieldParams",
+      "type": "object"
+    },
+    "InflowSweep": {
+      "additionalProperties": false,
+      "description": "Inflow values to evaluate, strictly increasing in [0, 1].",
+      "properties": {
+        "values": {
+          "description": "Inflow per slice.",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 512,
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "values"
+      ],
+      "title": "InflowSweep",
+      "type": "object"
+    },
+    "InteractionNode": {
+      "additionalProperties": false,
+      "description": "One record as a point vortex: position from salted embedding PCs, strength from density, sign from PC3.",
+      "properties": {
+        "id": {
+          "description": "Stable node id (record id or vortex index).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human label, e.g. the record text.",
+          "title": "Label"
+        },
+        "role": {
+          "$ref": "#/$defs/NodeRole",
+          "default": "unassigned",
+          "description": "Resource/Process/Operand role, if known."
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Provenance: record id/version or citation.",
+          "title": "Source Ref"
+        },
+        "strength": {
+          "description": "Signed circulation; sign is spin direction.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "Strength",
+          "type": "number"
+        },
+        "x": {
+          "description": "Field-plane x (model units).",
+          "maximum": 100,
+          "minimum": -100,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "Field-plane y (model units).",
+          "maximum": 100,
+          "minimum": -100,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "x",
+        "y",
+        "strength"
+      ],
+      "title": "InteractionNode",
+      "type": "object"
+    },
+    "NodeRole": {
+      "description": "Resource-Process-Operand working triad (see the domain prototype's Body). Mapping is not yet approved.",
+      "enum": [
+        "resource",
+        "process",
+        "operand",
+        "unassigned"
+      ],
+      "title": "NodeRole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Simulate node interactions over an inflow sweep: coupling matrix, field, critical points, collisions.",
+  "properties": {
+    "frame_id": {
+      "description": "Frame identity, pinned to its labeling round (e.g. synthetic-example).",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "grid": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FieldGrid"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "None skips the field tensor."
+    },
+    "inflow": {
+      "$ref": "#/$defs/InflowSweep",
+      "description": "Inflow values to evaluate (one slice each)."
+    },
+    "nodes": {
+      "description": "Vortex nodes.",
+      "items": {
+        "$ref": "#/$defs/InteractionNode"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "title": "Nodes",
+      "type": "array"
+    },
+    "params": {
+      "$ref": "#/$defs/FieldParams",
+      "description": "Kernel constants (softening, scale, Newton seeds)."
+    },
+    "refine_events": {
+      "default": 7,
+      "description": "Bisection steps per collision.",
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Refine Events",
+      "type": "integer"
+    },
+    "result_kind": {
+      "const": "embedding_geometry",
+      "default": "embedding_geometry",
+      "description": "Always embedding_geometry: a demonstration over embedded records, not an operational forecast.",
+      "title": "Result Kind",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "datamesh-sim/v2",
+      "default": "datamesh-sim/v2",
+      "description": "Contract version; bump on any breaking change.",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "nodes",
+    "frame_id",
+    "inflow"
+  ],
+  "title": "NodeInteractionRequest",
+  "type": "object"
+}

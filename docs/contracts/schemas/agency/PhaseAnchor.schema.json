@@ -1,0 +1,39 @@
+{
+  "additionalProperties": false,
+  "description": "Where one lifecycle phase code sits on the chart.",
+  "properties": {
+    "angle_deg": {
+      "description": "Chart angle in degrees, before origin and direction are applied.",
+      "exclusiveMaximum": 360.0,
+      "minimum": 0.0,
+      "title": "Angle Deg",
+      "type": "number"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Display label; never used for matching.",
+      "title": "Label"
+    },
+    "phase_code": {
+      "description": "Phase code exactly as the adapter emits it (e.g. '2').",
+      "pattern": "^[A-Za-z0-9._-]{1,40}$",
+      "title": "Phase Code",
+      "type": "string"
+    }
+  },
+  "required": [
+    "phase_code",
+    "angle_deg"
+  ],
+  "title": "PhaseAnchor",
+  "type": "object"
+}

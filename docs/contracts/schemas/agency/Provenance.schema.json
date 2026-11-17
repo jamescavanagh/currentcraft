@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "description": "Where a domain object came from and which transform made it.",
+  "properties": {
+    "adapter": {
+      "description": "Adapter name.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Adapter",
+      "type": "string"
+    },
+    "adapter_version": {
+      "description": "Adapter version.",
+      "maxLength": 40,
+      "minLength": 1,
+      "title": "Adapter Version",
+      "type": "string"
+    },
+    "content_sha256": {
+      "description": "SHA-256 of the raw bytes.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Sha256",
+      "type": "string"
+    },
+    "format": {
+      "description": "Source format.",
+      "enum": [
+        "email",
+        "docx",
+        "pdf",
+        "json",
+        "data_contract",
+        "text",
+        "xlsx"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "platform": {
+      "description": "Source platform.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Platform",
+      "type": "string"
+    },
+    "received_at": {
+      "description": "Intake time.",
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "source_id": {
+      "description": "Source item id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Source Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "platform",
+    "format",
+    "source_id",
+    "content_sha256",
+    "adapter",
+    "adapter_version",
+    "received_at"
+  ],
+  "title": "Provenance",
+  "type": "object"
+}

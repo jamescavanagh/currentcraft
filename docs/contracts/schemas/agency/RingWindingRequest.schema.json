@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "PlateVortex": {
+      "additionalProperties": false,
+      "description": "A local vortex pinned in the plate frame. Strength is given explicitly, never inferred from projection handedness.",
+      "properties": {
+        "id": {
+          "description": "Stable vortex id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Evidence for position and strength.",
+          "title": "Source Ref"
+        },
+        "strength": {
+          "description": "Circulation Gamma; sign is spin direction, not good or bad.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "Strength",
+          "type": "number"
+        },
+        "u": {
+          "description": "Plate-frame x.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "U",
+          "type": "number"
+        },
+        "v": {
+          "description": "Plate-frame y.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "V",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "u",
+        "v",
+        "strength"
+      ],
+      "title": "PlateVortex",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A ring on the plate for a velocity-index reading with an analytic whole-arc derivative bound.",
+  "properties": {
+    "center": {
+      "description": "Ring centre in the requested frame.",
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Center",
+      "type": "array"
+    },
+    "core_radius": {
+      "default": 0.09,
+      "description": "Vortex core delta.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "Core Radius",
+      "type": "number"
+    },
+    "frame": {
+      "default": "plate",
+      "description": "Frame of the ring and velocities.",
+      "enum": [
+        "plate",
+        "inertial"
+      ],
+      "title": "Frame",
+      "type": "string"
+    },
+    "omega": {
+      "default": 0.0,
+      "description": "Global spin rate; must be 0 in the plate frame.",
+      "title": "Omega",
+      "type": "number"
+    },
+    "phase": {
+      "default": 0.0,
+      "description": "Plate phase; must be 0 in the plate frame.",
+      "title": "Phase",
+      "type": "number"
+    },
+    "phase_margin": {
+      "default": 0.05,
+      "description": "Max wrapped phase step margin.",
+      "exclusiveMaximum": 3.141592653589793,
+      "exclusiveMinimum": 0,
+      "title": "Phase Margin",
+      "type": "number"
+    },
+    "plate_radius": {
+      "default": 1.8,
+      "description": "The ring must lie on the plate.",
+      "exclusiveMinimum": 0,
+      "title": "Plate Radius",
+      "type": "number"
+    },
+    "point_floor": {
+      "default": 1e-10,
+      "description": "Velocity-space zero exclusion threshold.",
+      "minimum": 0,
+      "title": "Point Floor",
+      "type": "number"
+    },
+    "radius": {
+      "description": "Ring radius.",
+      "exclusiveMinimum": 0,
+      "title": "Radius",
+      "type": "number"
+    },
+    "samples": {
+      "default": 128,
+      "description": "Evenly spaced samples K.",
+      "maximum": 65536,
+      "minimum": 3,
+      "title": "Samples",
+      "type": "integer"
+    },
+    "vortices": {
+      "description": "Local vortices in the plate frame.",
+      "items": {
+        "$ref": "#/$defs/PlateVortex"
+      },
+      "title": "Vortices",
+      "type": "array"
+    }
+  },
+  "required": [
+    "vortices",
+    "center",
+    "radius"
+  ],
+  "title": "RingWindingRequest",
+  "type": "object"
+}

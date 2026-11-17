@@ -1,0 +1,29 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "duplicate": {
+      "default": false,
+      "description": "Duplicate within the broker's configured deduplication window.",
+      "title": "Duplicate",
+      "type": "boolean"
+    },
+    "sequence": {
+      "description": "Stream sequence, not a business version.",
+      "minimum": 1,
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "stream": {
+      "description": "Stream that durably accepted the event.",
+      "minLength": 1,
+      "title": "Stream",
+      "type": "string"
+    }
+  },
+  "required": [
+    "stream",
+    "sequence"
+  ],
+  "title": "PublishReceipt",
+  "type": "object"
+}

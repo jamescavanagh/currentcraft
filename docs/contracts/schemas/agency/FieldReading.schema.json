@@ -1,0 +1,51 @@
+{
+  "additionalProperties": false,
+  "description": "Field readings on a grid inside the aperture.",
+  "properties": {
+    "max_speed": {
+      "description": "Max speed over the aperture grid.",
+      "minimum": 0,
+      "title": "Max Speed",
+      "type": "number"
+    },
+    "mean_strain": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Mean ||S||_F over unmasked grid points.",
+      "title": "Mean Strain"
+    },
+    "mean_vorticity": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Mean vorticity over unmasked grid points.",
+      "title": "Mean Vorticity"
+    },
+    "unmasked_fraction": {
+      "description": "Grid points above speed_floor.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Unmasked Fraction",
+      "type": "number"
+    }
+  },
+  "required": [
+    "mean_vorticity",
+    "mean_strain",
+    "max_speed",
+    "unmasked_fraction"
+  ],
+  "title": "FieldReading",
+  "type": "object"
+}

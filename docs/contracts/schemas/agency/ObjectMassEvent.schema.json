@@ -1,0 +1,47 @@
+{
+  "additionalProperties": false,
+  "description": "Live change of the object mass, e.g. a gate's held load. The run continues; nothing resets.",
+  "properties": {
+    "cause": {
+      "description": "Why the mass changed.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Cause",
+      "type": "string"
+    },
+    "object_mass": {
+      "description": "New object mass.",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "title": "Object Mass",
+      "type": "number"
+    },
+    "source_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Event provenance.",
+      "title": "Source Ref"
+    },
+    "t": {
+      "description": "Model time at which the new mass applies (first step boundary at or after t).",
+      "exclusiveMinimum": 0,
+      "title": "T",
+      "type": "number"
+    }
+  },
+  "required": [
+    "t",
+    "object_mass",
+    "cause"
+  ],
+  "title": "ObjectMassEvent",
+  "type": "object"
+}

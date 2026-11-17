@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "A tensor-to-tensor transform executed by TensorTransformPort (never in application code).",
+  "properties": {
+    "dtype": {
+      "anyOf": [
+        {
+          "enum": [
+            "float32",
+            "float64"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "astype: target float dtype.",
+      "title": "Dtype"
+    },
+    "indices": {
+      "default": [],
+      "description": "select_slices: slice indices to keep, in order.",
+      "items": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "title": "Indices",
+      "type": "array"
+    },
+    "op": {
+      "description": "Transform to apply.",
+      "enum": [
+        "select_slices",
+        "normalize_per_channel",
+        "astype"
+      ],
+      "title": "Op",
+      "type": "string"
+    }
+  },
+  "required": [
+    "op"
+  ],
+  "title": "TransformSpec",
+  "type": "object"
+}

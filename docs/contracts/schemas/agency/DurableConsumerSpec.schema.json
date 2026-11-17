@@ -1,0 +1,66 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ack_wait": {
+      "default": 60.0,
+      "description": "Seconds before unacknowledged work is redelivered.",
+      "minimum": 1,
+      "title": "Ack Wait",
+      "type": "number"
+    },
+    "batch_size": {
+      "default": 16,
+      "description": "Maximum deliveries fetched at once.",
+      "maximum": 256,
+      "minimum": 1,
+      "title": "Batch Size",
+      "type": "integer"
+    },
+    "durable": {
+      "description": "Stable name shared by this worker pool.",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "title": "Durable",
+      "type": "string"
+    },
+    "max_ack_pending": {
+      "default": 64,
+      "description": "Shared in-flight cap across this consumer's workers.",
+      "maximum": 10000,
+      "minimum": 1,
+      "title": "Max Ack Pending",
+      "type": "integer"
+    },
+    "pattern": {
+      "description": "Slash-style filter; final # must follow at least one level.",
+      "title": "Pattern",
+      "type": "string"
+    },
+    "start_sequence": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Replay start, on NEW consumers only; existing progress wins.",
+      "title": "Start Sequence"
+    },
+    "stream": {
+      "description": "Provisioned stream name.",
+      "pattern": "^[A-Z][A-Z0-9_]{0,63}$",
+      "title": "Stream",
+      "type": "string"
+    }
+  },
+  "required": [
+    "stream",
+    "durable",
+    "pattern"
+  ],
+  "title": "DurableConsumerSpec",
+  "type": "object"
+}

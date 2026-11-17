@@ -1,0 +1,101 @@
+{
+  "additionalProperties": false,
+  "description": "Declared mapping from platform JSON to a domain object. Dotted paths into the JSON body.",
+  "properties": {
+    "id_field": {
+      "description": "Path to the natural key.",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Id Field",
+      "type": "string"
+    },
+    "kind": {
+      "description": "Object kind produced.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Kind",
+      "type": "string"
+    },
+    "name": {
+      "description": "Mapping name.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "numeric_fields": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Domain field -> path for numeric values.",
+      "title": "Numeric Fields",
+      "type": "object"
+    },
+    "occurred_at_field": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Path to an ISO-8601 timestamp.",
+      "title": "Occurred At Field"
+    },
+    "relation_fields": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Path -> relation type; values are source ids on the same platform.",
+      "title": "Relation Fields",
+      "type": "object"
+    },
+    "resource_fields": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Path -> resource role; values are pseudonymised.",
+      "title": "Resource Fields",
+      "type": "object"
+    },
+    "scalar_fields": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Domain field -> path for other scalars.",
+      "title": "Scalar Fields",
+      "type": "object"
+    },
+    "text_fields": {
+      "default": [],
+      "description": "Paths concatenated into text.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Text Fields",
+      "type": "array"
+    },
+    "title_field": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Path to the title.",
+      "title": "Title Field"
+    }
+  },
+  "required": [
+    "name",
+    "kind",
+    "id_field"
+  ],
+  "title": "JsonMapping",
+  "type": "object"
+}

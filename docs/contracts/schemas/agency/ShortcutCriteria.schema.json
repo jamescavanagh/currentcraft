@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "description": "When co-condensing records count as a shortcut the dense gradient field would not allow.",
+  "properties": {
+    "max_reported": {
+      "default": 500,
+      "description": "Top candidates reported per arm; totals are always exact.",
+      "maximum": 10000,
+      "minimum": 1,
+      "title": "Max Reported",
+      "type": "integer"
+    },
+    "min_co_passes": {
+      "default": 3,
+      "description": "Passes in which both records condensed.",
+      "minimum": 1,
+      "title": "Min Co Passes",
+      "type": "integer"
+    },
+    "min_concentration": {
+      "default": 0.5,
+      "description": "Share of a record's nucleations in its dominant bin.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "Min Concentration",
+      "type": "number"
+    },
+    "min_hops": {
+      "default": 4,
+      "description": "kNN hops that make a same-cluster pair unreachable by the gradient.",
+      "minimum": 2,
+      "title": "Min Hops",
+      "type": "integer"
+    },
+    "min_nucleations": {
+      "default": 3,
+      "description": "Each record needs at least this many nucleations.",
+      "minimum": 1,
+      "title": "Min Nucleations",
+      "type": "integer"
+    }
+  },
+  "title": "ShortcutCriteria",
+  "type": "object"
+}

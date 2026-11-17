@@ -1,0 +1,395 @@
+{
+  "fixture": "wme_rack.synthetic",
+  "synthetic": true,
+  "note": "Synthetic. Proves the translation, not WME's real process.",
+  "buffers": [
+    {
+      "buffer_id": "warehouse",
+      "kind": "store"
+    },
+    {
+      "buffer_id": "bench",
+      "kind": "work"
+    },
+    {
+      "buffer_id": "room201",
+      "kind": "work"
+    }
+  ],
+  "executions": [
+    {
+      "execution_id": "wme-syn:hold-w",
+      "process": {
+        "code": "hold_stock",
+        "name": "Hold stock",
+        "function_classes": [
+          "hold"
+        ],
+        "approved": false
+      },
+      "stage": "S3",
+      "incidence": [
+        {
+          "object_id": "kit-1",
+          "object_kind": "equipment_kit",
+          "effect": "holds",
+          "state_before": "received",
+          "state_after": "received"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "clerk",
+          "resource_role": "warehouse-clerk",
+          "evidence_ref": "synthetic:clerk"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 0,
+      "at_buffer": "warehouse"
+    },
+    {
+      "execution_id": "wme-syn:deliver-kit-bench",
+      "process": {
+        "code": "deliver",
+        "name": "Deliver",
+        "function_classes": [
+          "transport"
+        ],
+        "approved": false
+      },
+      "stage": "S3",
+      "incidence": [
+        {
+          "object_id": "kit-1",
+          "object_kind": "equipment_kit",
+          "effect": "transfers",
+          "state_before": "received",
+          "state_after": "received",
+          "origin_buffer": "warehouse",
+          "destination_buffer": "bench"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "truck",
+          "resource_role": "delivery-vehicle",
+          "evidence_ref": "synthetic:truck"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 1
+    },
+    {
+      "execution_id": "wme-syn:hold-bench-kit",
+      "process": {
+        "code": "hold_stock",
+        "name": "Hold stock",
+        "function_classes": [
+          "hold"
+        ],
+        "approved": false
+      },
+      "stage": "S3",
+      "incidence": [
+        {
+          "object_id": "kit-1",
+          "object_kind": "equipment_kit",
+          "effect": "holds",
+          "state_before": "received",
+          "state_after": "received"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "builder",
+          "resource_role": "rack-builder",
+          "evidence_ref": "synthetic:builder"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 2,
+      "at_buffer": "bench"
+    },
+    {
+      "execution_id": "wme-syn:build",
+      "process": {
+        "code": "build_rack",
+        "name": "Build rack",
+        "function_classes": [
+          "transform"
+        ],
+        "approved": false
+      },
+      "stage": "S4",
+      "incidence": [
+        {
+          "object_id": "kit-1",
+          "object_kind": "equipment_kit",
+          "effect": "consumes",
+          "state_before": "received"
+        },
+        {
+          "object_id": "rack-1",
+          "object_kind": "rack",
+          "effect": "produces",
+          "state_after": "built"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "builder",
+          "resource_role": "rack-builder",
+          "evidence_ref": "synthetic:builder"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 3,
+      "at_buffer": "bench"
+    },
+    {
+      "execution_id": "wme-syn:hold-bench-rack",
+      "process": {
+        "code": "hold_stock",
+        "name": "Hold stock",
+        "function_classes": [
+          "hold"
+        ],
+        "approved": false
+      },
+      "stage": "S4",
+      "incidence": [
+        {
+          "object_id": "rack-1",
+          "object_kind": "rack",
+          "effect": "holds",
+          "state_before": "built",
+          "state_after": "built"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "builder",
+          "resource_role": "rack-builder",
+          "evidence_ref": "synthetic:builder"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 4,
+      "at_buffer": "bench"
+    },
+    {
+      "execution_id": "wme-syn:deliver-rack",
+      "process": {
+        "code": "deliver",
+        "name": "Deliver",
+        "function_classes": [
+          "transport"
+        ],
+        "approved": false
+      },
+      "stage": "S4",
+      "incidence": [
+        {
+          "object_id": "rack-1",
+          "object_kind": "rack",
+          "effect": "transfers",
+          "state_before": "built",
+          "state_after": "built",
+          "origin_buffer": "bench",
+          "destination_buffer": "room201"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "truck",
+          "resource_role": "delivery-vehicle",
+          "evidence_ref": "synthetic:truck"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 5
+    },
+    {
+      "execution_id": "wme-syn:hold-room-rack",
+      "process": {
+        "code": "hold_stock",
+        "name": "Hold stock",
+        "function_classes": [
+          "hold"
+        ],
+        "approved": false
+      },
+      "stage": "S4",
+      "incidence": [
+        {
+          "object_id": "rack-1",
+          "object_kind": "rack",
+          "effect": "holds",
+          "state_before": "built",
+          "state_after": "built"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "installer",
+          "resource_role": "av-installer",
+          "evidence_ref": "synthetic:installer"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 6,
+      "at_buffer": "room201"
+    },
+    {
+      "execution_id": "wme-syn:install",
+      "process": {
+        "code": "install_rack",
+        "name": "Install rack",
+        "function_classes": [
+          "transform"
+        ],
+        "approved": false
+      },
+      "stage": "S5",
+      "incidence": [
+        {
+          "object_id": "rack-1",
+          "object_kind": "rack",
+          "effect": "revises",
+          "state_before": "built",
+          "state_after": "installed"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "installer",
+          "resource_role": "av-installer",
+          "evidence_ref": "synthetic:installer"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 7,
+      "at_buffer": "room201"
+    },
+    {
+      "execution_id": "wme-syn:commission",
+      "process": {
+        "code": "commission_rack",
+        "name": "Commission rack",
+        "function_classes": [
+          "control"
+        ],
+        "approved": false
+      },
+      "stage": "S5",
+      "incidence": [
+        {
+          "object_id": "rack-1",
+          "object_kind": "rack",
+          "effect": "checks",
+          "state_before": "installed",
+          "state_after": "commissioned"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "commissioner",
+          "resource_role": "commissioning-engineer",
+          "evidence_ref": "synthetic:commissioner"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 8,
+      "at_buffer": "room201",
+      "decision": "release",
+      "verification_evidence": [
+        "rack-1"
+      ],
+      "authority": {
+        "holder_role": "commissioning-lead",
+        "scope": "release",
+        "evidence_ref": "synthetic:authority"
+      }
+    },
+    {
+      "execution_id": "wme-syn:deliver-kit-room",
+      "process": {
+        "code": "deliver",
+        "name": "Deliver",
+        "function_classes": [
+          "transport"
+        ],
+        "approved": false
+      },
+      "stage": "S4",
+      "incidence": [
+        {
+          "object_id": "kit-2",
+          "object_kind": "equipment_kit",
+          "effect": "transfers",
+          "state_before": "received",
+          "state_after": "received",
+          "origin_buffer": "warehouse",
+          "destination_buffer": "room201"
+        }
+      ],
+      "executed_by": [
+        {
+          "resource_id": "truck",
+          "resource_role": "delivery-vehicle",
+          "evidence_ref": "synthetic:truck"
+        }
+      ],
+      "epistemic_status": "computed",
+      "source_ref": "synthetic fixture",
+      "sequence": 9
+    }
+  ],
+  "operand_key": "kind_state",
+  "existence_basis": "observed",
+  "terminal_operands": [
+    "rack:commissioned"
+  ],
+  "scenarios": [
+    {
+      "name": "baseline",
+      "constraints": []
+    },
+    {
+      "name": "truck_cannot_carry_rack",
+      "constraints": [
+        {
+          "capability": {
+            "process": "refined:hold(rack:built):bench->room201",
+            "resource_id": "truck"
+          },
+          "reason": "oversize load",
+          "evidence_ref": "synthetic:k1"
+        }
+      ]
+    },
+    {
+      "name": "builder_unavailable_for_build",
+      "constraints": [
+        {
+          "capability": {
+            "process": "transform:build_rack@bench",
+            "resource_id": "builder"
+          },
+          "reason": "PTO",
+          "evidence_ref": "synthetic:k2"
+        }
+      ]
+    }
+  ]
+}

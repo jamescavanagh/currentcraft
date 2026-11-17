@@ -1,0 +1,8 @@
+{
+  "schema_version": "datamesh-reference/v1",
+  "classification": "synthetic-public-example",
+  "dataset_id": "synthetic-demo",
+  "records": [],
+  "projection": null,
+  "notes": "Empty template only. Replace nothing here with enterprise data for a public release."
+}

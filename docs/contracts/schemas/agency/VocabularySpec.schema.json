@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "description": "A code list, read as reference values. A vocabulary is classification, not a list of installed things.",
+  "properties": {
+    "code_col": {
+      "description": "Code column.",
+      "pattern": "^[A-Z]{1,3}$",
+      "title": "Code Col",
+      "type": "string"
+    },
+    "first_row": {
+      "description": "First data row.",
+      "maximum": 1048576,
+      "minimum": 1,
+      "title": "First Row",
+      "type": "integer"
+    },
+    "label_col": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z]{1,3}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label column; None when the code is its own label.",
+      "title": "Label Col"
+    },
+    "last_row": {
+      "anyOf": [
+        {
+          "maximum": 1048576,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Last data row; None reads to the sheet end.",
+      "title": "Last Row"
+    },
+    "set_name": {
+      "description": "Reference set name.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Set Name",
+      "type": "string"
+    },
+    "sheet": {
+      "description": "Sheet name.",
+      "maxLength": 31,
+      "minLength": 1,
+      "title": "Sheet",
+      "type": "string"
+    }
+  },
+  "required": [
+    "set_name",
+    "sheet",
+    "code_col",
+    "first_row"
+  ],
+  "title": "VocabularySpec",
+  "type": "object"
+}

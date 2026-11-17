@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "description": "Pipeline settings. The salt is configuration and is never published.",
+  "properties": {
+    "max_text": {
+      "default": 20000,
+      "description": "Text truncation length.",
+      "maximum": 20000,
+      "minimum": 100,
+      "title": "Max Text",
+      "type": "integer"
+    },
+    "pseudonym_salt": {
+      "description": "Salt for resource pseudonyms; keep private.",
+      "maxLength": 200,
+      "minLength": 16,
+      "title": "Pseudonym Salt",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pseudonym_salt"
+  ],
+  "title": "IngestConfig",
+  "type": "object"
+}

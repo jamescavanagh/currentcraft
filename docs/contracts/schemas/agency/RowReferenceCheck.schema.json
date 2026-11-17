@@ -1,0 +1,59 @@
+{
+  "additionalProperties": false,
+  "description": "On each row, formulas in ref_cols must reference one target column, and that column's role block must carry the\nrow's code. Findings are diagnostics; formulas are never repaired.",
+  "properties": {
+    "code_col": {
+      "description": "Column holding the row's role code.",
+      "pattern": "^[A-Z]{1,3}$",
+      "title": "Code Col",
+      "type": "string"
+    },
+    "first_row": {
+      "description": "First row.",
+      "maximum": 1048576,
+      "minimum": 1,
+      "title": "First Row",
+      "type": "integer"
+    },
+    "last_row": {
+      "description": "Last row.",
+      "maximum": 1048576,
+      "minimum": 1,
+      "title": "Last Row",
+      "type": "integer"
+    },
+    "name": {
+      "description": "Check name.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "ref_cols": {
+      "description": "Columns whose formulas reference the role matrix.",
+      "items": {
+        "pattern": "^[A-Z]{1,3}$",
+        "type": "string"
+      },
+      "minItems": 2,
+      "title": "Ref Cols",
+      "type": "array"
+    },
+    "sheet": {
+      "description": "Sheet name.",
+      "maxLength": 31,
+      "minLength": 1,
+      "title": "Sheet",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "sheet",
+    "first_row",
+    "last_row",
+    "code_col",
+    "ref_cols"
+  ],
+  "title": "RowReferenceCheck",
+  "type": "object"
+}

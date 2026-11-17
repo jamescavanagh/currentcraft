@@ -1,0 +1,63 @@
+{
+  "$defs": {
+    "CapabilityRef": {
+      "additionalProperties": false,
+      "description": "Names one capability: a resource doing a process (an element of E_S).",
+      "properties": {
+        "process": {
+          "description": "Translated process id, e.g. 'transform:build_rack@bench' or 'refined:hold(rack:built):bench->room201'.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Process",
+          "type": "string"
+        },
+        "resource_id": {
+          "description": "Executing resource.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "process",
+        "resource_id"
+      ],
+      "title": "CapabilityRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A proposed link (splice junction, knn neighbour). Never merged into feasible sequences.",
+  "properties": {
+    "origin": {
+      "description": "Where the proposal came from, e.g. 'splice:junction'.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Origin",
+      "type": "string"
+    },
+    "score": {
+      "description": "Retrieval score. Retrieval confidence is not relation confidence.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Score",
+      "type": "number"
+    },
+    "source": {
+      "$ref": "#/$defs/CapabilityRef",
+      "description": "Proposed predecessor."
+    },
+    "target": {
+      "$ref": "#/$defs/CapabilityRef",
+      "description": "Proposed successor."
+    }
+  },
+  "required": [
+    "source",
+    "target",
+    "score",
+    "origin"
+  ],
+  "title": "CandidateEdge",
+  "type": "object"
+}

@@ -1,0 +1,62 @@
+{
+  "additionalProperties": false,
+  "description": "Reduction constants. Defaults are the v0.2 protocol values.",
+  "properties": {
+    "director_mode": {
+      "default": "principal_axis",
+      "description": "principal_axis (axis, mod pi) or supply_demand (vector, mod 2 pi; PROPOSED).",
+      "enum": [
+        "principal_axis",
+        "supply_demand"
+      ],
+      "title": "Director Mode",
+      "type": "string"
+    },
+    "director_ratio_min": {
+      "default": 1.5,
+      "description": "principal_axis: node valid only if lambda1/lambda2 >= this.",
+      "minimum": 1,
+      "title": "Director Ratio Min",
+      "type": "number"
+    },
+    "k": {
+      "default": 12,
+      "description": "Neighbours per node for patches and links (union kNN).",
+      "maximum": 64,
+      "minimum": 4,
+      "title": "K",
+      "type": "integer"
+    },
+    "orientation_convention": {
+      "const": "net_holonomy_positive",
+      "default": "net_holonomy_positive",
+      "description": "Fixes each component's frame orientation so holonomy signs are invariant.",
+      "title": "Orientation Convention",
+      "type": "string"
+    },
+    "planarity_min": {
+      "default": 2.0,
+      "description": "Node valid only if lambda2/lambda3 >= this.",
+      "minimum": 1,
+      "title": "Planarity Min",
+      "type": "number"
+    },
+    "reliability_min": {
+      "default": 0.5,
+      "description": "Link kept only if the smallest singular value of O_i^T O_j >= this.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Reliability Min",
+      "type": "number"
+    },
+    "supersaturation_threshold": {
+      "default": 1.5,
+      "description": "Local/global density ratio marking a supersaturated operand.",
+      "exclusiveMinimum": 0,
+      "title": "Supersaturation Threshold",
+      "type": "number"
+    }
+  },
+  "title": "GaugeParams",
+  "type": "object"
+}

@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "description": "A human-set search window [lo, hi] guarded by a Barrier Lyapunov Function.",
+  "properties": {
+    "gain": {
+      "default": 0.0,
+      "description": "Optional centring gain k.",
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Gain",
+      "type": "number"
+    },
+    "hi": {
+      "description": "Upper wall.",
+      "title": "Hi",
+      "type": "number"
+    },
+    "lo": {
+      "description": "Lower wall.",
+      "title": "Lo",
+      "type": "number"
+    },
+    "margin": {
+      "default": 0.02,
+      "description": "Keep |e| <= (1 - margin) k_b.",
+      "exclusiveMaximum": 0.5,
+      "minimum": 0,
+      "title": "Margin",
+      "type": "number"
+    }
+  },
+  "required": [
+    "lo",
+    "hi"
+  ],
+  "title": "Bracket",
+  "type": "object"
+}

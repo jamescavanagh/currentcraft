@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "GaugeCheck": {
+      "additionalProperties": false,
+      "description": "One transformation's outcome.",
+      "properties": {
+        "gauge_dependent_max_change": {
+          "description": "Largest change of the connection; must be > 0 for frame_rotation.",
+          "title": "Gauge Dependent Max Change",
+          "type": "number"
+        },
+        "invariant_max_dev": {
+          "description": "Largest change of any invariant (wrapped for angles).",
+          "title": "Invariant Max Dev",
+          "type": "number"
+        },
+        "passed": {
+          "description": "Structure equal, invariants within tolerance, and (frame_rotation) the gauge actually moved.",
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "same_structure": {
+          "description": "Same valid nodes, links and triangles (matched by node id).",
+          "title": "Same Structure",
+          "type": "boolean"
+        },
+        "transform": {
+          "description": "Transformation applied.",
+          "enum": [
+            "frame_rotation",
+            "frame_flip",
+            "global_rotation",
+            "translation",
+            "scale",
+            "permutation"
+          ],
+          "title": "Transform",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transform",
+        "same_structure",
+        "invariant_max_dev",
+        "gauge_dependent_max_change",
+        "passed"
+      ],
+      "title": "GaugeCheck",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Output of GaugeInvariancePort.check().",
+  "properties": {
+    "checks": {
+      "description": "One entry per transform.",
+      "items": {
+        "$ref": "#/$defs/GaugeCheck"
+      },
+      "minItems": 1,
+      "title": "Checks",
+      "type": "array"
+    },
+    "frame_id": {
+      "description": "Frame checked.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "passed": {
+      "description": "All checks passed.",
+      "title": "Passed",
+      "type": "boolean"
+    },
+    "request_digest": {
+      "description": "Digest of the checked GaugeRequest.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Digest",
+      "type": "string"
+    }
+  },
+  "required": [
+    "frame_id",
+    "request_digest",
+    "checks",
+    "passed"
+  ],
+  "title": "GaugeCheckResult",
+  "type": "object"
+}

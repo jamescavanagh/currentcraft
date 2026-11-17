@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "description": "Global and local spin, and the balance of explicit strengths inside the aperture.",
+  "properties": {
+    "balance": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "(G+ - G-) / (G+ + G-); None with no vortices inside.",
+      "title": "Balance"
+    },
+    "global_spin": {
+      "description": "Plate spin rate Omega.",
+      "title": "Global Spin",
+      "type": "number"
+    },
+    "local_spin": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Half the mean vorticity in the aperture.",
+      "title": "Local Spin"
+    },
+    "negative_circulation": {
+      "description": "Sum of |negative strengths| inside the aperture.",
+      "minimum": 0,
+      "title": "Negative Circulation",
+      "type": "number"
+    },
+    "positive_circulation": {
+      "description": "Sum of positive strengths inside the aperture.",
+      "minimum": 0,
+      "title": "Positive Circulation",
+      "type": "number"
+    }
+  },
+  "required": [
+    "global_spin",
+    "local_spin",
+    "positive_circulation",
+    "negative_circulation",
+    "balance"
+  ],
+  "title": "SpinGauges",
+  "type": "object"
+}

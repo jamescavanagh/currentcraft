@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "description": "A resource node took part in a process at a stage (bipartite participation record).",
+  "properties": {
+    "process_id": {
+      "description": "Process instance.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Process Id",
+      "type": "string"
+    },
+    "resource_id": {
+      "description": "Participating resource (person, team or tool). Never an operand: objects are things, never contributors.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Resource Id",
+      "type": "string"
+    },
+    "stage": {
+      "description": "Stage of the process; rewiring never crosses stages.",
+      "pattern": "^[A-Za-z0-9._:/ -]{1,80}$",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "resource_id",
+    "process_id",
+    "stage"
+  ],
+  "title": "ParticipationEdge",
+  "type": "object"
+}

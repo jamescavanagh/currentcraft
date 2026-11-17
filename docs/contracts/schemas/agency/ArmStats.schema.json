@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "SmallWorldStats": {
+      "additionalProperties": false,
+      "description": "Clustering and path length of the kNN graph, without and with the arm's shortcut candidates.",
+      "properties": {
+        "clustering": {
+          "description": "Mean local clustering coefficient, kNN graph.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Clustering",
+          "type": "number"
+        },
+        "clustering_with_shortcuts": {
+          "description": "Same, shortcuts added.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Clustering With Shortcuts",
+          "type": "number"
+        },
+        "efficiency": {
+          "description": "Global efficiency: mean 1/d over sampled pairs, 0 when unreachable; robust to disconnection.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Efficiency",
+          "type": "number"
+        },
+        "efficiency_with_shortcuts": {
+          "description": "Same, shortcuts added. Compare efficiency, not path length, when reachability changes.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Efficiency With Shortcuts",
+          "type": "number"
+        },
+        "path_length": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Mean shortest path over reachable sampled pairs, kNN graph.",
+          "title": "Path Length"
+        },
+        "path_length_with_shortcuts": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Same, shortcuts added.",
+          "title": "Path Length With Shortcuts"
+        },
+        "unreachable_fraction": {
+          "description": "Sampled pairs with no path, kNN graph.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unreachable Fraction",
+          "type": "number"
+        },
+        "unreachable_fraction_with_shortcuts": {
+          "description": "Same, shortcuts added.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unreachable Fraction With Shortcuts",
+          "type": "number"
+        }
+      },
+      "required": [
+        "clustering",
+        "path_length",
+        "unreachable_fraction",
+        "efficiency",
+        "clustering_with_shortcuts",
+        "path_length_with_shortcuts",
+        "unreachable_fraction_with_shortcuts",
+        "efficiency_with_shortcuts"
+      ],
+      "title": "SmallWorldStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Per-arm summary of passes, droplets, sparsity, shortcuts and graph readout.",
+  "properties": {
+    "anomalous_passes": {
+      "description": "Passes that condensed without activation first.",
+      "minimum": 0,
+      "title": "Anomalous Passes",
+      "type": "integer"
+    },
+    "arm": {
+      "description": "Arm.",
+      "enum": [
+        "real-on",
+        "real-off",
+        "null-on",
+        "null-off"
+      ],
+      "title": "Arm",
+      "type": "string"
+    },
+    "droplets": {
+      "description": "Total nucleations.",
+      "minimum": 0,
+      "title": "Droplets",
+      "type": "integer"
+    },
+    "ion_free": {
+      "description": "Nucleations that needed no ions.",
+      "minimum": 0,
+      "title": "Ion Free",
+      "type": "integer"
+    },
+    "passes": {
+      "description": "Closed passes.",
+      "minimum": 0,
+      "title": "Passes",
+      "type": "integer"
+    },
+    "shortcut_count": {
+      "description": "Exact number of candidates in this arm.",
+      "minimum": 0,
+      "title": "Shortcut Count",
+      "type": "integer"
+    },
+    "small_world": {
+      "$ref": "#/$defs/SmallWorldStats",
+      "description": "Graph readout."
+    },
+    "sparsity": {
+      "description": "Fraction of zero entries in this arm's sparse code.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Sparsity",
+      "type": "number"
+    }
+  },
+  "required": [
+    "arm",
+    "passes",
+    "anomalous_passes",
+    "droplets",
+    "ion_free",
+    "sparsity",
+    "shortcut_count",
+    "small_world"
+  ],
+  "title": "ArmStats",
+  "type": "object"
+}

@@ -1,0 +1,62 @@
+{
+  "additionalProperties": false,
+  "description": "The object body passing through the plate plane: a simulated, candidate-only event.",
+  "properties": {
+    "direction": {
+      "description": "+1 moving to the + side, -1 moving to the - side.",
+      "enum": [
+        -1,
+        1
+      ],
+      "title": "Direction",
+      "type": "integer"
+    },
+    "index": {
+      "description": "Crossing number within the run.",
+      "minimum": 0,
+      "title": "Index",
+      "type": "integer"
+    },
+    "plate_height": {
+      "description": "Plate height at the crossing step.",
+      "title": "Plate Height",
+      "type": "number"
+    },
+    "plate_phase": {
+      "description": "Unwrapped inertial plate phase at the crossing step.",
+      "title": "Plate Phase",
+      "type": "number"
+    },
+    "radial_offset": {
+      "description": "Object distance from the axis; 0 under exact symmetry.",
+      "minimum": 0,
+      "title": "Radial Offset",
+      "type": "number"
+    },
+    "side_after": {
+      "description": "Slice side after the crossing; not good or bad.",
+      "enum": [
+        "+",
+        "-"
+      ],
+      "title": "Side After",
+      "type": "string"
+    },
+    "t": {
+      "description": "Crossing time, linearly interpolated within the step.",
+      "title": "T",
+      "type": "number"
+    }
+  },
+  "required": [
+    "index",
+    "t",
+    "direction",
+    "side_after",
+    "plate_height",
+    "plate_phase",
+    "radial_offset"
+  ],
+  "title": "PlateCrossing",
+  "type": "object"
+}

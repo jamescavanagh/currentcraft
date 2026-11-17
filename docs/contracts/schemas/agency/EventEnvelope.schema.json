@@ -1,0 +1,148 @@
+{
+  "additionalProperties": false,
+  "description": "One broker message. Payload is flat scalars; tensors travel as store key and SHA-256 only.",
+  "properties": {
+    "causation_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "event_id of the event that caused this one.",
+      "title": "Causation Id"
+    },
+    "correlation_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Chain id shared by related events.",
+      "title": "Correlation Id"
+    },
+    "epistemic_status": {
+      "description": "computed needs occurred_at; simulated needs sim_time.",
+      "enum": [
+        "computed",
+        "simulated",
+        "unknown"
+      ],
+      "title": "Epistemic Status",
+      "type": "string"
+    },
+    "event_id": {
+      "description": "Content hash from make_event; duplicates are dropped.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "kind": {
+      "description": "Event type.",
+      "enum": [
+        "plate.run",
+        "plate.crossing",
+        "object.handoff",
+        "gate.decision",
+        "object.lifecycle",
+        "iot.reading",
+        "hil.label",
+        "raw.item",
+        "domain.object",
+        "domain.stored",
+        "ingest.rejection"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "occurred_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Real timestamp, for computed events.",
+      "title": "Occurred At"
+    },
+    "payload": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "description": "Flat JSON scalars only.",
+      "title": "Payload",
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "datamesh-event/v1",
+      "default": "datamesh-event/v1",
+      "description": "Envelope version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sim_time": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model time, for simulated events.",
+      "title": "Sim Time"
+    },
+    "source": {
+      "description": "Producer, e.g. a plate id, router or device id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Source",
+      "type": "string"
+    },
+    "topic": {
+      "description": "'/'-separated levels, no wildcards.",
+      "maxLength": 300,
+      "pattern": "^[A-Za-z0-9._:-]+(/[A-Za-z0-9._:-]+){0,7}$",
+      "title": "Topic",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "topic",
+    "kind",
+    "source",
+    "epistemic_status"
+  ],
+  "title": "EventEnvelope",
+  "type": "object"
+}

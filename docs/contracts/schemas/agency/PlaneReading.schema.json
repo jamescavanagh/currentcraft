@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "Local plane of aperture records in the 3D fluid (sign-free).",
+  "properties": {
+    "n_used": {
+      "description": "Aperture records used for the fit.",
+      "minimum": 0,
+      "title": "N Used",
+      "type": "integer"
+    },
+    "planarity": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "1 - lambda_min / lambda_mid.",
+      "title": "Planarity"
+    },
+    "tilt_to_plate_deg": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Unsigned angle between local plane and plate (0 = parallel).",
+      "title": "Tilt To Plate Deg"
+    },
+    "valid": {
+      "description": "At least 3 records and a nondegenerate spread.",
+      "title": "Valid",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "n_used",
+    "valid",
+    "planarity",
+    "tilt_to_plate_deg"
+  ],
+  "title": "PlaneReading",
+  "type": "object"
+}

@@ -1,0 +1,314 @@
+{
+  "$defs": {
+    "PhaseAnchor": {
+      "additionalProperties": false,
+      "description": "Where one lifecycle phase code sits on the chart.",
+      "properties": {
+        "angle_deg": {
+          "description": "Chart angle in degrees, before origin and direction are applied.",
+          "exclusiveMaximum": 360.0,
+          "minimum": 0.0,
+          "title": "Angle Deg",
+          "type": "number"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Display label; never used for matching.",
+          "title": "Label"
+        },
+        "phase_code": {
+          "description": "Phase code exactly as the adapter emits it (e.g. '2').",
+          "pattern": "^[A-Za-z0-9._-]{1,40}$",
+          "title": "Phase Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_code",
+        "angle_deg"
+      ],
+      "title": "PhaseAnchor",
+      "type": "object"
+    },
+    "PhaseChart": {
+      "additionalProperties": false,
+      "description": "Declared phase parameters. A research coordinate for similarity weighting, never the simulator plate phase.\n\nBin weights for a phase at chart angle a: w_b proportional to exp(kappa * cos(phi_b - a)), phi_b = 2 pi b / bins,\nthen bins below floor * max(w) are dropped and the rest renormalised to sum 1.",
+      "properties": {
+        "anchors": {
+          "description": "One anchor per phase code.",
+          "items": {
+            "$ref": "#/$defs/PhaseAnchor"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Anchors",
+          "type": "array"
+        },
+        "bins": {
+          "default": 12,
+          "description": "Phase bins around the circle (B).",
+          "maximum": 72,
+          "minimum": 2,
+          "title": "Bins",
+          "type": "integer"
+        },
+        "concentration": {
+          "default": 4.0,
+          "description": "von Mises kappa. 0 ignores phase entirely; large values separate phases.",
+          "maximum": 64.0,
+          "minimum": 0.0,
+          "title": "Concentration",
+          "type": "number"
+        },
+        "direction": {
+          "default": "ccw",
+          "description": "ccw adds angles, cw subtracts them.",
+          "enum": [
+            "ccw",
+            "cw"
+          ],
+          "title": "Direction",
+          "type": "string"
+        },
+        "floor": {
+          "default": 0.05,
+          "description": "Drop bins whose weight is below floor x the largest bin (sparsity).",
+          "exclusiveMaximum": 1.0,
+          "minimum": 0.0,
+          "title": "Floor",
+          "type": "number"
+        },
+        "name": {
+          "description": "Chart name.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "origin_deg": {
+          "default": 0.0,
+          "description": "Rotation applied to every anchor.",
+          "exclusiveMaximum": 360.0,
+          "minimum": 0.0,
+          "title": "Origin Deg",
+          "type": "number"
+        },
+        "provenance": {
+          "description": "Who set these parameters and why.",
+          "maxLength": 300,
+          "minLength": 3,
+          "title": "Provenance",
+          "type": "string"
+        },
+        "shared_weight": {
+          "default": 0.25,
+          "description": "Share s of a phased object's mass kept in the phase-free block.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Shared Weight",
+          "type": "number"
+        },
+        "version": {
+          "description": "Chart version; bump on any parameter change.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "anchors",
+        "provenance"
+      ],
+      "title": "PhaseChart",
+      "type": "object"
+    },
+    "PhaseEvidenceRule": {
+      "additionalProperties": false,
+      "description": "How one object kind gets its phase. Declared evidence only; first matching rule wins.",
+      "properties": {
+        "field": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_]{1,60}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "field: the field holding the phase code.",
+          "title": "Field"
+        },
+        "hours_field_template": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_]*\\{code\\}[A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "per_phase_hours: field name with {code}, e.g. ph{code}_raw. Only values > 0 count.",
+          "title": "Hours Field Template"
+        },
+        "kind": {
+          "description": "Object kind the rule applies to.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "relation_types": {
+          "default": [],
+          "description": "relation: follow one hop to a target that has field evidence.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Relation Types",
+          "type": "array"
+        },
+        "source": {
+          "description": "Evidence type.",
+          "enum": [
+            "field",
+            "relation",
+            "per_phase_hours"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "source"
+      ],
+      "title": "PhaseEvidenceRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Everything that defines one sparse splice space. Changing any value changes the space identity.",
+  "properties": {
+    "chart": {
+      "$ref": "#/$defs/PhaseChart",
+      "description": "Phase parameters."
+    },
+    "excluded_kinds": {
+      "default": [
+        "ingest_diagnostic",
+        "project_reference",
+        "opportunity_reference",
+        "project_document",
+        "workbook_revision"
+      ],
+      "description": "Kinds kept out of the space (containers, bindings and template defects).",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+        "type": "string"
+      },
+      "title": "Excluded Kinds",
+      "type": "array"
+    },
+    "name": {
+      "description": "Profile name; becomes the embedding model name.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "phase_rules": {
+      "default": [],
+      "description": "Phase evidence per kind.",
+      "items": {
+        "$ref": "#/$defs/PhaseEvidenceRule"
+      },
+      "maxItems": 64,
+      "title": "Phase Rules",
+      "type": "array"
+    },
+    "relation_slot_exclude": {
+      "default": [
+        "in_revision",
+        "extracted_from",
+        "revision_of"
+      ],
+      "description": "Provenance relations every occurrence carries; not hashed as slots.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+        "type": "string"
+      },
+      "maxItems": 32,
+      "title": "Relation Slot Exclude",
+      "type": "array"
+    },
+    "relation_slots": {
+      "default": true,
+      "description": "Hash relation types (never targets) as r:<type> tokens.",
+      "title": "Relation Slots",
+      "type": "boolean"
+    },
+    "slot_fields": {
+      "default": [
+        "kind",
+        "row_kind",
+        "subsystem_code",
+        "subsystem_state",
+        "labor_source",
+        "role_series",
+        "line_kind",
+        "set_name",
+        "section"
+      ],
+      "description": "Fields hashed as namespaced tokens f:<field>=<value>. 'kind' is the object kind.",
+      "items": {
+        "pattern": "^[A-Za-z0-9_]{1,60}$",
+        "type": "string"
+      },
+      "maxItems": 32,
+      "title": "Slot Fields",
+      "type": "array"
+    },
+    "slot_weight": {
+      "default": 0.5,
+      "description": "Weight of slot tokens relative to words.",
+      "exclusiveMinimum": 0.0,
+      "maximum": 4.0,
+      "title": "Slot Weight",
+      "type": "number"
+    },
+    "text_dim": {
+      "default": 4096,
+      "description": "Hashed feature width per block (D).",
+      "maximum": 16384,
+      "minimum": 16,
+      "title": "Text Dim",
+      "type": "integer"
+    },
+    "version": {
+      "description": "Profile version.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "chart"
+  ],
+  "title": "SpliceProfile",
+  "type": "object"
+}

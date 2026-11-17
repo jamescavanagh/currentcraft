@@ -1,0 +1,29 @@
+{
+  "additionalProperties": false,
+  "description": "A closed cycle of node ids (last connects back to first) whose winding is measured.",
+  "properties": {
+    "id": {
+      "description": "Loop id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "node_ids": {
+      "description": "Cycle in order; consecutive nodes must be linked.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "maxItems": 4096,
+      "minItems": 3,
+      "title": "Node Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "node_ids"
+  ],
+  "title": "GaugeLoop",
+  "type": "object"
+}

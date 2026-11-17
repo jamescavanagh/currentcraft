@@ -1,0 +1,805 @@
+{
+  "$defs": {
+    "ChamberParams": {
+      "additionalProperties": false,
+      "description": "Chamber rule parameters (defaults match the Condensation Chamber v8).",
+      "properties": {
+        "S0": {
+          "default": 0.82,
+          "description": "Base supersaturation.",
+          "maximum": 2,
+          "minimum": 0,
+          "title": "S0",
+          "type": "number"
+        },
+        "Sc": {
+          "default": 1.0,
+          "description": "Condensation threshold.",
+          "exclusiveMinimum": 0,
+          "maximum": 3,
+          "title": "Sc",
+          "type": "number"
+        },
+        "act_threshold": {
+          "default": 0.18,
+          "description": "Mean slab ion load I* that counts as activation.",
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "title": "Act Threshold",
+          "type": "number"
+        },
+        "alpha": {
+          "default": 1.5,
+          "description": "Ion deposit rate per unit coupling.",
+          "maximum": 20,
+          "minimum": 0,
+          "title": "Alpha",
+          "type": "number"
+        },
+        "eps": {
+          "default": 0.12,
+          "description": "Expansion term from ray speed |Z dot| / Z dot_ref.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Eps",
+          "type": "number"
+        },
+        "gain": {
+          "default": 1.0,
+          "description": "Multiplies P equally in every arm.",
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Gain",
+          "type": "number"
+        },
+        "k": {
+          "default": 10,
+          "description": "kNN neighbours.",
+          "maximum": 64,
+          "minimum": 2,
+          "title": "K",
+          "type": "integer"
+        },
+        "kappa": {
+          "default": 0.1,
+          "description": "Out-of-slab vapour coupling; needs no ions.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Kappa",
+          "type": "number"
+        },
+        "lam": {
+          "default": 0.3,
+          "description": "Barrier lowering per unit ion load (lambda).",
+          "maximum": 3,
+          "minimum": 0,
+          "title": "Lam",
+          "type": "number"
+        },
+        "reach_fraction": {
+          "default": 0.2,
+          "description": "Reach band beyond the slab as a fraction of h_q.",
+          "exclusiveMinimum": 0,
+          "maximum": 2,
+          "title": "Reach Fraction",
+          "type": "number"
+        },
+        "tau_drop": {
+          "default": 0.5,
+          "description": "Droplet evaporation time.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Tau Drop",
+          "type": "number"
+        },
+        "tau_ion": {
+          "default": 1.4,
+          "description": "Ion decay time.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Tau Ion",
+          "type": "number"
+        },
+        "width_fraction": {
+          "default": 0.08,
+          "description": "Slab half-width w as a fraction of h_q.",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Width Fraction",
+          "type": "number"
+        }
+      },
+      "title": "ChamberParams",
+      "type": "object"
+    },
+    "PlateCrossing": {
+      "additionalProperties": false,
+      "description": "The object body passing through the plate plane: a simulated, candidate-only event.",
+      "properties": {
+        "direction": {
+          "description": "+1 moving to the + side, -1 moving to the - side.",
+          "enum": [
+            -1,
+            1
+          ],
+          "title": "Direction",
+          "type": "integer"
+        },
+        "index": {
+          "description": "Crossing number within the run.",
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "plate_height": {
+          "description": "Plate height at the crossing step.",
+          "title": "Plate Height",
+          "type": "number"
+        },
+        "plate_phase": {
+          "description": "Unwrapped inertial plate phase at the crossing step.",
+          "title": "Plate Phase",
+          "type": "number"
+        },
+        "radial_offset": {
+          "description": "Object distance from the axis; 0 under exact symmetry.",
+          "minimum": 0,
+          "title": "Radial Offset",
+          "type": "number"
+        },
+        "side_after": {
+          "description": "Slice side after the crossing; not good or bad.",
+          "enum": [
+            "+",
+            "-"
+          ],
+          "title": "Side After",
+          "type": "string"
+        },
+        "t": {
+          "description": "Crossing time, linearly interpolated within the step.",
+          "title": "T",
+          "type": "number"
+        }
+      },
+      "required": [
+        "index",
+        "t",
+        "direction",
+        "side_after",
+        "plate_height",
+        "plate_phase",
+        "radial_offset"
+      ],
+      "title": "PlateCrossing",
+      "type": "object"
+    },
+    "PlateRunResult": {
+      "additionalProperties": false,
+      "description": "Inertial trajectories, plate readouts, crossings and integrity diagnostics.",
+      "properties": {
+        "body_names": {
+          "default": [
+            "side_a",
+            "side_b",
+            "object"
+          ],
+          "description": "Axis 'body' order.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Body Names",
+          "type": "array"
+        },
+        "crossings": {
+          "description": "Every crossing of the plate plane.",
+          "items": {
+            "$ref": "#/$defs/PlateCrossing"
+          },
+          "title": "Crossings",
+          "type": "array"
+        },
+        "epistemic_status": {
+          "const": "simulated",
+          "default": "simulated",
+          "description": "Model state, never computed evidence.",
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "feature_names": {
+          "default": [
+            "height",
+            "phase",
+            "omega",
+            "side_radius",
+            "angular_momentum_z",
+            "zeta",
+            "zeta_dot",
+            "energy",
+            "mirror_error"
+          ],
+          "description": "Axis 'feature' order of plate.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Feature Names",
+          "type": "array"
+        },
+        "frame": {
+          "const": "inertial",
+          "default": "inertial",
+          "description": "Snapshots are always inertial; the co-rotating frame discards phase.",
+          "title": "Frame",
+          "type": "string"
+        },
+        "mass_events_applied": {
+          "description": "Requested times of mass events that were applied.",
+          "items": {
+            "type": "number"
+          },
+          "title": "Mass Events Applied",
+          "type": "array"
+        },
+        "masses": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to T x 3 masses."
+        },
+        "max_angular_momentum_drift": {
+          "description": "Max |L_z - L_z,seg| over snapshots, per segment.",
+          "minimum": 0,
+          "title": "Max Angular Momentum Drift",
+          "type": "number"
+        },
+        "max_mirror_error": {
+          "description": "Max mirror_error over snapshots.",
+          "minimum": 0,
+          "title": "Max Mirror Error",
+          "type": "number"
+        },
+        "max_relative_energy_drift": {
+          "description": "Max |E - E_seg| / |E_seg| over snapshots, per mass-event segment.",
+          "minimum": 0,
+          "title": "Max Relative Energy Drift",
+          "type": "number"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Object id from the request.",
+          "title": "Object Id"
+        },
+        "plate": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to T x F plate readouts."
+        },
+        "plate_id": {
+          "description": "Plate id from the request.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Plate Id",
+          "type": "string"
+        },
+        "positions": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to T x 3 x 3 positions."
+        },
+        "request_digest": {
+          "description": "Digest of the complete request.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Request Digest",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "datamesh-plate/v1",
+          "default": "datamesh-plate/v1",
+          "description": "Contract version.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "description": "escaped when |zeta| or r exceeded the request limits.",
+          "enum": [
+            "ok",
+            "escaped"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "steps_run": {
+          "description": "Steps actually integrated.",
+          "minimum": 0,
+          "title": "Steps Run",
+          "type": "integer"
+        },
+        "t_end": {
+          "description": "Model time at the end of the run.",
+          "title": "T End",
+          "type": "number"
+        },
+        "times": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to T snapshot times."
+        },
+        "velocities": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to T x 3 x 3 velocities."
+        }
+      },
+      "required": [
+        "plate_id",
+        "object_id",
+        "request_digest",
+        "status",
+        "steps_run",
+        "t_end",
+        "crossings",
+        "mass_events_applied",
+        "max_relative_energy_drift",
+        "max_angular_momentum_drift",
+        "max_mirror_error",
+        "times",
+        "positions",
+        "velocities",
+        "masses",
+        "plate"
+      ],
+      "title": "PlateRunResult",
+      "type": "object"
+    },
+    "ShortcutCriteria": {
+      "additionalProperties": false,
+      "description": "When co-condensing records count as a shortcut the dense gradient field would not allow.",
+      "properties": {
+        "max_reported": {
+          "default": 500,
+          "description": "Top candidates reported per arm; totals are always exact.",
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Max Reported",
+          "type": "integer"
+        },
+        "min_co_passes": {
+          "default": 3,
+          "description": "Passes in which both records condensed.",
+          "minimum": 1,
+          "title": "Min Co Passes",
+          "type": "integer"
+        },
+        "min_concentration": {
+          "default": 0.5,
+          "description": "Share of a record's nucleations in its dominant bin.",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Min Concentration",
+          "type": "number"
+        },
+        "min_hops": {
+          "default": 4,
+          "description": "kNN hops that make a same-cluster pair unreachable by the gradient.",
+          "minimum": 2,
+          "title": "Min Hops",
+          "type": "integer"
+        },
+        "min_nucleations": {
+          "default": 3,
+          "description": "Each record needs at least this many nucleations.",
+          "minimum": 1,
+          "title": "Min Nucleations",
+          "type": "integer"
+        }
+      },
+      "title": "ShortcutCriteria",
+      "type": "object"
+    },
+    "SlabFrame": {
+      "additionalProperties": false,
+      "description": "Frozen slab frame in embedding coordinates. Never refit per run.",
+      "properties": {
+        "normal": {
+          "description": "Plane normal, D values; normalised by the adapter.",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "title": "Normal",
+          "type": "array"
+        },
+        "origin": {
+          "description": "Plane origin, D values.",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "title": "Origin",
+          "type": "array"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How the frame was chosen (e.g. seed plane, global PC).",
+          "title": "Provenance"
+        }
+      },
+      "required": [
+        "origin",
+        "normal"
+      ],
+      "title": "SlabFrame",
+      "type": "object"
+    },
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Enrich a frozen embedding with a sparse condensation code driven by a plate run's object body.",
+  "properties": {
+    "criteria": {
+      "$ref": "#/$defs/ShortcutCriteria",
+      "description": "Shortcut criteria."
+    },
+    "embedding_source": {
+      "anyOf": [
+        {
+          "maxLength": 300,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model, space, version and projection provenance.",
+      "title": "Embedding Source"
+    },
+    "embeddings": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "N x D EMBEDDINGS_SPEC rows from a frozen projection."
+    },
+    "enrichment_id": {
+      "description": "Run id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Enrichment Id",
+      "type": "string"
+    },
+    "ids": {
+      "description": "Record ids, rows of embeddings.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "maxItems": 3000,
+      "minItems": 24,
+      "title": "Ids",
+      "type": "array"
+    },
+    "labels_null": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TensorRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Cluster labels for the shuffled embedding; required with labels_real."
+    },
+    "labels_real": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TensorRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Cluster labels for the real embedding (LABELS_SPEC)."
+    },
+    "null_mode": {
+      "default": "axis_shuffle",
+      "description": "axis_shuffle: permute each axis (chamber parity). height_preserving: keep every record's slab height, shuffle in-plane positions; tests whether shortcuts beat same-height coincidence.",
+      "enum": [
+        "axis_shuffle",
+        "height_preserving"
+      ],
+      "title": "Null Mode",
+      "type": "string"
+    },
+    "params": {
+      "$ref": "#/$defs/ChamberParams",
+      "description": "Chamber rules."
+    },
+    "path_sources": {
+      "default": 256,
+      "description": "BFS sources sampled for mean path length.",
+      "maximum": 4096,
+      "minimum": 8,
+      "title": "Path Sources",
+      "type": "integer"
+    },
+    "plate_run": {
+      "$ref": "#/$defs/PlateRunResult",
+      "description": "Plate run whose object body is the ray (zeta, zeta_dot, times, crossings)."
+    },
+    "salt": {
+      "default": 7101,
+      "description": "Shuffle salt (NumPy generator; not interchangeable with the JS chamber's salts).",
+      "minimum": 0,
+      "title": "Salt",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "datamesh-enrichment/v1",
+      "default": "datamesh-enrichment/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "slab": {
+      "$ref": "#/$defs/SlabFrame",
+      "description": "Frozen slab frame."
+    }
+  },
+  "required": [
+    "enrichment_id",
+    "ids",
+    "embeddings",
+    "slab",
+    "plate_run"
+  ],
+  "title": "EnrichmentRequest",
+  "type": "object"
+}

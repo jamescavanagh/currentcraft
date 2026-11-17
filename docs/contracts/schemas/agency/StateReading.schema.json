@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "description": "Counts and density at this pose.",
+  "properties": {
+    "condensed": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Aperture records with a nonzero sparse code; None without enrichment.",
+      "title": "Condensed"
+    },
+    "density_ratio": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Aperture density over slab density (per plate area).",
+      "title": "Density Ratio"
+    },
+    "in_aperture": {
+      "description": "Slab records inside the aperture.",
+      "minimum": 0,
+      "title": "In Aperture",
+      "type": "integer"
+    },
+    "in_slab": {
+      "description": "Records taken in by the plate.",
+      "minimum": 0,
+      "title": "In Slab",
+      "type": "integer"
+    },
+    "labelled": {
+      "description": "Aperture records already labelled.",
+      "minimum": 0,
+      "title": "Labelled",
+      "type": "integer"
+    },
+    "total": {
+      "description": "Records in the fluid.",
+      "minimum": 0,
+      "title": "Total",
+      "type": "integer"
+    },
+    "with_strength": {
+      "description": "Aperture records with an explicit strength.",
+      "minimum": 0,
+      "title": "With Strength",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "total",
+    "in_slab",
+    "in_aperture",
+    "with_strength",
+    "condensed",
+    "labelled",
+    "density_ratio"
+  ],
+  "title": "StateReading",
+  "type": "object"
+}

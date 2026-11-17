@@ -1,0 +1,903 @@
+{
+  "$defs": {
+    "BufferRing": {
+      "additionalProperties": false,
+      "description": "A core's settling ring: where captured tracers circle, and how full it is.",
+      "properties": {
+        "core_x": {
+          "description": "Core x.",
+          "title": "Core X",
+          "type": "number"
+        },
+        "core_y": {
+          "description": "Core y.",
+          "title": "Core Y",
+          "type": "number"
+        },
+        "index": {
+          "description": "Ring index (matches basins values).",
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "nearest_node_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Closest node to the core.",
+          "title": "Nearest Node Id"
+        },
+        "occupancy": {
+          "description": "Tracers captured at the final step.",
+          "minimum": 0,
+          "title": "Occupancy",
+          "type": "integer"
+        },
+        "radius": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Median settling distance of captured tracers.",
+          "title": "Radius"
+        },
+        "share": {
+          "description": "occupancy / tracers.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Share",
+          "type": "number"
+        },
+        "spiral": {
+          "description": "Spiral sink (oscillatory approach) vs node sink.",
+          "title": "Spiral",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "index",
+        "core_x",
+        "core_y",
+        "spiral",
+        "occupancy",
+        "share"
+      ],
+      "title": "BufferRing",
+      "type": "object"
+    },
+    "BufferRingResult": {
+      "additionalProperties": false,
+      "description": "Output of BufferRingPort.simulate().",
+      "properties": {
+        "basins": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to the G x G basin map."
+        },
+        "frame_id": {
+          "description": "Frame identity, pinned to its labeling round (e.g. synthetic-example).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "grid": {
+          "$ref": "#/$defs/FieldGrid",
+          "description": "Tracer seeding grid (also the basins grid)."
+        },
+        "history_filled": {
+          "description": "How many history slots hold real records (<= T).",
+          "minimum": 0,
+          "title": "History Filled",
+          "type": "integer"
+        },
+        "history_len": {
+          "description": "T: ring-buffer length of occupancy history.",
+          "minimum": 1,
+          "title": "History Len",
+          "type": "integer"
+        },
+        "inflow": {
+          "description": "Inflow the tracers were advected at.",
+          "title": "Inflow",
+          "type": "number"
+        },
+        "occupancy_history": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "None when there are no rings."
+        },
+        "request_digest": {
+          "description": "SHA-256 of the request that produced this result.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Request Digest",
+          "type": "string"
+        },
+        "result_kind": {
+          "const": "embedding_geometry",
+          "default": "embedding_geometry",
+          "description": "Always embedding_geometry: a demonstration over embedded records, not an operational forecast.",
+          "title": "Result Kind",
+          "type": "string"
+        },
+        "rings": {
+          "description": "One ring per core found at this inflow.",
+          "items": {
+            "$ref": "#/$defs/BufferRing"
+          },
+          "title": "Rings",
+          "type": "array"
+        },
+        "schema_version": {
+          "const": "datamesh-sim/v2",
+          "default": "datamesh-sim/v2",
+          "description": "Contract version; bump on any breaking change.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "tracers": {
+          "description": "P = G*G tracers, one per grid cell.",
+          "minimum": 1,
+          "title": "Tracers",
+          "type": "integer"
+        },
+        "tracers_final": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to final tracer positions."
+        },
+        "unassigned_share": {
+          "description": "Share of tracers not captured by any ring.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unassigned Share",
+          "type": "number"
+        }
+      },
+      "required": [
+        "frame_id",
+        "request_digest",
+        "inflow",
+        "grid",
+        "tracers",
+        "history_len",
+        "history_filled",
+        "rings",
+        "unassigned_share",
+        "basins",
+        "tracers_final"
+      ],
+      "title": "BufferRingResult",
+      "type": "object"
+    },
+    "CnnSample": {
+      "additionalProperties": false,
+      "description": "Output of CnnSamplePort.build(). Targets are the exact oracle labels, not model predictions.",
+      "properties": {
+        "core_count": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to cores per slice."
+        },
+        "frame_id": {
+          "description": "Frame identity, pinned to its labeling round (e.g. synthetic-example).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "heat": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to saddle/core heatmaps."
+        },
+        "inflows": {
+          "description": "Inflow per slice (S values).",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 1,
+          "title": "Inflows",
+          "type": "array"
+        },
+        "normalization": {
+          "description": "Normalisation applied to x.",
+          "enum": [
+            "none",
+            "per_channel_std"
+          ],
+          "title": "Normalization",
+          "type": "string"
+        },
+        "saddle_count": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to saddles per slice."
+        },
+        "schema_version": {
+          "const": "datamesh-sim/v2",
+          "default": "datamesh-sim/v2",
+          "description": "Contract version; bump on any breaking change.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_digest": {
+          "description": "request_digest of the source NodeInteractionResult.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Digest",
+          "type": "string"
+        },
+        "x": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to CNN input."
+        }
+      },
+      "required": [
+        "frame_id",
+        "source_digest",
+        "inflows",
+        "normalization",
+        "x",
+        "heat",
+        "saddle_count",
+        "core_count"
+      ],
+      "title": "CnnSample",
+      "type": "object"
+    },
+    "CollisionEvent": {
+      "additionalProperties": false,
+      "description": "Saddle-count change between two slices, refined by bisection.",
+      "properties": {
+        "inflow": {
+          "description": "Refined inflow of the change.",
+          "title": "Inflow",
+          "type": "number"
+        },
+        "saddles_after": {
+          "description": "Count just above.",
+          "minimum": 0,
+          "title": "Saddles After",
+          "type": "integer"
+        },
+        "saddles_before": {
+          "description": "Count just below.",
+          "minimum": 0,
+          "title": "Saddles Before",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "inflow",
+        "saddles_before",
+        "saddles_after"
+      ],
+      "title": "CollisionEvent",
+      "type": "object"
+    },
+    "CriticalPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "det": {
+          "description": "Jacobian determinant; < 0 is a saddle.",
+          "title": "Det",
+          "type": "number"
+        },
+        "kind": {
+          "$ref": "#/$defs/PointKind",
+          "description": "Classification from the Jacobian."
+        },
+        "mu_min_abs": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Smallest |eigenvalue| mu of the Jacobian (saddles only). Eigenvalues are mu so lambda only ever means inflow. Input still accepts the pre-0.9.8 key lambda_min_abs (deprecated alias); output is mu_min_abs.",
+          "title": "Mu Min Abs"
+        },
+        "nearest_node_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Closest node (attribution hint, not causation).",
+          "title": "Nearest Node Id"
+        },
+        "trace": {
+          "description": "Jacobian trace (divergence at the point).",
+          "title": "Trace",
+          "type": "number"
+        },
+        "x": {
+          "description": "Point x.",
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "description": "Point y.",
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "kind",
+        "det",
+        "trace"
+      ],
+      "title": "CriticalPoint",
+      "type": "object"
+    },
+    "FieldGrid": {
+      "additionalProperties": false,
+      "description": "Square sampling grid on [-extent, extent]^2. Row 0 is y = +extent (image order).",
+      "properties": {
+        "extent": {
+          "default": 2.0,
+          "description": "Half-width of the grid in model units.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Extent",
+          "type": "number"
+        },
+        "size": {
+          "default": 32,
+          "description": "Cells per side (G).",
+          "maximum": 256,
+          "minimum": 8,
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "title": "FieldGrid",
+      "type": "object"
+    },
+    "GraphSample": {
+      "additionalProperties": false,
+      "description": "Output of GraphTensorPort.build(): PyTorch Geometric conventions, held as refs.",
+      "properties": {
+        "edge_attr": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to edge features."
+        },
+        "edge_feature_names": {
+          "default": [
+            "coupling",
+            "abs_coupling",
+            "distance",
+            "same_sign"
+          ],
+          "description": "Column order of edge_attr (D names).",
+          "items": {
+            "type": "string"
+          },
+          "title": "Edge Feature Names",
+          "type": "array"
+        },
+        "edge_index": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to COO edges."
+        },
+        "edge_rule": {
+          "description": "How edges were chosen.",
+          "enum": [
+            "knn",
+            "coupling"
+          ],
+          "title": "Edge Rule",
+          "type": "string"
+        },
+        "frame_id": {
+          "description": "Frame identity, pinned to its labeling round (e.g. synthetic-example).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "inflow": {
+          "description": "Inflow the features describe.",
+          "title": "Inflow",
+          "type": "number"
+        },
+        "node_feature_names": {
+          "default": [
+            "x",
+            "y",
+            "strength",
+            "abs_strength",
+            "sign",
+            "role_resource",
+            "role_process",
+            "role_operand",
+            "role_unassigned",
+            "speed",
+            "divergence",
+            "nearest_saddle_distance",
+            "basin_share"
+          ],
+          "description": "Column order of x (F names).",
+          "items": {
+            "type": "string"
+          },
+          "title": "Node Feature Names",
+          "type": "array"
+        },
+        "node_ids": {
+          "description": "Node order for x rows and edge indices.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Node Ids",
+          "type": "array"
+        },
+        "schema_version": {
+          "const": "datamesh-sim/v2",
+          "default": "datamesh-sim/v2",
+          "description": "Contract version; bump on any breaking change.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "x": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to node features."
+        }
+      },
+      "required": [
+        "frame_id",
+        "inflow",
+        "edge_rule",
+        "node_ids",
+        "x",
+        "edge_index",
+        "edge_attr"
+      ],
+      "title": "GraphSample",
+      "type": "object"
+    },
+    "InflowSlice": {
+      "additionalProperties": false,
+      "properties": {
+        "core_count": {
+          "description": "Sinks or centres found.",
+          "minimum": 0,
+          "title": "Core Count",
+          "type": "integer"
+        },
+        "inflow": {
+          "description": "Inflow of this slice.",
+          "title": "Inflow",
+          "type": "number"
+        },
+        "points": {
+          "default": [],
+          "description": "All critical points, saddles first.",
+          "items": {
+            "$ref": "#/$defs/CriticalPoint"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "saddle_count": {
+          "description": "Saddles found.",
+          "minimum": 0,
+          "title": "Saddle Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "inflow",
+        "saddle_count",
+        "core_count"
+      ],
+      "title": "InflowSlice",
+      "type": "object"
+    },
+    "NodeInteractionResult": {
+      "additionalProperties": false,
+      "description": "Output of NodeInteractionPort.simulate().",
+      "properties": {
+        "coupling": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to the N x N coupling matrix."
+        },
+        "events": {
+          "default": [],
+          "description": "Saddle-count changes refined by bisection.",
+          "items": {
+            "$ref": "#/$defs/CollisionEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ref to the S x 5 x G x G field tensor, if a grid was requested."
+        },
+        "frame_id": {
+          "description": "Frame identity, pinned to its labeling round (e.g. synthetic-example).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Frame Id",
+          "type": "string"
+        },
+        "grid": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FieldGrid"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Field grid used, or None if no field was requested."
+        },
+        "n_nodes": {
+          "description": "N: number of nodes simulated.",
+          "minimum": 1,
+          "title": "N Nodes",
+          "type": "integer"
+        },
+        "node_velocity": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to field velocity at each node per slice."
+        },
+        "request_digest": {
+          "description": "SHA-256 of the request that produced this result.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Request Digest",
+          "type": "string"
+        },
+        "result_kind": {
+          "const": "embedding_geometry",
+          "default": "embedding_geometry",
+          "description": "Always embedding_geometry: a demonstration over embedded records, not an operational forecast.",
+          "title": "Result Kind",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "datamesh-sim/v2",
+          "default": "datamesh-sim/v2",
+          "description": "Contract version; bump on any breaking change.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "slices": {
+          "description": "Critical points per inflow slice, increasing inflow.",
+          "items": {
+            "$ref": "#/$defs/InflowSlice"
+          },
+          "minItems": 1,
+          "title": "Slices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "frame_id",
+        "request_digest",
+        "n_nodes",
+        "grid",
+        "slices",
+        "coupling",
+        "node_velocity"
+      ],
+      "title": "NodeInteractionResult",
+      "type": "object"
+    },
+    "PointKind": {
+      "enum": [
+        "saddle",
+        "spiral_sink",
+        "node_sink",
+        "centre",
+        "source"
+      ],
+      "title": "PointKind",
+      "type": "string"
+    },
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cnn": {
+      "$ref": "#/$defs/CnnSample",
+      "description": "Stage 3 sample (CNN-1 -> CNN-2 input)."
+    },
+    "frame_id": {
+      "description": "Frame identity shared by every stage.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "graph": {
+      "$ref": "#/$defs/GraphSample",
+      "description": "Stage 4 sample (GNN input)."
+    },
+    "interactions": {
+      "$ref": "#/$defs/NodeInteractionResult",
+      "description": "Stage 1 result."
+    },
+    "rings": {
+      "$ref": "#/$defs/BufferRingResult",
+      "description": "Stage 2 result."
+    }
+  },
+  "required": [
+    "frame_id",
+    "interactions",
+    "rings",
+    "cnn",
+    "graph"
+  ],
+  "title": "FramePipelineResult",
+  "type": "object"
+}

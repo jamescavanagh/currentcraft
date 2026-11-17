@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datamesh-agency-toolkit"
+version = "0.9.9"
+description = "Unreviewed domain entity scaffold; hierarchical raw-topic ingestion with adapters, IngestRing and tensorizer; process-first contracts, plate/isosceles simulation, embedding enrichment chamber, probe with barrier brackets and HIL labels, event broker port, embedding geometry and guarded winding, and a PostgreSQL 18 repository/unit-of-work persistence layer for project-agency research"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.0,<3", "pydantic>=2.7,<3"]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Topic :: Scientific/Engineering"]
+
+[project.optional-dependencies]
+pdf = ["pypdf>=4,<7"]
+postgres = ["psycopg[binary]>=3.2,<4"]
+nats = ["nats-py[nkeys]>=2.9,<3"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["app", "app.domain*", "app.application", "app.application.gauge*", "app.application.simulation*", "app.application.process*", "app.application.plate*", "app.application.messaging*", "app.application.enrichment*", "app.application.probe*", "app.application.ingest*", "app.application.persistence*", "app.infrastructure", "app.infrastructure.gauge*", "app.infrastructure.tensors*", "app.infrastructure.plate*", "app.infrastructure.messaging*", "app.infrastructure.enrichment*", "app.infrastructure.probe*", "app.infrastructure.ingest*", "app.infrastructure.persistence*", "app.application.common*","app.application.hfgt*","app.infrastructure.hfgt*",]
+namespaces = false
+
+[tool.setuptools]
+include-package-data = false

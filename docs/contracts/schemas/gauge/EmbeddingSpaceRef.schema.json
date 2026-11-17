@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "description": "Where the embedding rows came from. Recorded for provenance; the reduction is not re-run here.",
+  "properties": {
+    "labeling_round": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Labeling round the frame is pinned to.",
+      "title": "Labeling Round"
+    },
+    "model": {
+      "description": "Embedding model name.",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Model",
+      "type": "string"
+    },
+    "reduction": {
+      "default": "none",
+      "description": "Reduction applied upstream, e.g. pca-32 or umap-16.",
+      "maxLength": 80,
+      "title": "Reduction",
+      "type": "string"
+    },
+    "salt": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Salt used for this replicate (test salt invariance, not salt value).",
+      "title": "Salt"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model or index version.",
+      "title": "Version"
+    }
+  },
+  "required": [
+    "model"
+  ],
+  "title": "EmbeddingSpaceRef",
+  "type": "object"
+}

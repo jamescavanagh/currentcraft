@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "description": "A typed, evidenced edge read from a stored object's relations, at the object version that asserted it.",
+  "properties": {
+    "depth": {
+      "default": 1,
+      "description": "Hops from the start node in a traversal.",
+      "minimum": 0,
+      "title": "Depth",
+      "type": "integer"
+    },
+    "dst_id": {
+      "description": "Target id (may not be stored yet).",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Dst Id",
+      "type": "string"
+    },
+    "evidence": {
+      "description": "Where the relation was read from.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Evidence",
+      "type": "string"
+    },
+    "rel_type": {
+      "description": "Relation type.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Rel Type",
+      "type": "string"
+    },
+    "src_id": {
+      "description": "Source object id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Src Id",
+      "type": "string"
+    },
+    "src_version": {
+      "description": "Source object version that asserted the edge.",
+      "exclusiveMinimum": 0,
+      "title": "Src Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "src_id",
+    "rel_type",
+    "dst_id",
+    "evidence",
+    "src_version"
+  ],
+  "title": "EdgeRecord",
+  "type": "object"
+}

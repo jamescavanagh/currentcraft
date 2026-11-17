@@ -1,0 +1,4950 @@
+{
+ "version": "0.9.1",
+ "status": "proposed",
+ "rule": "src depends on dst",
+ "nodes": [
+  {
+   "id": "VersionedEntity",
+   "module": "app.domain.versioning",
+   "origin": "source-model",
+   "tier": 0,
+   "needsAll": 0,
+   "blocksAll": 92,
+   "note": "Versioning base name. No versioning behavior implemented here.",
+   "exists_in_full_repo": "Exists at domain/versioning.py:87 (with RecordRef, EffectivePeriod)"
+  },
+  {
+   "id": "ReferenceSet",
+   "module": "app.domain.reference.reference_set",
+   "origin": "source-model",
+   "tier": 2,
+   "needsAll": 2,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ReferenceValue",
+   "module": "app.domain.reference.reference_value",
+   "origin": "source-model",
+   "tier": 1,
+   "needsAll": 1,
+   "blocksAll": 72,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "AdministrativeArea",
+   "module": "app.domain.geography.administrative_area",
+   "origin": "source-model",
+   "tier": 1,
+   "needsAll": 1,
+   "blocksAll": 67,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Location",
+   "module": "app.domain.geography.location",
+   "origin": "source-model",
+   "tier": 2,
+   "needsAll": 3,
+   "blocksAll": 64,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "StandardsOrganization",
+   "module": "app.domain.standards.standards_organization",
+   "origin": "source-model",
+   "tier": 1,
+   "needsAll": 1,
+   "blocksAll": 71,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Standard",
+   "module": "app.domain.standards.standard",
+   "origin": "source-model",
+   "tier": 2,
+   "needsAll": 2,
+   "blocksAll": 69,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "StandardEdition",
+   "module": "app.domain.standards.standard_edition",
+   "origin": "source-model",
+   "tier": 3,
+   "needsAll": 3,
+   "blocksAll": 68,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "StandardClause",
+   "module": "app.domain.standards.standard_clause",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 4,
+   "blocksAll": 15,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Specification",
+   "module": "app.domain.standards.specification",
+   "origin": "source-model",
+   "tier": 5,
+   "needsAll": 9,
+   "blocksAll": 56,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "SpecificationCategory",
+   "module": "app.domain.standards.specification_category",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 5,
+   "blocksAll": 57,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "SpecificationReference",
+   "module": "app.domain.standards.specification_reference",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 29,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "CredentialDefinition",
+   "module": "app.domain.credentials.credential_definition",
+   "origin": "source-model",
+   "tier": 2,
+   "needsAll": 2,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "CredentialAssignment",
+   "module": "app.domain.credentials.credential_assignment",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 30,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "WorkflowDefinition",
+   "module": "app.domain.workflow.workflow_definition",
+   "origin": "source-model",
+   "tier": 1,
+   "needsAll": 1,
+   "blocksAll": 75,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "LifecycleState",
+   "module": "app.domain.workflow.lifecycle_state",
+   "origin": "source-model",
+   "tier": 2,
+   "needsAll": 2,
+   "blocksAll": 74,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "TransitionDefinition",
+   "module": "app.domain.workflow.transition_definition",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 8,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "WorkflowInstance",
+   "module": "app.domain.workflow.workflow_instance",
+   "origin": "source-model",
+   "tier": 3,
+   "needsAll": 3,
+   "blocksAll": 72,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "StateTransition",
+   "module": "app.domain.workflow.state_transition",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 28,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "QualityGateDefinition",
+   "module": "app.domain.quality.quality_gate_definition",
+   "origin": "source-model",
+   "tier": 5,
+   "needsAll": 5,
+   "blocksAll": 10,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "GateCriterionDefinition",
+   "module": "app.domain.quality.gate_criterion_definition",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 6,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "GateApprovalRequirement",
+   "module": "app.domain.quality.gate_approval_requirement",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 7,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "QualityGateInstance",
+   "module": "app.domain.quality.quality_gate_instance",
+   "origin": "source-model",
+   "tier": 8,
+   "needsAll": 25,
+   "blocksAll": 5,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "GateCriterionResult",
+   "module": "app.domain.quality.gate_criterion_result",
+   "origin": "source-model",
+   "tier": 9,
+   "needsAll": 29,
+   "blocksAll": 2,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "GateDecision",
+   "module": "app.domain.quality.gate_decision",
+   "origin": "source-model",
+   "tier": 9,
+   "needsAll": 26,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "QualityEvidence",
+   "module": "app.domain.quality.quality_evidence",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 11,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Nonconformity",
+   "module": "app.domain.quality.nonconformity",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 30,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "CorrectiveAction",
+   "module": "app.domain.quality.corrective_action",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 31,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "VerificationActivity",
+   "module": "app.domain.quality.verification_activity",
+   "origin": "source-model",
+   "tier": 13,
+   "needsAll": 33,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Approval",
+   "module": "app.domain.quality.approval",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 28,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "MilestoneSignOff",
+   "module": "app.domain.quality.milestone_sign_off",
+   "origin": "source-model",
+   "tier": 9,
+   "needsAll": 26,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Project",
+   "module": "app.domain.project.project_entity",
+   "origin": "source-model",
+   "tier": 7,
+   "needsAll": 22,
+   "blocksAll": 42,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": "Exists at project/project_entity.py:46"
+  },
+  {
+   "id": "ComplianceProject",
+   "module": "app.domain.project.compliance_project",
+   "origin": "source-model",
+   "tier": 8,
+   "needsAll": 25,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "System",
+   "module": "app.domain.project.system",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 12,
+   "blocksAll": 43,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Subsystem",
+   "module": "app.domain.project.subsystem",
+   "origin": "source-model",
+   "tier": 9,
+   "needsAll": 24,
+   "blocksAll": 11,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Phase",
+   "module": "app.domain.project.project_phase",
+   "origin": "source-model",
+   "tier": 9,
+   "needsAll": 24,
+   "blocksAll": 20,
+   "note": "Project lifecycle phase. Never the simulator physics phase.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "WBS",
+   "module": "app.domain.project.wbs",
+   "origin": "source-model",
+   "tier": 1,
+   "needsAll": 1,
+   "blocksAll": 52,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Milestone",
+   "module": "app.domain.project.milestone",
+   "origin": "source-model",
+   "tier": 8,
+   "needsAll": 23,
+   "blocksAll": 32,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Task",
+   "module": "app.domain.task.task_entity",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 26,
+   "blocksAll": 14,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": "Placeholder file only, no class"
+  },
+  {
+   "id": "WorkItem",
+   "module": "app.domain.task.work_item",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 27,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ReviewItem",
+   "module": "app.domain.task.review_item",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 27,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Employee",
+   "module": "app.domain.employee.employee_entity",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 6,
+   "blocksAll": 54,
+   "note": "Employee resource. Distinct from Contributor, not a subtype of it; permissions unresolved.",
+   "exists_in_full_repo": "Exists at employee/employee_entity.py:151"
+  },
+  {
+   "id": "Contributor",
+   "module": "app.domain.workforce.contributor",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 9,
+   "blocksAll": 62,
+   "note": "Third-party labor resource. Shared resource base and permissions unresolved.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "TimeCard",
+   "module": "app.domain.workforce.time_card",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 27,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Organization",
+   "module": "app.domain.parties.organization",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 9,
+   "blocksAll": 62,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Client",
+   "module": "app.domain.parties.client",
+   "origin": "source-model",
+   "tier": 5,
+   "needsAll": 11,
+   "blocksAll": 53,
+   "note": "Client party; may hold scope outside the delivering organization.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ClientDivision",
+   "module": "app.domain.parties.client_division",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 12,
+   "blocksAll": 44,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Subcontractor",
+   "module": "app.domain.parties.subcontractor",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 9,
+   "blocksAll": 62,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Manufacturer",
+   "module": "app.domain.parties.manufacturer",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 15,
+   "blocksAll": 7,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Vendor",
+   "module": "app.domain.parties.vendor",
+   "origin": "source-model",
+   "tier": 7,
+   "needsAll": 20,
+   "blocksAll": 13,
+   "note": "Vendor party. Four subtype meanings exist; overlap policy unresolved.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "RegulatoryAuthority",
+   "module": "app.domain.parties.regulatory_authority",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 16,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "RegulatoryJurisdiction",
+   "module": "app.domain.parties.regulatory_jurisdiction",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 6,
+   "blocksAll": 4,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Stakeholder",
+   "module": "app.domain.engagements.stakeholder_relationship",
+   "origin": "source-model",
+   "tier": 7,
+   "needsAll": 13,
+   "blocksAll": 1,
+   "note": "Contextual relationship between a party and a context. Not a person subtype; grants no authority.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Consultant",
+   "module": "app.domain.engagements.consulting_engagement",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 28,
+   "blocksAll": 2,
+   "note": "Third-party approver engagement. Approval scope must be explicit per decision.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ManufacturerRep",
+   "module": "app.domain.engagements.manufacturer_representation",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 31,
+   "blocksAll": 1,
+   "note": "Representation relationship between a manufacturer and a representative party.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Contract",
+   "module": "app.domain.commercial.contract",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 19,
+   "blocksAll": 50,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Order",
+   "module": "app.domain.commercial.commercial_order",
+   "origin": "source-model",
+   "tier": 8,
+   "needsAll": 21,
+   "blocksAll": 8,
+   "note": "Commercial entity, separate from any document that represents it.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "CostCode",
+   "module": "app.domain.commercial.cost_code",
+   "origin": "source-model",
+   "tier": 2,
+   "needsAll": 3,
+   "blocksAll": 51,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Document",
+   "module": "app.domain.document.document",
+   "origin": "source-model",
+   "tier": 5,
+   "needsAll": 10,
+   "blocksAll": 31,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Revision",
+   "module": "app.domain.document.revision",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 27,
+   "blocksAll": 7,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Drawing",
+   "module": "app.domain.document.drawing",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 27,
+   "blocksAll": 7,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Report",
+   "module": "app.domain.document.report",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 26,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ReferenceDocument",
+   "module": "app.domain.document.reference_document",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 28,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Submittal",
+   "module": "app.domain.document.submittal",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 34,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Equipment",
+   "module": "app.domain.product.product_entity",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 29,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": "Exists inside product/product_entity.py:74"
+  },
+  {
+   "id": "Tool",
+   "module": "app.domain.assets.tool",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 27,
+   "blocksAll": 2,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "IntegrationMaterial",
+   "module": "app.domain.product.product_entity",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 31,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": "Exists inside product/product_entity.py:119"
+  },
+  {
+   "id": "EngineeringComputer",
+   "module": "app.domain.assets.engineering_computer",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 30,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ComputerDeployment",
+   "module": "app.domain.assets.computer_deployment",
+   "origin": "source-model",
+   "tier": 13,
+   "needsAll": 31,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "RentalTool",
+   "module": "app.domain.assets.rental_tool",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 30,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "CapitalTool",
+   "module": "app.domain.assets.capital_tool",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 28,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Product",
+   "module": "app.domain.product.product_entity",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 31,
+   "blocksAll": 1,
+   "note": "Source name only. Target split: ProductDefinition and AssetInstance.",
+   "exists_in_full_repo": "Exists at product/product_entity.py:83 (legacy)"
+  },
+  {
+   "id": "DataProduct",
+   "module": "app.domain.data_governance.data_product",
+   "origin": "source-model",
+   "tier": 4,
+   "needsAll": 4,
+   "blocksAll": 7,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ReportDefinition",
+   "module": "app.domain.data_governance.report_definition",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 10,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "DataLineage",
+   "module": "app.domain.data_governance.data_lineage",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 27,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "LineageNode",
+   "module": "app.domain.data_governance.lineage_node",
+   "origin": "source-model",
+   "tier": 12,
+   "needsAll": 29,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "DistributionEvent",
+   "module": "app.domain.data_governance.distribution_event",
+   "origin": "source-model",
+   "tier": 11,
+   "needsAll": 27,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "MetricDefinition",
+   "module": "app.domain.data_governance.metric_definition",
+   "origin": "source-model",
+   "tier": 5,
+   "needsAll": 9,
+   "blocksAll": 3,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "MetricObservation",
+   "module": "app.domain.data_governance.metric_observation",
+   "origin": "source-model",
+   "tier": 10,
+   "needsAll": 28,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "BoundedContext",
+   "module": "app.domain.integration.bounded_context",
+   "origin": "source-model",
+   "tier": 5,
+   "needsAll": 5,
+   "blocksAll": 2,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ApplicationService",
+   "module": "app.domain.integration.application_service_definition",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 11,
+   "blocksAll": 0,
+   "note": "Descriptive service metadata only. Executable orchestration lives in app.application.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "DomainIntegrationContract",
+   "module": "app.domain.integration.domain_integration_contract",
+   "origin": "source-model",
+   "tier": 6,
+   "needsAll": 11,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ProductDefinition",
+   "module": "app.domain.product.product_definition",
+   "origin": "addition",
+   "tier": 7,
+   "needsAll": 16,
+   "blocksAll": 5,
+   "note": "Catalog definition: model and manufacturer part information.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "AssetInstance",
+   "module": "app.domain.product.asset_instance",
+   "origin": "addition",
+   "tier": 8,
+   "needsAll": 17,
+   "blocksAll": 3,
+   "note": "Physical unit linked to a ProductDefinition. Bulk materials get no invented serial identity.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Shipment",
+   "module": "app.domain.logistics.shipment",
+   "origin": "addition",
+   "tier": 9,
+   "needsAll": 25,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "CalendarBooking",
+   "module": "app.domain.scheduling.calendar_booking",
+   "origin": "addition",
+   "tier": 11,
+   "needsAll": 28,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "BOM",
+   "module": "app.domain.materials.bom",
+   "origin": "addition",
+   "tier": 8,
+   "needsAll": 23,
+   "blocksAll": 1,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "BOMLine",
+   "module": "app.domain.materials.bom_line",
+   "origin": "addition",
+   "tier": 9,
+   "needsAll": 26,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "RFI",
+   "module": "app.domain.coordination.rfi",
+   "origin": "addition",
+   "tier": 11,
+   "needsAll": 28,
+   "blocksAll": 0,
+   "note": "Definition pending review.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "Agent",
+   "module": "app.domain.workforce.agent",
+   "origin": "addition",
+   "tier": 0,
+   "needsAll": 0,
+   "blocksAll": 1,
+   "note": "AI agent. Resource status and authority unresolved.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ProductOnlyVendor",
+   "module": "app.domain.parties.product_only_vendor",
+   "origin": "addition",
+   "tier": 8,
+   "needsAll": 21,
+   "blocksAll": 0,
+   "note": "Vendor subtype: sells products only, such as a distributor.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "ProfessionalServicesManufacturerVendor",
+   "module": "app.domain.parties.professional_services_manufacturer_vendor",
+   "origin": "addition",
+   "tier": 8,
+   "needsAll": 22,
+   "blocksAll": 0,
+   "note": "Vendor subtype: manufacturer that also sells professional services.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "LaborPlatformVendor",
+   "module": "app.domain.parties.labor_platform_vendor",
+   "origin": "addition",
+   "tier": 8,
+   "needsAll": 21,
+   "blocksAll": 0,
+   "note": "Vendor subtype: platform through which labor is booked. Not the provider booked through it.",
+   "exists_in_full_repo": null
+  },
+  {
+   "id": "SubcontractorFreelancerVendor",
+   "module": "app.domain.parties.subcontractor_freelancer_vendor",
+   "origin": "addition",
+   "tier": 8,
+   "needsAll": 21,
+   "blocksAll": 0,
+   "note": "Vendor subtype: subcontractor or freelancer.",
+   "exists_in_full_repo": null
+  }
+ ],
+ "excluded": [
+  {
+   "id": "PRJDocument",
+   "note": "In the source model and proposed tree (document/prj_document.py) but not scaffolded in 0.9.0."
+  }
+ ],
+ "edges": [
+  {
+   "src": "ReferenceSet",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "contains",
+   "status": "source",
+   "line": 857,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Standard",
+   "dst": "StandardsOrganization",
+   "kind": "ref",
+   "label": "publishes",
+   "status": "source",
+   "line": 860,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "StandardEdition",
+   "dst": "Standard",
+   "kind": "ref",
+   "label": "has edition",
+   "status": "source",
+   "line": 861,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "StandardClause",
+   "dst": "StandardEdition",
+   "kind": "ref",
+   "label": "contains",
+   "status": "source",
+   "line": 862,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "CredentialDefinition",
+   "dst": "StandardsOrganization",
+   "kind": "ref",
+   "label": "may be issued by",
+   "status": "source",
+   "line": 864,
+   "card": "many\u21921"
+  },
+  {
+   "src": "CredentialAssignment",
+   "dst": "CredentialDefinition",
+   "kind": "ref",
+   "label": "credential",
+   "status": "source",
+   "line": 865,
+   "card": "many\u21921"
+  },
+  {
+   "src": "CredentialAssignment",
+   "dst": "Employee",
+   "kind": "ref",
+   "label": "held by person",
+   "status": "source",
+   "line": 866,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "CredentialAssignment",
+   "dst": "Subcontractor",
+   "kind": "ref",
+   "label": "held by subcontractor",
+   "status": "source",
+   "line": 868,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "CredentialAssignment",
+   "dst": "Consultant",
+   "kind": "ref",
+   "label": "held by consultant",
+   "status": "source",
+   "line": 869,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Project",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "project type",
+   "status": "source",
+   "line": 871,
+   "card": "many\u21921"
+  },
+  {
+   "src": "System",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "system type",
+   "status": "source",
+   "line": 872,
+   "card": "many\u21921"
+  },
+  {
+   "src": "System",
+   "dst": "StandardEdition",
+   "kind": "ref",
+   "label": "designed to",
+   "status": "source",
+   "line": 873,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Contributor",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "roles",
+   "status": "source",
+   "line": 874,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Document",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "document type",
+   "status": "source",
+   "line": 875,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Task",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "task type",
+   "status": "source",
+   "line": 876,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Task",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "priority",
+   "status": "source",
+   "line": 877,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Equipment",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "equipment type",
+   "status": "source",
+   "line": 878,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Tool",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "tool type",
+   "status": "source",
+   "line": 879,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "subsystem type",
+   "status": "source",
+   "line": 880,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Phase",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "phase type",
+   "status": "source",
+   "line": 881,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Location",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "location type",
+   "status": "source",
+   "line": 882,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Organization",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "organization classifications",
+   "status": "source",
+   "line": 883,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Organization",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "primary contact",
+   "status": "source",
+   "line": 884,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Contract",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "contract type",
+   "status": "source",
+   "line": 885,
+   "card": "many\u21921"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "verification type",
+   "status": "source",
+   "line": 886,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Milestone",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "milestone type",
+   "status": "source",
+   "line": 887,
+   "card": "many\u21921"
+  },
+  {
+   "src": "CostCode",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "cost code type",
+   "status": "source",
+   "line": 888,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Specification",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "specification type",
+   "status": "source",
+   "line": 889,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Specification",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "division",
+   "status": "source",
+   "line": 890,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Specification",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "compliance requirement",
+   "status": "source",
+   "line": 891,
+   "card": "many\u21921"
+  },
+  {
+   "src": "SpecificationCategory",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "jurisdiction scope",
+   "status": "source",
+   "line": 892,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Employee",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "employment type",
+   "status": "source",
+   "line": 894,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Employee",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "department",
+   "status": "source",
+   "line": 895,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Employee",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "job classification",
+   "status": "source",
+   "line": 896,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Client",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "client type",
+   "status": "source",
+   "line": 897,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Client",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "client tier",
+   "status": "source",
+   "line": 898,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ClientDivision",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "division type",
+   "status": "source",
+   "line": 899,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "stakeholder type",
+   "status": "source",
+   "line": 900,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "influence level",
+   "status": "source",
+   "line": 901,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "engagement level",
+   "status": "source",
+   "line": 902,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "communication preference",
+   "status": "source",
+   "line": 903,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Subcontractor",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "trade",
+   "status": "source",
+   "line": 904,
+   "card": "many\u21921"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "authority type",
+   "status": "source",
+   "line": 905,
+   "card": "many\u21921"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "permit submission type",
+   "status": "source",
+   "line": 906,
+   "card": "many\u21921"
+  },
+  {
+   "src": "RegulatoryJurisdiction",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "jurisdiction type",
+   "status": "source",
+   "line": 907,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Consultant",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "consultant type",
+   "status": "source",
+   "line": 908,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Consultant",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "relationship type",
+   "status": "source",
+   "line": 909,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Drawing",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "drawing type",
+   "status": "source",
+   "line": 910,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Drawing",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "drawing discipline",
+   "status": "source",
+   "line": 911,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Drawing",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "sheet size",
+   "status": "source",
+   "line": 912,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Report",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "report type",
+   "status": "source",
+   "line": 913,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ReferenceDocument",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "source type",
+   "status": "source",
+   "line": 914,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ReferenceDocument",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "language",
+   "status": "source",
+   "line": 915,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ReferenceDocument",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "file format",
+   "status": "source",
+   "line": 916,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ReferenceDocument",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "distribution limit",
+   "status": "source",
+   "line": 917,
+   "card": "many\u21921"
+  },
+  {
+   "src": "SpecificationReference",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "applicability scope",
+   "status": "source",
+   "line": 918,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Submittal",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "submittal type",
+   "status": "source",
+   "line": 919,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Approval",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "approval type",
+   "status": "source",
+   "line": 920,
+   "card": "many\u21921"
+  },
+  {
+   "src": "WorkItem",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "work item type",
+   "status": "source",
+   "line": 921,
+   "card": "many\u21921"
+  },
+  {
+   "src": "WorkItem",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "safety hazards",
+   "status": "source",
+   "line": 922,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "WorkItem",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "PPE required",
+   "status": "source",
+   "line": 923,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "ReviewItem",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "review item type",
+   "status": "source",
+   "line": 924,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Product",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "warranty type",
+   "status": "source",
+   "line": 925,
+   "card": "many\u21921"
+  },
+  {
+   "src": "IntegrationMaterial",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "material type",
+   "status": "source",
+   "line": 926,
+   "card": "many\u21921"
+  },
+  {
+   "src": "IntegrationMaterial",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "unit of measure",
+   "status": "source",
+   "line": 927,
+   "card": "many\u21921"
+  },
+  {
+   "src": "EngineeringComputer",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "device type",
+   "status": "source",
+   "line": 928,
+   "card": "many\u21921"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "rental tool type",
+   "status": "source",
+   "line": 929,
+   "card": "many\u21921"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "return condition",
+   "status": "source",
+   "line": 930,
+   "card": "many\u21921"
+  },
+  {
+   "src": "CapitalTool",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "capital tool type",
+   "status": "source",
+   "line": 931,
+   "card": "many\u21921"
+  },
+  {
+   "src": "CapitalTool",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "depreciation schedule",
+   "status": "source",
+   "line": 932,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Manufacturer",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "manufacturer type",
+   "status": "source",
+   "line": 933,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Manufacturer",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "product line focus",
+   "status": "source",
+   "line": 934,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Vendor",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "vendor type",
+   "status": "source",
+   "line": 935,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Vendor",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "freight terms",
+   "status": "source",
+   "line": 936,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Location",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "located in",
+   "status": "source",
+   "line": 938,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Contract",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "governing law",
+   "status": "source",
+   "line": 939,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Employee",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "driver license issued in",
+   "status": "source",
+   "line": 940,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Subcontractor",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "license issued in",
+   "status": "source",
+   "line": 941,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Consultant",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "license issued in",
+   "status": "source",
+   "line": 942,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Consultant",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "stamp states",
+   "status": "source",
+   "line": 943,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "RegulatoryJurisdiction",
+   "dst": "AdministrativeArea",
+   "kind": "ref",
+   "label": "covers",
+   "status": "source",
+   "line": 944,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "RegulatoryJurisdiction",
+   "kind": "ref",
+   "label": "exercises authority in",
+   "status": "source",
+   "line": 945,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "RegulatoryJurisdiction",
+   "dst": "StandardEdition",
+   "kind": "ref",
+   "label": "adopts",
+   "status": "source",
+   "line": 946,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "SpecificationCategory",
+   "dst": "StandardsOrganization",
+   "kind": "ref",
+   "label": "standard body",
+   "status": "source",
+   "line": 947,
+   "card": "many\u21921"
+  },
+  {
+   "src": "SpecificationCategory",
+   "dst": "StandardEdition",
+   "kind": "ref",
+   "label": "code edition",
+   "status": "source",
+   "line": 948,
+   "card": "many\u21921"
+  },
+  {
+   "src": "CredentialAssignment",
+   "dst": "Employee",
+   "kind": "ref",
+   "label": "holds",
+   "status": "source",
+   "line": 950,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "LifecycleState",
+   "dst": "WorkflowDefinition",
+   "kind": "ref",
+   "label": "defines",
+   "status": "source",
+   "line": 956,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "TransitionDefinition",
+   "dst": "WorkflowDefinition",
+   "kind": "ref",
+   "label": "permits",
+   "status": "source",
+   "line": 957,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "TransitionDefinition",
+   "dst": "LifecycleState",
+   "kind": "ref",
+   "label": "from state",
+   "status": "source",
+   "line": 958,
+   "card": "many\u21921"
+  },
+  {
+   "src": "TransitionDefinition",
+   "dst": "LifecycleState",
+   "kind": "ref",
+   "label": "to state",
+   "status": "source",
+   "line": 959,
+   "card": "many\u21921"
+  },
+  {
+   "src": "WorkflowInstance",
+   "dst": "WorkflowDefinition",
+   "kind": "ref",
+   "label": "instantiated from",
+   "status": "source",
+   "line": 960,
+   "card": "many\u21921"
+  },
+  {
+   "src": "WorkflowInstance",
+   "dst": "LifecycleState",
+   "kind": "ref",
+   "label": "current state",
+   "status": "source",
+   "line": 961,
+   "card": "many\u21921"
+  },
+  {
+   "src": "StateTransition",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "history",
+   "status": "source",
+   "line": 962,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "StateTransition",
+   "dst": "TransitionDefinition",
+   "kind": "ref",
+   "label": "transition",
+   "status": "source",
+   "line": 963,
+   "card": "many\u21921"
+  },
+  {
+   "src": "StateTransition",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "initiated by",
+   "status": "source",
+   "line": 964,
+   "card": "many\u21921"
+  },
+  {
+   "src": "WorkflowInstance",
+   "dst": "VersionedEntity",
+   "kind": "ref",
+   "label": "governs subject",
+   "status": "source",
+   "line": 965,
+   "card": "many\u21921"
+  },
+  {
+   "src": "GateCriterionDefinition",
+   "dst": "QualityGateDefinition",
+   "kind": "ref",
+   "label": "contains",
+   "status": "source",
+   "line": 971,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "GateApprovalRequirement",
+   "dst": "QualityGateDefinition",
+   "kind": "ref",
+   "label": "requires",
+   "status": "source",
+   "line": 972,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "QualityGateDefinition",
+   "dst": "StandardClause",
+   "kind": "ref",
+   "label": "aligns with",
+   "status": "source",
+   "line": 973,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "TransitionDefinition",
+   "dst": "QualityGateDefinition",
+   "kind": "ref",
+   "label": "requires gate",
+   "status": "source",
+   "line": 974,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "QualityGateInstance",
+   "dst": "QualityGateDefinition",
+   "kind": "ref",
+   "label": "instantiated from",
+   "status": "source",
+   "line": 975,
+   "card": "many\u21921"
+  },
+  {
+   "src": "QualityGateInstance",
+   "dst": "VersionedEntity",
+   "kind": "ref",
+   "label": "assesses subject",
+   "status": "source",
+   "line": 976,
+   "card": "many\u21921"
+  },
+  {
+   "src": "GateCriterionResult",
+   "dst": "QualityGateInstance",
+   "kind": "ref",
+   "label": "evaluates",
+   "status": "source",
+   "line": 977,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "GateCriterionResult",
+   "dst": "GateCriterionDefinition",
+   "kind": "ref",
+   "label": "evaluates against",
+   "status": "source",
+   "line": 978,
+   "card": "many\u21921"
+  },
+  {
+   "src": "GateCriterionResult",
+   "dst": "QualityEvidence",
+   "kind": "ref",
+   "label": "supported by",
+   "status": "source",
+   "line": 979,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "GateDecision",
+   "dst": "QualityGateInstance",
+   "kind": "ref",
+   "label": "decisions",
+   "status": "source",
+   "line": 980,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "GateDecision",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "decided by",
+   "status": "source",
+   "line": 981,
+   "card": "many\u21921"
+  },
+  {
+   "src": "GateApprovalRequirement",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "required approver role",
+   "status": "source",
+   "line": 982,
+   "card": "many\u21921"
+  },
+  {
+   "src": "StateTransition",
+   "dst": "GateDecision",
+   "kind": "ref",
+   "label": "authorized by",
+   "status": "source",
+   "line": 983,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Nonconformity",
+   "dst": "GateCriterionResult",
+   "kind": "ref",
+   "label": "may raise",
+   "status": "source",
+   "line": 984,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "CorrectiveAction",
+   "dst": "Nonconformity",
+   "kind": "ref",
+   "label": "resolved by",
+   "status": "source",
+   "line": 985,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "CorrectiveAction",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "assigned to",
+   "status": "source",
+   "line": 986,
+   "card": "many\u21921"
+  },
+  {
+   "src": "QualityEvidence",
+   "dst": "Document",
+   "kind": "ref",
+   "label": "evidence source",
+   "status": "source",
+   "line": 987,
+   "card": "many\u21921"
+  },
+  {
+   "src": "QualityEvidence",
+   "dst": "ReferenceValue",
+   "kind": "ref",
+   "label": "evidence source type",
+   "status": "source",
+   "line": 988,
+   "card": "many\u21921"
+  },
+  {
+   "src": "QualityGateInstance",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "progresses through",
+   "status": "source",
+   "line": 989,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Project",
+   "dst": "Client",
+   "kind": "ref",
+   "label": "owns",
+   "status": "source",
+   "line": 1001,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contract",
+   "dst": "Client",
+   "kind": "ref",
+   "label": "party to",
+   "status": "source",
+   "line": 1002,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "Client",
+   "kind": "ref",
+   "label": "represented by",
+   "status": "source",
+   "line": 1003,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ClientDivision",
+   "dst": "Client",
+   "kind": "ref",
+   "label": "has division",
+   "status": "source",
+   "line": 1004,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Project",
+   "dst": "ClientDivision",
+   "kind": "ref",
+   "label": "sponsors",
+   "status": "source",
+   "line": 1005,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "ClientDivision",
+   "kind": "ref",
+   "label": "represented by",
+   "status": "source",
+   "line": 1006,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ClientDivision",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "located at",
+   "status": "source",
+   "line": 1007,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ManufacturerRep",
+   "dst": "Manufacturer",
+   "kind": "ref",
+   "label": "represents",
+   "status": "source",
+   "line": 1008,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ManufacturerRep",
+   "dst": "Vendor",
+   "kind": "ref",
+   "label": "works through",
+   "status": "source",
+   "line": 1009,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ManufacturerRep",
+   "dst": "Product",
+   "kind": "ref",
+   "label": "supports",
+   "status": "source",
+   "line": 1010,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "RegulatoryAuthority",
+   "kind": "ref",
+   "label": "conducts",
+   "status": "source",
+   "line": 1011,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "enforces",
+   "status": "source",
+   "line": 1012,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ComplianceProject",
+   "dst": "RegulatoryAuthority",
+   "kind": "ref",
+   "label": "permits",
+   "status": "source",
+   "line": 1013,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "has jurisdiction over",
+   "status": "source",
+   "line": 1014,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Consultant",
+   "dst": "Drawing",
+   "kind": "ref",
+   "label": "authors",
+   "status": "source",
+   "line": 1015,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Consultant",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "authors",
+   "status": "source",
+   "line": 1016,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Consultant",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "engaged on",
+   "status": "source",
+   "line": 1017,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Consultant",
+   "kind": "ref",
+   "label": "reviews",
+   "status": "source",
+   "line": 1018,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "Employee",
+   "kind": "ref",
+   "label": "deploys",
+   "status": "source",
+   "line": 1020,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "represents",
+   "status": "source",
+   "line": 1021,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "MilestoneSignOff",
+   "dst": "Stakeholder",
+   "kind": "ref",
+   "label": "executes",
+   "status": "source",
+   "line": 1022,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Product",
+   "dst": "ManufacturerRep",
+   "kind": "ref",
+   "label": "supported by",
+   "status": "source",
+   "line": 1023,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "IntegrationMaterial",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "stored at",
+   "status": "source",
+   "line": 1024,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "IntegrationMaterial",
+   "dst": "Vendor",
+   "kind": "ref",
+   "label": "sourced from",
+   "status": "source",
+   "line": 1025,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "EngineeringComputer",
+   "kind": "ref",
+   "label": "deployed via",
+   "status": "source",
+   "line": 1026,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "Vendor",
+   "kind": "ref",
+   "label": "rented from",
+   "status": "source",
+   "line": 1027,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "CapitalTool",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "stored at",
+   "status": "source",
+   "line": 1028,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "CapitalTool",
+   "dst": "Document",
+   "kind": "ref",
+   "label": "calibration certified by",
+   "status": "source",
+   "line": 1029,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Consultant",
+   "kind": "ref",
+   "label": "reviewed by",
+   "status": "source",
+   "line": 1030,
+   "card": "1\u21920..1"
+  },
+  {
+   "src": "Submittal",
+   "dst": "RegulatoryAuthority",
+   "kind": "ref",
+   "label": "approved by",
+   "status": "source",
+   "line": 1031,
+   "card": "1\u21920..1"
+  },
+  {
+   "src": "Report",
+   "dst": "Phase",
+   "kind": "ref",
+   "label": "reported against",
+   "status": "source",
+   "line": 1032,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "ball in court",
+   "status": "source",
+   "line": 1033,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "EngineeringComputer",
+   "kind": "ref",
+   "label": "deploys",
+   "status": "source",
+   "line": 1034,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "System",
+   "kind": "ref",
+   "label": "assigned to",
+   "status": "source",
+   "line": 1035,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "scoped to",
+   "status": "source",
+   "line": 1036,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "deployed by",
+   "status": "source",
+   "line": 1037,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Contract",
+   "dst": "Client",
+   "kind": "ref",
+   "label": "held with",
+   "status": "source",
+   "line": 1038,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Consultant",
+   "dst": "Contract",
+   "kind": "ref",
+   "label": "engages",
+   "status": "source",
+   "line": 1040,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "SpecificationReference",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "documented by",
+   "status": "source",
+   "line": 1041,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "SpecificationReference",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1042,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "SpecificationReference",
+   "dst": "ReferenceDocument",
+   "kind": "ref",
+   "label": "cites",
+   "status": "source",
+   "line": 1043,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "SpecificationCategory",
+   "kind": "ref",
+   "label": "adopts",
+   "status": "source",
+   "line": 1044,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "CostCode",
+   "dst": "WBS",
+   "kind": "ref",
+   "label": "mapped to",
+   "status": "source",
+   "line": 1045,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1046,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Approval",
+   "dst": "Milestone",
+   "kind": "ref",
+   "label": "requires",
+   "status": "source",
+   "line": 1047,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Milestone",
+   "dst": "Contract",
+   "kind": "ref",
+   "label": "contractually bound to",
+   "status": "source",
+   "line": 1048,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "RegulatoryAuthority",
+   "kind": "ref",
+   "label": "conducted by",
+   "status": "source",
+   "line": 1049,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "WorkItem",
+   "kind": "ref",
+   "label": "closes",
+   "status": "source",
+   "line": 1050,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Phase",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "consumes",
+   "status": "source",
+   "line": 1051,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Phase",
+   "dst": "Subcontractor",
+   "kind": "ref",
+   "label": "engages",
+   "status": "source",
+   "line": 1052,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "ComplianceProject",
+   "dst": "RegulatoryAuthority",
+   "kind": "ref",
+   "label": "permitted by",
+   "status": "source",
+   "line": 1053,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "ComplianceProject",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "governed by",
+   "status": "source",
+   "line": 1054,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "ComplianceProject",
+   "kind": "ref",
+   "label": "requires",
+   "status": "source",
+   "line": 1055,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Project",
+   "dst": "System",
+   "kind": "ref",
+   "label": "is composed of",
+   "status": "source",
+   "line": 1056,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Task",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "is broken down into",
+   "status": "source",
+   "line": 1057,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "generate work product",
+   "status": "source",
+   "line": 1058,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Tool",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "allocates tools to increase productivity",
+   "status": "source",
+   "line": 1059,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Equipment",
+   "dst": "System",
+   "kind": "ref",
+   "label": "Integrates",
+   "status": "source",
+   "line": 1060,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "System",
+   "kind": "ref",
+   "label": "Decomposes into",
+   "status": "source",
+   "line": 1061,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Product",
+   "dst": "Subsystem",
+   "kind": "ref",
+   "label": "Integrates",
+   "status": "source",
+   "line": 1062,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "IntegrationMaterial",
+   "dst": "Subsystem",
+   "kind": "ref",
+   "label": "consumes",
+   "status": "source",
+   "line": 1063,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Drawing",
+   "dst": "Subsystem",
+   "kind": "ref",
+   "label": "consumes",
+   "status": "source",
+   "line": 1064,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Task",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "assigned_to",
+   "status": "source",
+   "line": 1065,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Document",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "authors",
+   "status": "source",
+   "line": 1066,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Employee",
+   "kind": "ref",
+   "label": "submits",
+   "status": "source",
+   "line": 1067,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Order",
+   "dst": "Subcontractor",
+   "kind": "ref",
+   "label": "fulfills",
+   "status": "source",
+   "line": 1068,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contributor",
+   "dst": "Subcontractor",
+   "kind": "ref",
+   "label": "provides labor",
+   "status": "source",
+   "line": 1069,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Task",
+   "dst": "Document",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1070,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Approval",
+   "dst": "Task",
+   "kind": "ref",
+   "label": "requires",
+   "status": "source",
+   "line": 1071,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Task",
+   "kind": "ref",
+   "label": "produces",
+   "status": "source",
+   "line": 1072,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Approval",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "approved_by",
+   "status": "source",
+   "line": 1073,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Task",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1074,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Drawing",
+   "kind": "ref",
+   "label": "References a",
+   "status": "source",
+   "line": 1075,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Report",
+   "kind": "ref",
+   "label": "compiles",
+   "status": "source",
+   "line": 1076,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Equipment",
+   "dst": "Order",
+   "kind": "ref",
+   "label": "procures",
+   "status": "source",
+   "line": 1077,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "Order",
+   "kind": "ref",
+   "label": "backed_by",
+   "status": "source",
+   "line": 1078,
+   "card": "1\u21921"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Task",
+   "kind": "ref",
+   "label": "performed against",
+   "status": "source",
+   "line": 1079,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Phase",
+   "kind": "ref",
+   "label": "performed in",
+   "status": "source",
+   "line": 1080,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "performed at",
+   "status": "source",
+   "line": 1081,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "performed at",
+   "status": "source",
+   "line": 1082,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Order",
+   "dst": "Contract",
+   "kind": "ref",
+   "label": "authorized under",
+   "status": "source",
+   "line": 1083,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Order",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "issued to",
+   "status": "source",
+   "line": 1084,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Order",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "approved by",
+   "status": "source",
+   "line": 1085,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Order",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "distributed across",
+   "status": "source",
+   "line": 1086,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Equipment",
+   "dst": "Task",
+   "kind": "ref",
+   "label": "used_in",
+   "status": "source",
+   "line": 1087,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "EngineeringComputer",
+   "dst": "System",
+   "kind": "ref",
+   "label": "Control Node of",
+   "status": "source",
+   "line": 1088,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Product",
+   "dst": "Manufacturer",
+   "kind": "ref",
+   "label": "manufactured by",
+   "status": "source",
+   "line": 1089,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Product",
+   "dst": "Vendor",
+   "kind": "ref",
+   "label": "supplied by",
+   "status": "source",
+   "line": 1090,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Product",
+   "dst": "Order",
+   "kind": "ref",
+   "label": "procured via",
+   "status": "source",
+   "line": 1091,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Order",
+   "dst": "Vendor",
+   "kind": "ref",
+   "label": "fulfills",
+   "status": "source",
+   "line": 1092,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Manufacturer",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "certifies against",
+   "status": "source",
+   "line": 1093,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Tool",
+   "dst": "Task",
+   "kind": "ref",
+   "label": "required to complete",
+   "status": "source",
+   "line": 1094,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Tool",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "issued to",
+   "status": "source",
+   "line": 1095,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Phase",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "has",
+   "status": "source",
+   "line": 1096,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Task",
+   "dst": "Phase",
+   "kind": "ref",
+   "label": "contains",
+   "status": "source",
+   "line": 1097,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Phase",
+   "dst": "Milestone",
+   "kind": "ref",
+   "label": "gates on",
+   "status": "source",
+   "line": 1098,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Phase",
+   "dst": "PRJDocument",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1099,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Project",
+   "dst": "WBS",
+   "kind": "ref",
+   "label": "has",
+   "status": "source",
+   "line": 1100,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Task",
+   "dst": "WBS",
+   "kind": "ref",
+   "label": "contains",
+   "status": "source",
+   "line": 1101,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "WBS",
+   "kind": "ref",
+   "label": "decomposes into",
+   "status": "source",
+   "line": 1102,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "System",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "located at",
+   "status": "source",
+   "line": 1103,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "located at",
+   "status": "source",
+   "line": 1104,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Task",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "performed at",
+   "status": "source",
+   "line": 1105,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Equipment",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "installed at",
+   "status": "source",
+   "line": 1106,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Organization",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "located at",
+   "status": "source",
+   "line": 1107,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Subcontractor",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "employs",
+   "status": "source",
+   "line": 1108,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "represented by",
+   "status": "source",
+   "line": 1109,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contract",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "party to",
+   "status": "source",
+   "line": 1110,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Project",
+   "dst": "Contract",
+   "kind": "ref",
+   "label": "governed by",
+   "status": "source",
+   "line": 1111,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contract",
+   "dst": "Subcontractor",
+   "kind": "ref",
+   "label": "executed by",
+   "status": "source",
+   "line": 1112,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contract",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "covers",
+   "status": "source",
+   "line": 1113,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Order",
+   "dst": "Contract",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1114,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contract",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "governs",
+   "status": "source",
+   "line": 1115,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Revision",
+   "dst": "Drawing",
+   "kind": "ref",
+   "label": "has revision",
+   "status": "source",
+   "line": 1116,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Revision",
+   "dst": "PRJDocument",
+   "kind": "ref",
+   "label": "has revision",
+   "status": "source",
+   "line": 1117,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Revision",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "authored by",
+   "status": "source",
+   "line": 1118,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Revision",
+   "dst": "Drawing",
+   "kind": "ref",
+   "label": "supersedes",
+   "status": "source",
+   "line": 1119,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "Task",
+   "kind": "ref",
+   "label": "requires",
+   "status": "source",
+   "line": 1120,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "performed by",
+   "status": "source",
+   "line": 1121,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "Approval",
+   "kind": "ref",
+   "label": "closes",
+   "status": "source",
+   "line": 1122,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "Document",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1123,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "Location",
+   "kind": "ref",
+   "label": "performed at",
+   "status": "source",
+   "line": 1124,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Milestone",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "has milestone",
+   "status": "source",
+   "line": 1125,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Phase",
+   "dst": "Milestone",
+   "kind": "ref",
+   "label": "gates on",
+   "status": "source",
+   "line": 1126,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "Milestone",
+   "kind": "ref",
+   "label": "gates on",
+   "status": "source",
+   "line": 1127,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "assigned to",
+   "status": "source",
+   "line": 1128,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Task",
+   "dst": "Milestone",
+   "kind": "ref",
+   "label": "gates on",
+   "status": "source",
+   "line": 1129,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Milestone",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "sign off required from",
+   "status": "source",
+   "line": 1130,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "MilestoneSignOff",
+   "dst": "Milestone",
+   "kind": "ref",
+   "label": "requires",
+   "status": "source",
+   "line": 1131,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "MilestoneSignOff",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "executed by",
+   "status": "source",
+   "line": 1132,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "MilestoneSignOff",
+   "dst": "Document",
+   "kind": "ref",
+   "label": "evidenced by",
+   "status": "source",
+   "line": 1133,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Project",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1134,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Task",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1135,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1136,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Order",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1137,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Equipment",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1138,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "Tool",
+   "dst": "CostCode",
+   "kind": "ref",
+   "label": "charged to",
+   "status": "source",
+   "line": 1139,
+   "card": "1\u2192one"
+  },
+  {
+   "src": "System",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "governed by",
+   "status": "source",
+   "line": 1140,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "governed by",
+   "status": "source",
+   "line": 1141,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Task",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "complies with",
+   "status": "source",
+   "line": 1142,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Contract",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "covers",
+   "status": "source",
+   "line": 1143,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Drawing",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1144,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Specification",
+   "kind": "ref",
+   "label": "demonstrates compliance with",
+   "status": "source",
+   "line": 1145,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "Specification",
+   "dst": "SpecificationCategory",
+   "kind": "ref",
+   "label": "classified by",
+   "status": "source",
+   "line": 1146,
+   "card": "1\u21921"
+  },
+  {
+   "src": "SpecificationReference",
+   "dst": "ReferenceDocument",
+   "kind": "ref",
+   "label": "references",
+   "status": "source",
+   "line": 1147,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Project",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "project lifecycle",
+   "status": "source",
+   "line": 1152,
+   "card": "1\u21921"
+  },
+  {
+   "src": "System",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "system lifecycle",
+   "status": "source",
+   "line": 1153,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Document",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "document lifecycle",
+   "status": "source",
+   "line": 1154,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Task",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "task lifecycle",
+   "status": "source",
+   "line": 1155,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Equipment",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "equipment lifecycle",
+   "status": "source",
+   "line": 1156,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Tool",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "tool lifecycle",
+   "status": "source",
+   "line": 1157,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "subsystem lifecycle",
+   "status": "source",
+   "line": 1158,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Phase",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "phase lifecycle",
+   "status": "source",
+   "line": 1159,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Contract",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "contract lifecycle",
+   "status": "source",
+   "line": 1160,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Revision",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "revision lifecycle",
+   "status": "source",
+   "line": 1161,
+   "card": "1\u21921"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "verification lifecycle",
+   "status": "source",
+   "line": 1162,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Milestone",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "milestone lifecycle",
+   "status": "source",
+   "line": 1163,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Specification",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "specification lifecycle",
+   "status": "source",
+   "line": 1164,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Employee",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "employment lifecycle",
+   "status": "source",
+   "line": 1165,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Subcontractor",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "qualification lifecycle",
+   "status": "source",
+   "line": 1166,
+   "card": "1\u21921"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "timecard lifecycle",
+   "status": "source",
+   "line": 1167,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Drawing",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "drawing lifecycle",
+   "status": "source",
+   "line": 1168,
+   "card": "1\u21921"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "project document lifecycle",
+   "status": "source",
+   "line": 1169,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Report",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "report lifecycle",
+   "status": "source",
+   "line": 1170,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Submittal",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "submittal lifecycle",
+   "status": "source",
+   "line": 1171,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Approval",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "approval lifecycle",
+   "status": "source",
+   "line": 1172,
+   "card": "1\u21921"
+  },
+  {
+   "src": "WorkItem",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "work item lifecycle",
+   "status": "source",
+   "line": 1173,
+   "card": "1\u21921"
+  },
+  {
+   "src": "ReviewItem",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "review lifecycle",
+   "status": "source",
+   "line": 1174,
+   "card": "1\u21921"
+  },
+  {
+   "src": "MilestoneSignOff",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "signoff lifecycle",
+   "status": "source",
+   "line": 1175,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Vendor",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "vendor qualification lifecycle",
+   "status": "source",
+   "line": 1176,
+   "card": "1\u21921"
+  },
+  {
+   "src": "Client",
+   "dst": "Employee",
+   "kind": "ref",
+   "label": "account managed by",
+   "status": "source",
+   "line": 1182,
+   "card": "many\u21921"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "approved by",
+   "status": "source",
+   "line": 1183,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "TimeCard",
+   "dst": "Document",
+   "kind": "ref",
+   "label": "supported by",
+   "status": "source",
+   "line": 1184,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Drawing",
+   "dst": "Revision",
+   "kind": "ref",
+   "label": "current revision",
+   "status": "source",
+   "line": 1185,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Drawing",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "stamped by",
+   "status": "source",
+   "line": 1186,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "issued to",
+   "status": "source",
+   "line": 1187,
+   "card": "many\u21921"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "issued by",
+   "status": "source",
+   "line": 1188,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Report",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "submitted by",
+   "status": "source",
+   "line": 1189,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Report",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "reviewed by",
+   "status": "source",
+   "line": 1190,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "submitted by",
+   "status": "source",
+   "line": 1191,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "reviewer",
+   "status": "source",
+   "line": 1192,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "issued to",
+   "status": "source",
+   "line": 1193,
+   "card": "many\u21921"
+  },
+  {
+   "src": "Submittal",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "distributed to",
+   "status": "source",
+   "line": 1194,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "Approval",
+   "dst": "Organization",
+   "kind": "ref",
+   "label": "approving organization",
+   "status": "source",
+   "line": 1195,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "ReviewItem",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "reviewer",
+   "status": "source",
+   "line": 1196,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "EngineeringComputer",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "assigned to",
+   "status": "source",
+   "line": 1197,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "assigned to",
+   "status": "source",
+   "line": 1198,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "CapitalTool",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "assigned to",
+   "status": "source",
+   "line": 1199,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "Vendor",
+   "dst": "Contract",
+   "kind": "ref",
+   "label": "governing agreement",
+   "status": "source",
+   "line": 1200,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "ReportDefinition",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "report definition lifecycle",
+   "status": "source",
+   "line": 1227,
+   "card": "1\u21921"
+  },
+  {
+   "src": "ReportDefinition",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "sourced from",
+   "status": "source",
+   "line": 1228,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "DataProduct",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "data product lifecycle",
+   "status": "source",
+   "line": 1236,
+   "card": "1\u21921"
+  },
+  {
+   "src": "DataLineage",
+   "dst": "Report",
+   "kind": "ref",
+   "label": "documents lineage for",
+   "status": "source",
+   "line": 1253,
+   "card": "many\u21921"
+  },
+  {
+   "src": "LineageNode",
+   "dst": "DataLineage",
+   "kind": "ref",
+   "label": "traces",
+   "status": "source",
+   "line": 1254,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "LineageNode",
+   "dst": "VersionedEntity",
+   "kind": "ref",
+   "label": "references source",
+   "status": "source",
+   "line": 1255,
+   "card": "many\u21921"
+  },
+  {
+   "src": "LineageNode",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "via data product",
+   "status": "source",
+   "line": 1256,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "DistributionEvent",
+   "dst": "Report",
+   "kind": "ref",
+   "label": "distributes",
+   "status": "source",
+   "line": 1269,
+   "card": "many\u21921"
+  },
+  {
+   "src": "DistributionEvent",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "distributed to",
+   "status": "source",
+   "line": 1270,
+   "card": "many\u21921"
+  },
+  {
+   "src": "DistributionEvent",
+   "dst": "Contributor",
+   "kind": "ref",
+   "label": "distributed by",
+   "status": "source",
+   "line": 1271,
+   "card": "many\u21921"
+  },
+  {
+   "src": "DistributionEvent",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "report state at distribution",
+   "status": "source",
+   "line": 1272,
+   "card": "many\u21921"
+  },
+  {
+   "src": "MetricDefinition",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "calculated from",
+   "status": "source",
+   "line": 1301,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "MetricDefinition",
+   "dst": "StandardClause",
+   "kind": "ref",
+   "label": "aligns with",
+   "status": "source",
+   "line": 1302,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "MetricObservation",
+   "dst": "MetricDefinition",
+   "kind": "ref",
+   "label": "measures",
+   "status": "source",
+   "line": 1303,
+   "card": "many\u21921"
+  },
+  {
+   "src": "MetricObservation",
+   "dst": "Project",
+   "kind": "ref",
+   "label": "scoped to",
+   "status": "source",
+   "line": 1304,
+   "card": "many\u21921"
+  },
+  {
+   "src": "MetricObservation",
+   "dst": "Phase",
+   "kind": "ref",
+   "label": "scoped to",
+   "status": "source",
+   "line": 1305,
+   "card": "many\u21921"
+  },
+  {
+   "src": "MetricObservation",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "state at observation",
+   "status": "source",
+   "line": 1306,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "ReportDefinition",
+   "dst": "MetricDefinition",
+   "kind": "ref",
+   "label": "presents",
+   "status": "source",
+   "line": 1307,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "BoundedContext",
+   "kind": "ref",
+   "label": "exposes",
+   "status": "source",
+   "line": 1353,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "BoundedContext",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "owns",
+   "status": "source",
+   "line": 1354,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "BoundedContext",
+   "dst": "WorkflowDefinition",
+   "kind": "ref",
+   "label": "governs",
+   "status": "source",
+   "line": 1355,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "BoundedContext",
+   "kind": "ref",
+   "label": "produces",
+   "status": "source",
+   "line": 1356,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "BoundedContext",
+   "kind": "ref",
+   "label": "consumes",
+   "status": "source",
+   "line": 1357,
+   "card": "1\u2192many"
+  },
+  {
+   "src": "BoundedContext",
+   "dst": "VersionedEntity",
+   "kind": "ref",
+   "label": "aggregate root is",
+   "status": "source",
+   "line": 1358,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "BoundedContext",
+   "kind": "ref",
+   "label": "belongs to",
+   "status": "source",
+   "line": 1360,
+   "card": "many\u21921"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "QualityGateDefinition",
+   "kind": "ref",
+   "label": "enforces",
+   "status": "source",
+   "line": 1361,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "orchestrates",
+   "status": "source",
+   "line": 1362,
+   "card": "many\u2192many"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "reads from",
+   "status": "source",
+   "line": 1363,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "writes to",
+   "status": "source",
+   "line": 1364,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "BoundedContext",
+   "kind": "ref",
+   "label": "produced by",
+   "status": "source",
+   "line": 1366,
+   "card": "many\u21921"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "BoundedContext",
+   "kind": "ref",
+   "label": "consumed by",
+   "status": "source",
+   "line": 1367,
+   "card": "many\u21921"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "DataProduct",
+   "kind": "ref",
+   "label": "carries payload of",
+   "status": "source",
+   "line": 1368,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "MetricDefinition",
+   "kind": "ref",
+   "label": "triggers recalculation of",
+   "status": "source",
+   "line": 1369,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "drives state transition in",
+   "status": "source",
+   "line": 1370,
+   "card": "many\u21920..1"
+  },
+  {
+   "src": "BoundedContext",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "context lifecycle",
+   "status": "source",
+   "line": 1376,
+   "card": "1\u21921"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "service lifecycle",
+   "status": "source",
+   "line": 1377,
+   "card": "1\u21921"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "WorkflowInstance",
+   "kind": "ref",
+   "label": "contract lifecycle",
+   "status": "source",
+   "line": 1378,
+   "card": "1\u21921"
+  },
+  {
+   "src": "ReferenceSet",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 775,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "ReferenceValue",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 776,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "AdministrativeArea",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 777,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "StandardsOrganization",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 778,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Standard",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 779,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "StandardEdition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 780,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "StandardClause",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 781,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "CredentialDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 782,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "CredentialAssignment",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 783,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "WorkflowDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 784,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "LifecycleState",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 785,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "TransitionDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 786,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "WorkflowInstance",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 787,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "StateTransition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 788,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "QualityGateDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 789,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "GateCriterionDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 790,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "GateApprovalRequirement",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 791,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "QualityGateInstance",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 792,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "GateCriterionResult",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 793,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "GateDecision",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 794,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "QualityEvidence",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 795,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Nonconformity",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 796,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "CorrectiveAction",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 797,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Project",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 798,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "System",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 799,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Contributor",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 800,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Document",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 801,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Task",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 802,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Equipment",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 803,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Tool",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 804,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Subsystem",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 805,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Phase",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 806,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "WBS",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 807,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Location",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 808,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Organization",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 809,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Contract",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 810,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Revision",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 811,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 812,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Milestone",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 813,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "CostCode",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 814,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Specification",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 815,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "SpecificationCategory",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 816,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "MilestoneSignOff",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 817,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "ComputerDeployment",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 818,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "SpecificationReference",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 819,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "ComplianceProject",
+   "dst": "Project",
+   "kind": "inherits",
+   "label": "inherits Project",
+   "status": "unreviewed",
+   "line": 825,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Employee",
+   "dst": "Contributor",
+   "kind": "inherits",
+   "label": "inherits Contributor",
+   "status": "retired",
+   "line": 826,
+   "note": "D01: Employee is not a Contributor subtype"
+  },
+  {
+   "src": "Stakeholder",
+   "dst": "Contributor",
+   "kind": "inherits",
+   "label": "inherits Contributor",
+   "status": "retired",
+   "line": 827,
+   "note": "D04: Stakeholder is a contextual relationship"
+  },
+  {
+   "src": "Order",
+   "dst": "Document",
+   "kind": "inherits",
+   "label": "inherits Document",
+   "status": "retired",
+   "line": 828,
+   "note": "D06: Order is commercial, separate from its document"
+  },
+  {
+   "src": "Drawing",
+   "dst": "Document",
+   "kind": "inherits",
+   "label": "inherits Document",
+   "status": "open",
+   "line": 829,
+   "note": "Pending V1 decision: is a Drawing a Document?"
+  },
+  {
+   "src": "PRJDocument",
+   "dst": "Document",
+   "kind": "inherits",
+   "label": "inherits Document",
+   "status": "unreviewed",
+   "line": 830,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Report",
+   "dst": "Document",
+   "kind": "inherits",
+   "label": "inherits Document",
+   "status": "unreviewed",
+   "line": 831,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Revision",
+   "dst": "Document",
+   "kind": "inherits",
+   "label": "inherits Document",
+   "status": "unreviewed",
+   "line": 832,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "ReferenceDocument",
+   "dst": "Revision",
+   "kind": "inherits",
+   "label": "inherits Revision",
+   "status": "unreviewed",
+   "line": 833,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "WorkItem",
+   "dst": "Task",
+   "kind": "inherits",
+   "label": "inherits Task",
+   "status": "unreviewed",
+   "line": 834,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "ReviewItem",
+   "dst": "Task",
+   "kind": "inherits",
+   "label": "inherits Task",
+   "status": "unreviewed",
+   "line": 835,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "VerificationActivity",
+   "dst": "WorkItem",
+   "kind": "inherits",
+   "label": "inherits WorkItem",
+   "status": "unreviewed",
+   "line": 836,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Submittal",
+   "dst": "ReviewItem",
+   "kind": "inherits",
+   "label": "inherits ReviewItem",
+   "status": "unreviewed",
+   "line": 837,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Approval",
+   "dst": "ReviewItem",
+   "kind": "inherits",
+   "label": "inherits ReviewItem",
+   "status": "unreviewed",
+   "line": 838,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Product",
+   "dst": "Equipment",
+   "kind": "inherits",
+   "label": "inherits Equipment",
+   "status": "retired",
+   "line": 839,
+   "note": "D07: Product is legacy, splits into ProductDefinition + AssetInstance"
+  },
+  {
+   "src": "IntegrationMaterial",
+   "dst": "Equipment",
+   "kind": "inherits",
+   "label": "inherits Equipment",
+   "status": "unreviewed",
+   "line": 840,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "EngineeringComputer",
+   "dst": "Equipment",
+   "kind": "inherits",
+   "label": "inherits Equipment",
+   "status": "unreviewed",
+   "line": 841,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "RentalTool",
+   "dst": "Tool",
+   "kind": "inherits",
+   "label": "inherits Tool",
+   "status": "unreviewed",
+   "line": 842,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "CapitalTool",
+   "dst": "Tool",
+   "kind": "inherits",
+   "label": "inherits Tool",
+   "status": "unreviewed",
+   "line": 843,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Manufacturer",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "unreviewed",
+   "line": 844,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Vendor",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "unreviewed",
+   "line": 845,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Client",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "unreviewed",
+   "line": 847,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "ClientDivision",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "unreviewed",
+   "line": 848,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "ManufacturerRep",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "retired",
+   "line": 849,
+   "note": "D08: representation relationship, not an org subtype"
+  },
+  {
+   "src": "RegulatoryAuthority",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "unreviewed",
+   "line": 850,
+   "note": "Source-model inheritance; scaffolds do not inherit until reviewed"
+  },
+  {
+   "src": "Consultant",
+   "dst": "Organization",
+   "kind": "inherits",
+   "label": "inherits Organization",
+   "status": "retired",
+   "line": 851,
+   "note": "D05: consulting engagement, not an org subtype"
+  },
+  {
+   "src": "ReportDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1230,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "MetricDefinition",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1231,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "RegulatoryJurisdiction",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1232,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "Subcontractor",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1233,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "DataProduct",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1235,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "BoundedContext",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1372,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "ApplicationService",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1373,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "DomainIntegrationContract",
+   "dst": "VersionedEntity",
+   "kind": "inherits",
+   "label": "inherits VersionedEntity",
+   "status": "base",
+   "line": 1374,
+   "note": "Versioning base (existing at domain/versioning.py in the full repo)"
+  },
+  {
+   "src": "AssetInstance",
+   "dst": "ProductDefinition",
+   "kind": "proposed",
+   "label": "instance of",
+   "status": "confirmed",
+   "note": "D07"
+  },
+  {
+   "src": "Product",
+   "dst": "ProductDefinition",
+   "kind": "proposed",
+   "label": "migrates to",
+   "status": "confirmed",
+   "note": "D07"
+  },
+  {
+   "src": "Product",
+   "dst": "AssetInstance",
+   "kind": "proposed",
+   "label": "migrates to",
+   "status": "confirmed",
+   "note": "D07"
+  },
+  {
+   "src": "ProductDefinition",
+   "dst": "Manufacturer",
+   "kind": "proposed",
+   "label": "manufacturer part info",
+   "status": "confirmed",
+   "note": "D07"
+  },
+  {
+   "src": "AssetInstance",
+   "dst": "Location",
+   "kind": "proposed",
+   "label": "installed at",
+   "status": "inferred",
+   "note": "D07 installation info"
+  },
+  {
+   "src": "ProductOnlyVendor",
+   "dst": "Vendor",
+   "kind": "proposed",
+   "label": "subtype of",
+   "status": "confirmed",
+   "note": "D09"
+  },
+  {
+   "src": "ProfessionalServicesManufacturerVendor",
+   "dst": "Vendor",
+   "kind": "proposed",
+   "label": "subtype of",
+   "status": "confirmed",
+   "note": "D09"
+  },
+  {
+   "src": "LaborPlatformVendor",
+   "dst": "Vendor",
+   "kind": "proposed",
+   "label": "subtype of",
+   "status": "confirmed",
+   "note": "D09"
+  },
+  {
+   "src": "SubcontractorFreelancerVendor",
+   "dst": "Vendor",
+   "kind": "proposed",
+   "label": "subtype of",
+   "status": "confirmed",
+   "note": "D09"
+  },
+  {
+   "src": "ProfessionalServicesManufacturerVendor",
+   "dst": "Manufacturer",
+   "kind": "proposed",
+   "label": "is also a",
+   "status": "inferred",
+   "note": "D09 meaning 2"
+  },
+  {
+   "src": "LaborPlatformVendor",
+   "dst": "Contributor",
+   "kind": "proposed",
+   "label": "books provider (not identity)",
+   "status": "inferred",
+   "note": "D09"
+  },
+  {
+   "src": "SubcontractorFreelancerVendor",
+   "dst": "Subcontractor",
+   "kind": "proposed",
+   "label": "overlap open",
+   "status": "inferred",
+   "note": "D09"
+  },
+  {
+   "src": "BOMLine",
+   "dst": "BOM",
+   "kind": "proposed",
+   "label": "line of",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "BOMLine",
+   "dst": "ProductDefinition",
+   "kind": "proposed",
+   "label": "references product",
+   "status": "inferred",
+   "note": "V1 task example"
+  },
+  {
+   "src": "BOM",
+   "dst": "Project",
+   "kind": "proposed",
+   "label": "scoped to",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "Shipment",
+   "dst": "Order",
+   "kind": "proposed",
+   "label": "ships against",
+   "status": "inferred",
+   "note": "V1 task: 31 Procurement \u2192 41 Installation gap"
+  },
+  {
+   "src": "Shipment",
+   "dst": "AssetInstance",
+   "kind": "proposed",
+   "label": "carries",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "Shipment",
+   "dst": "Location",
+   "kind": "proposed",
+   "label": "to / from",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "CalendarBooking",
+   "dst": "Employee",
+   "kind": "proposed",
+   "label": "reserves",
+   "status": "inferred",
+   "note": "V1 task: reservation of a resource"
+  },
+  {
+   "src": "CalendarBooking",
+   "dst": "Contributor",
+   "kind": "proposed",
+   "label": "reserves",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "CalendarBooking",
+   "dst": "Agent",
+   "kind": "proposed",
+   "label": "reserves",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "CalendarBooking",
+   "dst": "Task",
+   "kind": "proposed",
+   "label": "for work",
+   "status": "inferred",
+   "note": "V1 task: link to task or execution open"
+  },
+  {
+   "src": "RFI",
+   "dst": "Project",
+   "kind": "proposed",
+   "label": "raised on",
+   "status": "inferred",
+   "note": "V1 task"
+  },
+  {
+   "src": "RFI",
+   "dst": "Drawing",
+   "kind": "proposed",
+   "label": "impacts",
+   "status": "inferred",
+   "note": "V1 task: impact on drawings or scope"
+  },
+  {
+   "src": "RFI",
+   "dst": "Organization",
+   "kind": "proposed",
+   "label": "across boundary to",
+   "status": "inferred",
+   "note": "V1 task"
+  }
+ ],
+ "cycles": [
+  [
+   "Contributor",
+   "Organization",
+   "Subcontractor"
+  ],
+  [
+   "Drawing",
+   "Revision"
+  ],
+  [
+   "ManufacturerRep",
+   "Product"
+  ]
+ ]
+}

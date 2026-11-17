@@ -1,0 +1,33 @@
+{
+  "additionalProperties": false,
+  "description": "A cell whose text must match for the profile to apply (case- and whitespace-insensitive).",
+  "properties": {
+    "cell": {
+      "description": "Cell reference.",
+      "pattern": "^[A-Z]{1,3}[1-9][0-9]{0,6}$",
+      "title": "Cell",
+      "type": "string"
+    },
+    "sheet": {
+      "description": "Sheet name.",
+      "maxLength": 31,
+      "minLength": 1,
+      "title": "Sheet",
+      "type": "string"
+    },
+    "text": {
+      "description": "Expected text after whitespace collapse and casefold.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "sheet",
+    "cell",
+    "text"
+  ],
+  "title": "CellAnchor",
+  "type": "object"
+}

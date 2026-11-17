@@ -1,0 +1,24 @@
+{
+  "additionalProperties": false,
+  "description": "Square sampling grid on [-extent, extent]^2. Row 0 is y = +extent (image order).",
+  "properties": {
+    "extent": {
+      "default": 2.0,
+      "description": "Half-width of the grid in model units.",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "title": "Extent",
+      "type": "number"
+    },
+    "size": {
+      "default": 32,
+      "description": "Cells per side (G).",
+      "maximum": 256,
+      "minimum": 8,
+      "title": "Size",
+      "type": "integer"
+    }
+  },
+  "title": "FieldGrid",
+  "type": "object"
+}

@@ -1,0 +1,664 @@
+{
+ "version": "0.9.0",
+ "status": "unreviewed-scaffold",
+ "entries": [
+  {
+   "class_name": "VersionedEntity",
+   "source": "source-model",
+   "path": "src/app/domain/versioning.py",
+   "module": "app.domain.versioning",
+   "note": "Versioning base name. No versioning behavior implemented here."
+  },
+  {
+   "class_name": "ReferenceSet",
+   "source": "source-model",
+   "path": "src/app/domain/reference/reference_set.py",
+   "module": "app.domain.reference.reference_set",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ReferenceValue",
+   "source": "source-model",
+   "path": "src/app/domain/reference/reference_value.py",
+   "module": "app.domain.reference.reference_value",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "AdministrativeArea",
+   "source": "source-model",
+   "path": "src/app/domain/geography/administrative_area.py",
+   "module": "app.domain.geography.administrative_area",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Location",
+   "source": "source-model",
+   "path": "src/app/domain/geography/location.py",
+   "module": "app.domain.geography.location",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "StandardsOrganization",
+   "source": "source-model",
+   "path": "src/app/domain/standards/standards_organization.py",
+   "module": "app.domain.standards.standards_organization",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Standard",
+   "source": "source-model",
+   "path": "src/app/domain/standards/standard.py",
+   "module": "app.domain.standards.standard",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "StandardEdition",
+   "source": "source-model",
+   "path": "src/app/domain/standards/standard_edition.py",
+   "module": "app.domain.standards.standard_edition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "StandardClause",
+   "source": "source-model",
+   "path": "src/app/domain/standards/standard_clause.py",
+   "module": "app.domain.standards.standard_clause",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Specification",
+   "source": "source-model",
+   "path": "src/app/domain/standards/specification.py",
+   "module": "app.domain.standards.specification",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "SpecificationCategory",
+   "source": "source-model",
+   "path": "src/app/domain/standards/specification_category.py",
+   "module": "app.domain.standards.specification_category",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "SpecificationReference",
+   "source": "source-model",
+   "path": "src/app/domain/standards/specification_reference.py",
+   "module": "app.domain.standards.specification_reference",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "CredentialDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/credentials/credential_definition.py",
+   "module": "app.domain.credentials.credential_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "CredentialAssignment",
+   "source": "source-model",
+   "path": "src/app/domain/credentials/credential_assignment.py",
+   "module": "app.domain.credentials.credential_assignment",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "WorkflowDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/workflow/workflow_definition.py",
+   "module": "app.domain.workflow.workflow_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "LifecycleState",
+   "source": "source-model",
+   "path": "src/app/domain/workflow/lifecycle_state.py",
+   "module": "app.domain.workflow.lifecycle_state",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "TransitionDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/workflow/transition_definition.py",
+   "module": "app.domain.workflow.transition_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "WorkflowInstance",
+   "source": "source-model",
+   "path": "src/app/domain/workflow/workflow_instance.py",
+   "module": "app.domain.workflow.workflow_instance",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "StateTransition",
+   "source": "source-model",
+   "path": "src/app/domain/workflow/state_transition.py",
+   "module": "app.domain.workflow.state_transition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "QualityGateDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/quality/quality_gate_definition.py",
+   "module": "app.domain.quality.quality_gate_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "GateCriterionDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/quality/gate_criterion_definition.py",
+   "module": "app.domain.quality.gate_criterion_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "GateApprovalRequirement",
+   "source": "source-model",
+   "path": "src/app/domain/quality/gate_approval_requirement.py",
+   "module": "app.domain.quality.gate_approval_requirement",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "QualityGateInstance",
+   "source": "source-model",
+   "path": "src/app/domain/quality/quality_gate_instance.py",
+   "module": "app.domain.quality.quality_gate_instance",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "GateCriterionResult",
+   "source": "source-model",
+   "path": "src/app/domain/quality/gate_criterion_result.py",
+   "module": "app.domain.quality.gate_criterion_result",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "GateDecision",
+   "source": "source-model",
+   "path": "src/app/domain/quality/gate_decision.py",
+   "module": "app.domain.quality.gate_decision",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "QualityEvidence",
+   "source": "source-model",
+   "path": "src/app/domain/quality/quality_evidence.py",
+   "module": "app.domain.quality.quality_evidence",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Nonconformity",
+   "source": "source-model",
+   "path": "src/app/domain/quality/nonconformity.py",
+   "module": "app.domain.quality.nonconformity",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "CorrectiveAction",
+   "source": "source-model",
+   "path": "src/app/domain/quality/corrective_action.py",
+   "module": "app.domain.quality.corrective_action",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "VerificationActivity",
+   "source": "source-model",
+   "path": "src/app/domain/quality/verification_activity.py",
+   "module": "app.domain.quality.verification_activity",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Approval",
+   "source": "source-model",
+   "path": "src/app/domain/quality/approval.py",
+   "module": "app.domain.quality.approval",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "MilestoneSignOff",
+   "source": "source-model",
+   "path": "src/app/domain/quality/milestone_sign_off.py",
+   "module": "app.domain.quality.milestone_sign_off",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Project",
+   "source": "source-model",
+   "path": "src/app/domain/project/project_entity.py",
+   "module": "app.domain.project.project_entity",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ComplianceProject",
+   "source": "source-model",
+   "path": "src/app/domain/project/compliance_project.py",
+   "module": "app.domain.project.compliance_project",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "System",
+   "source": "source-model",
+   "path": "src/app/domain/project/system.py",
+   "module": "app.domain.project.system",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Subsystem",
+   "source": "source-model",
+   "path": "src/app/domain/project/subsystem.py",
+   "module": "app.domain.project.subsystem",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Phase",
+   "source": "source-model",
+   "path": "src/app/domain/project/project_phase.py",
+   "module": "app.domain.project.project_phase",
+   "note": "Project lifecycle phase. Never the simulator physics phase."
+  },
+  {
+   "class_name": "WBS",
+   "source": "source-model",
+   "path": "src/app/domain/project/wbs.py",
+   "module": "app.domain.project.wbs",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Milestone",
+   "source": "source-model",
+   "path": "src/app/domain/project/milestone.py",
+   "module": "app.domain.project.milestone",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Task",
+   "source": "source-model",
+   "path": "src/app/domain/task/task_entity.py",
+   "module": "app.domain.task.task_entity",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "WorkItem",
+   "source": "source-model",
+   "path": "src/app/domain/task/work_item.py",
+   "module": "app.domain.task.work_item",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ReviewItem",
+   "source": "source-model",
+   "path": "src/app/domain/task/review_item.py",
+   "module": "app.domain.task.review_item",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Employee",
+   "source": "source-model",
+   "path": "src/app/domain/employee/employee_entity.py",
+   "module": "app.domain.employee.employee_entity",
+   "note": "Employee resource. Distinct from Contributor, not a subtype of it; permissions unresolved."
+  },
+  {
+   "class_name": "Contributor",
+   "source": "source-model",
+   "path": "src/app/domain/workforce/contributor.py",
+   "module": "app.domain.workforce.contributor",
+   "note": "Third-party labor resource. Shared resource base and permissions unresolved."
+  },
+  {
+   "class_name": "TimeCard",
+   "source": "source-model",
+   "path": "src/app/domain/workforce/time_card.py",
+   "module": "app.domain.workforce.time_card",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Organization",
+   "source": "source-model",
+   "path": "src/app/domain/parties/organization.py",
+   "module": "app.domain.parties.organization",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Client",
+   "source": "source-model",
+   "path": "src/app/domain/parties/client.py",
+   "module": "app.domain.parties.client",
+   "note": "Client party; may hold scope outside the delivering organization."
+  },
+  {
+   "class_name": "ClientDivision",
+   "source": "source-model",
+   "path": "src/app/domain/parties/client_division.py",
+   "module": "app.domain.parties.client_division",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Subcontractor",
+   "source": "source-model",
+   "path": "src/app/domain/parties/subcontractor.py",
+   "module": "app.domain.parties.subcontractor",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Manufacturer",
+   "source": "source-model",
+   "path": "src/app/domain/parties/manufacturer.py",
+   "module": "app.domain.parties.manufacturer",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Vendor",
+   "source": "source-model",
+   "path": "src/app/domain/parties/vendor.py",
+   "module": "app.domain.parties.vendor",
+   "note": "Vendor party. Four subtype meanings exist; overlap policy unresolved."
+  },
+  {
+   "class_name": "RegulatoryAuthority",
+   "source": "source-model",
+   "path": "src/app/domain/parties/regulatory_authority.py",
+   "module": "app.domain.parties.regulatory_authority",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "RegulatoryJurisdiction",
+   "source": "source-model",
+   "path": "src/app/domain/parties/regulatory_jurisdiction.py",
+   "module": "app.domain.parties.regulatory_jurisdiction",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Stakeholder",
+   "source": "source-model",
+   "path": "src/app/domain/engagements/stakeholder_relationship.py",
+   "module": "app.domain.engagements.stakeholder_relationship",
+   "note": "Contextual relationship between a party and a context. Not a person subtype; grants no authority."
+  },
+  {
+   "class_name": "Consultant",
+   "source": "source-model",
+   "path": "src/app/domain/engagements/consulting_engagement.py",
+   "module": "app.domain.engagements.consulting_engagement",
+   "note": "Third-party approver engagement. Approval scope must be explicit per decision."
+  },
+  {
+   "class_name": "ManufacturerRep",
+   "source": "source-model",
+   "path": "src/app/domain/engagements/manufacturer_representation.py",
+   "module": "app.domain.engagements.manufacturer_representation",
+   "note": "Representation relationship between a manufacturer and a representative party."
+  },
+  {
+   "class_name": "Contract",
+   "source": "source-model",
+   "path": "src/app/domain/commercial/contract.py",
+   "module": "app.domain.commercial.contract",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Order",
+   "source": "source-model",
+   "path": "src/app/domain/commercial/commercial_order.py",
+   "module": "app.domain.commercial.commercial_order",
+   "note": "Commercial entity, separate from any document that represents it."
+  },
+  {
+   "class_name": "CostCode",
+   "source": "source-model",
+   "path": "src/app/domain/commercial/cost_code.py",
+   "module": "app.domain.commercial.cost_code",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Document",
+   "source": "source-model",
+   "path": "src/app/domain/document/document.py",
+   "module": "app.domain.document.document",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Revision",
+   "source": "source-model",
+   "path": "src/app/domain/document/revision.py",
+   "module": "app.domain.document.revision",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Drawing",
+   "source": "source-model",
+   "path": "src/app/domain/document/drawing.py",
+   "module": "app.domain.document.drawing",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Report",
+   "source": "source-model",
+   "path": "src/app/domain/document/report.py",
+   "module": "app.domain.document.report",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ReferenceDocument",
+   "source": "source-model",
+   "path": "src/app/domain/document/reference_document.py",
+   "module": "app.domain.document.reference_document",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Submittal",
+   "source": "source-model",
+   "path": "src/app/domain/document/submittal.py",
+   "module": "app.domain.document.submittal",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Equipment",
+   "source": "source-model",
+   "path": "src/app/domain/product/product_entity.py",
+   "module": "app.domain.product.product_entity",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Tool",
+   "source": "source-model",
+   "path": "src/app/domain/assets/tool.py",
+   "module": "app.domain.assets.tool",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "IntegrationMaterial",
+   "source": "source-model",
+   "path": "src/app/domain/product/product_entity.py",
+   "module": "app.domain.product.product_entity",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "EngineeringComputer",
+   "source": "source-model",
+   "path": "src/app/domain/assets/engineering_computer.py",
+   "module": "app.domain.assets.engineering_computer",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ComputerDeployment",
+   "source": "source-model",
+   "path": "src/app/domain/assets/computer_deployment.py",
+   "module": "app.domain.assets.computer_deployment",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "RentalTool",
+   "source": "source-model",
+   "path": "src/app/domain/assets/rental_tool.py",
+   "module": "app.domain.assets.rental_tool",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "CapitalTool",
+   "source": "source-model",
+   "path": "src/app/domain/assets/capital_tool.py",
+   "module": "app.domain.assets.capital_tool",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Product",
+   "source": "source-model",
+   "path": "src/app/domain/product/product_entity.py",
+   "module": "app.domain.product.product_entity",
+   "note": "Source name only. Target split: ProductDefinition and AssetInstance."
+  },
+  {
+   "class_name": "DataProduct",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/data_product.py",
+   "module": "app.domain.data_governance.data_product",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ReportDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/report_definition.py",
+   "module": "app.domain.data_governance.report_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "DataLineage",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/data_lineage.py",
+   "module": "app.domain.data_governance.data_lineage",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "LineageNode",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/lineage_node.py",
+   "module": "app.domain.data_governance.lineage_node",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "DistributionEvent",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/distribution_event.py",
+   "module": "app.domain.data_governance.distribution_event",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "MetricDefinition",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/metric_definition.py",
+   "module": "app.domain.data_governance.metric_definition",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "MetricObservation",
+   "source": "source-model",
+   "path": "src/app/domain/data_governance/metric_observation.py",
+   "module": "app.domain.data_governance.metric_observation",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "BoundedContext",
+   "source": "source-model",
+   "path": "src/app/domain/integration/bounded_context.py",
+   "module": "app.domain.integration.bounded_context",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ApplicationService",
+   "source": "source-model",
+   "path": "src/app/domain/integration/application_service_definition.py",
+   "module": "app.domain.integration.application_service_definition",
+   "note": "Descriptive service metadata only. Executable orchestration lives in app.application."
+  },
+  {
+   "class_name": "DomainIntegrationContract",
+   "source": "source-model",
+   "path": "src/app/domain/integration/domain_integration_contract.py",
+   "module": "app.domain.integration.domain_integration_contract",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "ProductDefinition",
+   "source": "addition",
+   "path": "src/app/domain/product/product_definition.py",
+   "module": "app.domain.product.product_definition",
+   "note": "Catalog definition: model and manufacturer part information."
+  },
+  {
+   "class_name": "AssetInstance",
+   "source": "addition",
+   "path": "src/app/domain/product/asset_instance.py",
+   "module": "app.domain.product.asset_instance",
+   "note": "Physical unit linked to a ProductDefinition. Bulk materials get no invented serial identity."
+  },
+  {
+   "class_name": "Shipment",
+   "source": "addition",
+   "path": "src/app/domain/logistics/shipment.py",
+   "module": "app.domain.logistics.shipment",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "CalendarBooking",
+   "source": "addition",
+   "path": "src/app/domain/scheduling/calendar_booking.py",
+   "module": "app.domain.scheduling.calendar_booking",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "BOM",
+   "source": "addition",
+   "path": "src/app/domain/materials/bom.py",
+   "module": "app.domain.materials.bom",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "BOMLine",
+   "source": "addition",
+   "path": "src/app/domain/materials/bom_line.py",
+   "module": "app.domain.materials.bom_line",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "RFI",
+   "source": "addition",
+   "path": "src/app/domain/coordination/rfi.py",
+   "module": "app.domain.coordination.rfi",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Agent",
+   "source": "addition",
+   "path": "src/app/domain/workforce/agent.py",
+   "module": "app.domain.workforce.agent",
+   "note": "AI agent. Resource status and authority unresolved."
+  },
+  {
+   "class_name": "ProductOnlyVendor",
+   "source": "addition",
+   "path": "src/app/domain/parties/product_only_vendor.py",
+   "module": "app.domain.parties.product_only_vendor",
+   "note": "Vendor subtype: sells products only, such as a distributor."
+  },
+  {
+   "class_name": "ProfessionalServicesManufacturerVendor",
+   "source": "addition",
+   "path": "src/app/domain/parties/professional_services_manufacturer_vendor.py",
+   "module": "app.domain.parties.professional_services_manufacturer_vendor",
+   "note": "Vendor subtype: manufacturer that also sells professional services."
+  },
+  {
+   "class_name": "LaborPlatformVendor",
+   "source": "addition",
+   "path": "src/app/domain/parties/labor_platform_vendor.py",
+   "module": "app.domain.parties.labor_platform_vendor",
+   "note": "Vendor subtype: platform through which labor is booked. Not the provider booked through it."
+  },
+  {
+   "class_name": "SubcontractorFreelancerVendor",
+   "source": "addition",
+   "path": "src/app/domain/parties/subcontractor_freelancer_vendor.py",
+   "module": "app.domain.parties.subcontractor_freelancer_vendor",
+   "note": "Vendor subtype: subcontractor or freelancer."
+  }
+ ]
+}

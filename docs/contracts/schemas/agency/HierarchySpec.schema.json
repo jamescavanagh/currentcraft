@@ -1,0 +1,103 @@
+{
+  "additionalProperties": false,
+  "description": "How a task-list column carries its WBS levels when the sheet has no outline grouping or WBS code column.\n\nLevels: 1 phase (root), 2 stem (boilerplate task or sub-system heading), 3 leaf (task under a sub-system).\nText rules classify; formatting confirms. Disagreement is a diagnostic, never a silent override. Leaf parents are\nproposals: the template does not state them.",
+  "properties": {
+    "bold_kinds": {
+      "default": [
+        "phase",
+        "subtotal",
+        "total"
+      ],
+      "description": "Row kinds expected to be bold.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+        "type": "string"
+      },
+      "title": "Bold Kinds",
+      "type": "array"
+    },
+    "leaf_code_pattern": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Regex, group 1 a sub-system code, naming a leaf, e.g. '^([A-Z0-9]{2,8})\\s+-\\s+'.",
+      "title": "Leaf Code Pattern"
+    },
+    "leaf_min_indent": {
+      "anyOf": [
+        {
+          "maximum": 15,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Indent marking a leaf; default subsystem_min_indent + 1.",
+      "title": "Leaf Min Indent"
+    },
+    "placeholder_pattern": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Regex, group 1 an example code, for template placeholder rows. Examples never resolve.",
+      "title": "Placeholder Pattern"
+    },
+    "section_start_pattern": {
+      "description": "Regex for the row opening a sub-system section.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Section Start Pattern",
+      "type": "string"
+    },
+    "subsystem_min_indent": {
+      "default": 3,
+      "description": "Alignment indent marking a sub-system row inside a section.",
+      "maximum": 15,
+      "minimum": 1,
+      "title": "Subsystem Min Indent",
+      "type": "integer"
+    },
+    "subsystem_set": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Vocabulary resolving sub-system codes from row names.",
+      "title": "Subsystem Set"
+    },
+    "use_outline_levels": {
+      "default": true,
+      "description": "Prefer Excel outline levels when the sheet has them.",
+      "title": "Use Outline Levels",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "section_start_pattern"
+  ],
+  "title": "HierarchySpec",
+  "type": "object"
+}

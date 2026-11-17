@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "description": "Where crossings on one plate become candidate handoffs to another.",
+  "properties": {
+    "direction": {
+      "default": 0,
+      "description": "Crossing direction routed: +1 to the + side, -1 to the - side, 0 any.",
+      "enum": [
+        -1,
+        0,
+        1
+      ],
+      "title": "Direction",
+      "type": "integer"
+    },
+    "from_plate": {
+      "description": "Plate whose crossings are routed.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "From Plate",
+      "type": "string"
+    },
+    "to_plate": {
+      "description": "Plate whose intake receives the candidate.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "To Plate",
+      "type": "string"
+    }
+  },
+  "required": [
+    "from_plate",
+    "to_plate"
+  ],
+  "title": "Route",
+  "type": "object"
+}

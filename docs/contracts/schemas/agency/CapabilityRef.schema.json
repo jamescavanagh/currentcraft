@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "description": "Names one capability: a resource doing a process (an element of E_S).",
+  "properties": {
+    "process": {
+      "description": "Translated process id, e.g. 'transform:build_rack@bench' or 'refined:hold(rack:built):bench->room201'.",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Process",
+      "type": "string"
+    },
+    "resource_id": {
+      "description": "Executing resource.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Resource Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "process",
+    "resource_id"
+  ],
+  "title": "CapabilityRef",
+  "type": "object"
+}

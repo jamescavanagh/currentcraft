@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "description": "A claim on shared stock by a work package. Not an approval, purchase or custody transfer.",
+  "properties": {
+    "claimant_ref": {
+      "description": "Work package or execution id holding the claim.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Claimant Ref",
+      "type": "string"
+    },
+    "command_id": {
+      "description": "Command that created it (idempotency key).",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Command Id",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "When it was created.",
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "quantity": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Exact quantity claimed.",
+      "title": "Quantity"
+    },
+    "reservation_id": {
+      "description": "Opaque identity.",
+      "format": "uuid",
+      "title": "Reservation Id",
+      "type": "string"
+    },
+    "status": {
+      "default": "active",
+      "description": "Claim state.",
+      "enum": [
+        "active",
+        "released"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "stock_id": {
+      "description": "Stock position claimed.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Stock Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reservation_id",
+    "stock_id",
+    "claimant_ref",
+    "quantity",
+    "command_id",
+    "created_at"
+  ],
+  "title": "Reservation",
+  "type": "object"
+}

@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "description": "Shared stock of one item at one place. Reservations claim it; they never overcommit it.",
+  "properties": {
+    "item_ref": {
+      "description": "Item reference (catalog or ERP item), governed.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Item Ref",
+      "type": "string"
+    },
+    "on_hand": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Exact on-hand quantity.",
+      "title": "On Hand"
+    },
+    "reserved": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "default": "0",
+      "description": "Exact reserved quantity.",
+      "title": "Reserved"
+    },
+    "stock_id": {
+      "description": "Stock position id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Stock Id",
+      "type": "string"
+    },
+    "uom": {
+      "description": "Unit of measure as issued by the owning system.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Uom",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "description": "Row version.",
+      "exclusiveMinimum": 0,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "stock_id",
+    "item_ref",
+    "uom",
+    "on_hand"
+  ],
+  "title": "StockPosition",
+  "type": "object"
+}

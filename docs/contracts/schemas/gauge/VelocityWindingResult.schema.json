@@ -1,0 +1,124 @@
+{
+  "additionalProperties": false,
+  "description": "Index of a sampled velocity polygon and optional conditional certificate for the continuous contour.",
+  "properties": {
+    "bound_provenance": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Caller-supplied bound provenance, copied without independent verification.",
+      "title": "Bound Provenance"
+    },
+    "certified_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Continuous-field index only when homotopy guard passes under supplied bounds.",
+      "title": "Certified Index"
+    },
+    "integer_residual": {
+      "description": "Absolute difference between sampled phase sum / 2 pi and nearest integer.",
+      "title": "Integer Residual",
+      "type": "number"
+    },
+    "maximum_phase_step": {
+      "description": "Largest absolute wrapped phase increment.",
+      "title": "Maximum Phase Step",
+      "type": "number"
+    },
+    "minimum_certified_clearance": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Minimum chord distance minus B_e * arc_length_e / 2; must exceed point_floor.",
+      "title": "Minimum Certified Clearance"
+    },
+    "minimum_chord_distance": {
+      "description": "Minimum distance to origin across velocity-space polygon segments.",
+      "title": "Minimum Chord Distance",
+      "type": "number"
+    },
+    "minimum_speed": {
+      "description": "Minimum sampled speed.",
+      "title": "Minimum Speed",
+      "type": "number"
+    },
+    "reasons": {
+      "description": "Diagnostics, including unresolved aliasing or failing bound.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "refinement_recommended": {
+      "description": "True for unresolved bounds or undersampling; resampling alone does not create a certificate.",
+      "title": "Refinement Recommended",
+      "type": "boolean"
+    },
+    "sampled_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Integer degree of safe velocity polygon; None if a polygon guard failed. Not by itself a continuous-field index.",
+      "title": "Sampled Index"
+    },
+    "sampled_valid": {
+      "description": "Sampled points, chords, phase margin and integer residual pass.",
+      "title": "Sampled Valid",
+      "type": "boolean"
+    },
+    "status": {
+      "description": "certified is conditional on supplied whole-segment bounds being correct, not inferred from finite samples.",
+      "enum": [
+        "invalid",
+        "sampled_only",
+        "certified"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "winding_valid": {
+      "description": "True ONLY for certified continuous-field winding; sampled-only is not certified.",
+      "title": "Winding Valid",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "status",
+    "sampled_index",
+    "certified_index",
+    "sampled_valid",
+    "winding_valid",
+    "refinement_recommended",
+    "reasons",
+    "minimum_speed",
+    "minimum_chord_distance",
+    "maximum_phase_step",
+    "integer_residual",
+    "minimum_certified_clearance",
+    "bound_provenance"
+  ],
+  "title": "VelocityWindingResult",
+  "type": "object"
+}

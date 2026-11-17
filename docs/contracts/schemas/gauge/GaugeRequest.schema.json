@@ -1,0 +1,554 @@
+{
+  "$defs": {
+    "EmbeddingSpaceRef": {
+      "additionalProperties": false,
+      "description": "Where the embedding rows came from. Recorded for provenance; the reduction is not re-run here.",
+      "properties": {
+        "labeling_round": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Labeling round the frame is pinned to.",
+          "title": "Labeling Round"
+        },
+        "model": {
+          "description": "Embedding model name.",
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "reduction": {
+          "default": "none",
+          "description": "Reduction applied upstream, e.g. pca-32 or umap-16.",
+          "maxLength": 80,
+          "title": "Reduction",
+          "type": "string"
+        },
+        "salt": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Salt used for this replicate (test salt invariance, not salt value).",
+          "title": "Salt"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model or index version.",
+          "title": "Version"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "EmbeddingSpaceRef",
+      "type": "object"
+    },
+    "FlowSide": {
+      "description": "Which side of a subsystem's supply/demand balance a node sits on. Used only by the proposed director.",
+      "enum": [
+        "supply",
+        "demand",
+        "neutral"
+      ],
+      "title": "FlowSide",
+      "type": "string"
+    },
+    "GaugeLoop": {
+      "additionalProperties": false,
+      "description": "A closed cycle of node ids (last connects back to first) whose winding is measured.",
+      "properties": {
+        "id": {
+          "description": "Loop id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "node_ids": {
+          "description": "Cycle in order; consecutive nodes must be linked.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "maxItems": 4096,
+          "minItems": 3,
+          "title": "Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "node_ids"
+      ],
+      "title": "GaugeLoop",
+      "type": "object"
+    },
+    "GaugeNode": {
+      "additionalProperties": false,
+      "description": "One operand/resource/process record whose reduced embedding row is measured.",
+      "properties": {
+        "flow": {
+          "$ref": "#/$defs/FlowSide",
+          "default": "neutral",
+          "description": "Supply/demand side; drives the proposed supply_demand director."
+        },
+        "id": {
+          "description": "Stable node id; rows of the embeddings tensor follow request.nodes order.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human label, e.g. record text.",
+          "title": "Label"
+        },
+        "role": {
+          "$ref": "#/$defs/NodeRole",
+          "default": "unassigned",
+          "description": "Resource/Process/Operand role (simulation NodeRole)."
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Provenance: record id/version or citation.",
+          "title": "Source Ref"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:/ -]{1,80}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Process stage the record belongs to, if known.",
+          "title": "Stage"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "GaugeNode",
+      "type": "object"
+    },
+    "GaugeParams": {
+      "additionalProperties": false,
+      "description": "Reduction constants. Defaults are the v0.2 protocol values.",
+      "properties": {
+        "director_mode": {
+          "default": "principal_axis",
+          "description": "principal_axis (axis, mod pi) or supply_demand (vector, mod 2 pi; PROPOSED).",
+          "enum": [
+            "principal_axis",
+            "supply_demand"
+          ],
+          "title": "Director Mode",
+          "type": "string"
+        },
+        "director_ratio_min": {
+          "default": 1.5,
+          "description": "principal_axis: node valid only if lambda1/lambda2 >= this.",
+          "minimum": 1,
+          "title": "Director Ratio Min",
+          "type": "number"
+        },
+        "k": {
+          "default": 12,
+          "description": "Neighbours per node for patches and links (union kNN).",
+          "maximum": 64,
+          "minimum": 4,
+          "title": "K",
+          "type": "integer"
+        },
+        "orientation_convention": {
+          "const": "net_holonomy_positive",
+          "default": "net_holonomy_positive",
+          "description": "Fixes each component's frame orientation so holonomy signs are invariant.",
+          "title": "Orientation Convention",
+          "type": "string"
+        },
+        "planarity_min": {
+          "default": 2.0,
+          "description": "Node valid only if lambda2/lambda3 >= this.",
+          "minimum": 1,
+          "title": "Planarity Min",
+          "type": "number"
+        },
+        "reliability_min": {
+          "default": 0.5,
+          "description": "Link kept only if the smallest singular value of O_i^T O_j >= this.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Reliability Min",
+          "type": "number"
+        },
+        "supersaturation_threshold": {
+          "default": 1.5,
+          "description": "Local/global density ratio marking a supersaturated operand.",
+          "exclusiveMinimum": 0,
+          "title": "Supersaturation Threshold",
+          "type": "number"
+        }
+      },
+      "title": "GaugeParams",
+      "type": "object"
+    },
+    "NodeRole": {
+      "description": "Resource-Process-Operand working triad (see the domain prototype's Body). Mapping is not yet approved.",
+      "enum": [
+        "resource",
+        "process",
+        "operand",
+        "unassigned"
+      ],
+      "title": "NodeRole",
+      "type": "string"
+    },
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Reduce node embeddings to operand gauges and a lattice connection (discrete vector potential).",
+  "properties": {
+    "embeddings": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to the N x K float64 reduced embeddings (gauge.embeddings)."
+    },
+    "frame_id": {
+      "description": "Frame identity, pinned to its labeling round (e.g. synthetic-example).",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "loops": {
+      "default": [],
+      "description": "Cycles to measure windings around.",
+      "items": {
+        "$ref": "#/$defs/GaugeLoop"
+      },
+      "maxItems": 256,
+      "title": "Loops",
+      "type": "array"
+    },
+    "nodes": {
+      "description": "Nodes in embedding row order.",
+      "items": {
+        "$ref": "#/$defs/GaugeNode"
+      },
+      "maxItems": 4096,
+      "minItems": 5,
+      "title": "Nodes",
+      "type": "array"
+    },
+    "params": {
+      "$ref": "#/$defs/GaugeParams",
+      "description": "Reduction constants."
+    },
+    "result_kind": {
+      "const": "embedding_geometry",
+      "default": "embedding_geometry",
+      "description": "Always embedding_geometry: research instrument, not a forecast.",
+      "title": "Result Kind",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "datamesh-gauge/v1",
+      "default": "datamesh-gauge/v1",
+      "description": "Contract version; bump on any breaking change.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "space": {
+      "$ref": "#/$defs/EmbeddingSpaceRef",
+      "description": "Provenance of the embedding rows."
+    }
+  },
+  "required": [
+    "frame_id",
+    "space",
+    "nodes",
+    "embeddings"
+  ],
+  "title": "GaugeRequest",
+  "type": "object"
+}

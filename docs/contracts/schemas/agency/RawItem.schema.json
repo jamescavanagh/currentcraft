@@ -1,0 +1,187 @@
+{
+  "$defs": {
+    "BlobRef": {
+      "additionalProperties": false,
+      "description": "Handle to raw content in a blob store. Only adapters read the bytes.",
+      "properties": {
+        "key": {
+          "description": "Blob store key.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "media_type": {
+          "description": "Declared media type.",
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 of the bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "description": "Byte length.",
+          "minimum": 0,
+          "title": "Size",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "key",
+        "sha256",
+        "size",
+        "media_type"
+      ],
+      "title": "BlobRef",
+      "type": "object"
+    },
+    "IntakeBinding": {
+      "additionalProperties": false,
+      "description": "What a raw item is about, supplied at intake by the source system (never parsed from a filename or cell).\n\nTies a document (e.g. a project estimation workbook) to the project or opportunity it belongs to. The reference is a\ngoverned external reference, not a graph key; the canonical Project entity is resolved later by a reviewed mapping.",
+      "properties": {
+        "document_type": {
+          "description": "Business document type, e.g. PEW.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Document Type",
+          "type": "string"
+        },
+        "revision_label": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Supplied stage label, e.g. 'Round 1'. Never inferred from content.",
+          "title": "Revision Label"
+        },
+        "subject_kind": {
+          "description": "What the document belongs to.",
+          "enum": [
+            "project",
+            "opportunity"
+          ],
+          "title": "Subject Kind",
+          "type": "string"
+        },
+        "subject_namespace": {
+          "description": "Issuing system of the reference, e.g. erp.project, crm.opportunity.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Subject Namespace",
+          "type": "string"
+        },
+        "subject_ref": {
+          "description": "Reference value as issued by that system.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject_kind",
+        "subject_namespace",
+        "subject_ref",
+        "document_type"
+      ],
+      "title": "IntakeBinding",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One raw intake, published to raw/<platform>/<format>/<source_id>.",
+  "properties": {
+    "binding": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IntakeBinding"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "What the item belongs to, supplied at intake."
+    },
+    "content": {
+      "$ref": "#/$defs/BlobRef",
+      "description": "Content handle."
+    },
+    "contract_name": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Registered data contract, required for format data_contract.",
+      "title": "Contract Name"
+    },
+    "format": {
+      "description": "Content format; selects the adapter.",
+      "enum": [
+        "email",
+        "docx",
+        "pdf",
+        "json",
+        "data_contract",
+        "text",
+        "xlsx"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "mapping": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "JsonMapping name for format json; WorkbookProfile name for format xlsx.",
+      "title": "Mapping"
+    },
+    "platform": {
+      "description": "Source platform, e.g. sharepoint, outlook, tracker, erp, file.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Platform",
+      "type": "string"
+    },
+    "received_at": {
+      "description": "Real intake time (timezone-aware).",
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "source_id": {
+      "description": "Id of the item within its platform.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Source Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "platform",
+    "format",
+    "source_id",
+    "received_at",
+    "content"
+  ],
+  "title": "RawItem",
+  "type": "object"
+}

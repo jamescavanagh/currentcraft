@@ -1,0 +1,96 @@
+{
+  "additionalProperties": false,
+  "description": "A human label on a record, cluster or pair. Judgment on a candidate, not validation or authority.",
+  "properties": {
+    "blind": {
+      "description": "Labelled before unblinding real vs null.",
+      "title": "Blind",
+      "type": "boolean"
+    },
+    "candidate_ref": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Cluster id or pair key the label resolves.",
+      "title": "Candidate Ref"
+    },
+    "label": {
+      "description": "Label key.",
+      "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+      "title": "Label",
+      "type": "string"
+    },
+    "labeler_role": {
+      "description": "Role, not a name, in shared artifacts.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Labeler Role",
+      "type": "string"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "maxLength": 500,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Free note.",
+      "title": "Note"
+    },
+    "occurred_at": {
+      "description": "Real timestamp of the judgment.",
+      "format": "date-time",
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "reading_digest": {
+      "description": "Digest of the probe request the label was made on.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Reading Digest",
+      "type": "string"
+    },
+    "target_ids": {
+      "description": "Record ids (cluster members or the pair).",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "maxItems": 5000,
+      "minItems": 1,
+      "title": "Target Ids",
+      "type": "array"
+    },
+    "target_kind": {
+      "description": "What is labelled.",
+      "enum": [
+        "record",
+        "cluster",
+        "pair"
+      ],
+      "title": "Target Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "target_kind",
+    "target_ids",
+    "label",
+    "labeler_role",
+    "blind",
+    "occurred_at",
+    "reading_digest"
+  ],
+  "title": "LabelEvent",
+  "type": "object"
+}

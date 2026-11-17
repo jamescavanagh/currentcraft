@@ -1,0 +1,88 @@
+{
+  "fixture": "wme_rack_gaps.synthetic",
+  "synthetic": true,
+  "gaps": [
+    [
+      "wme-syn:hold-bench-kit",
+      "not computed: never existence evidence"
+    ],
+    [
+      "wme-syn:install",
+      "transform/control without at_buffer"
+    ],
+    [
+      "wme-syn:handover",
+      "no HFGT class for ['exchange'] (exchange needs an SME mapping)"
+    ]
+  ],
+  "scenarios": [
+    {
+      "scenario": "baseline",
+      "mode": "drop",
+      "dof_s": 8,
+      "nodes": 8,
+      "dof_rho": 7,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "unknown: translation gaps",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):room201->room201 by installer"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "refined:hold(rack:built):bench->room201 by truck -> refined:hold(rack:built):room201->room201 by installer",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->bench by builder",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->room201 by truck"
+      ]
+    },
+    {
+      "scenario": "baseline",
+      "mode": "mask",
+      "dof_s": 8,
+      "nodes": 8,
+      "dof_rho": 7,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "unknown: translation gaps",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):room201->room201 by installer"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "refined:hold(rack:built):bench->room201 by truck -> refined:hold(rack:built):room201->room201 by installer",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->bench by builder",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->room201 by truck"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,406 @@
+{
+  "$defs": {
+    "EmbeddingRecord": {
+      "additionalProperties": false,
+      "description": "Dense and/or sparse vector for one object in one space. Sparse indices are zero-based here.",
+      "properties": {
+        "dense": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Dense values, length dim.",
+          "title": "Dense"
+        },
+        "dense_mask": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "boolean"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "True where the value is known; length dim.",
+          "title": "Dense Mask"
+        },
+        "object_id": {
+          "description": "Object the vector describes.",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "recorded_at": {
+          "description": "When recorded.",
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "space": {
+          "$ref": "#/$defs/EmbeddingSpace",
+          "description": "Model identity."
+        },
+        "sparse_indices": {
+          "default": [],
+          "description": "Zero-based, strictly increasing.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Sparse Indices",
+          "type": "array"
+        },
+        "sparse_values": {
+          "default": [],
+          "description": "Values for sparse_indices.",
+          "items": {
+            "type": "number"
+          },
+          "title": "Sparse Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "object_id",
+        "space",
+        "recorded_at"
+      ],
+      "title": "EmbeddingRecord",
+      "type": "object"
+    },
+    "EmbeddingSpace": {
+      "additionalProperties": false,
+      "description": "Model identity of a vector. Vectors from different spaces are never compared.",
+      "properties": {
+        "dim": {
+          "description": "Dimension.",
+          "exclusiveMinimum": 0,
+          "maximum": 65536,
+          "title": "Dim",
+          "type": "integer"
+        },
+        "model_name": {
+          "description": "Embedding model name.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Model Name",
+          "type": "string"
+        },
+        "model_version": {
+          "description": "Model version.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Model Version",
+          "type": "string"
+        },
+        "precision": {
+          "default": "float32",
+          "description": "Precision the model emits.",
+          "enum": [
+            "float32",
+            "float64"
+          ],
+          "title": "Precision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_name",
+        "model_version",
+        "dim"
+      ],
+      "title": "EmbeddingSpace",
+      "type": "object"
+    },
+    "PhaseAssignment": {
+      "additionalProperties": false,
+      "description": "The phase evidence of one object. Weights are shares over phase codes, summing to 1 when phased.",
+      "properties": {
+        "basis": {
+          "description": "Rule and evidence that produced the assignment, or why none.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Basis",
+          "type": "string"
+        },
+        "object_id": {
+          "description": "Object.",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "state": {
+          "description": "One phase, several phases, or none.",
+          "enum": [
+            "phased",
+            "mixed",
+            "unphased"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "weights": {
+          "default": [],
+          "description": "(phase_code, share) pairs, codes sorted.",
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "pattern": "^[A-Za-z0-9._-]{1,40}$",
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Weights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "object_id",
+        "state",
+        "basis"
+      ],
+      "title": "PhaseAssignment",
+      "type": "object"
+    },
+    "SpliceJunction": {
+      "additionalProperties": false,
+      "description": "A cross-phase coupling candidate: two objects in different phases whose content overlaps. Never a relation.",
+      "properties": {
+        "a": {
+          "description": "First object (lower id).",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "A",
+          "type": "string"
+        },
+        "angular_distance_deg": {
+          "description": "Chart distance between dominant phases.",
+          "maximum": 180.0,
+          "minimum": 0.0,
+          "title": "Angular Distance Deg",
+          "type": "number"
+        },
+        "b": {
+          "description": "Second object.",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "B",
+          "type": "string"
+        },
+        "content_similarity": {
+          "description": "Cosine of the phase-free content vectors.",
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Content Similarity",
+          "type": "number"
+        },
+        "phase_a": {
+          "description": "Dominant phase of a.",
+          "pattern": "^[A-Za-z0-9._-]{1,40}$",
+          "title": "Phase A",
+          "type": "string"
+        },
+        "phase_b": {
+          "description": "Dominant phase of b.",
+          "pattern": "^[A-Za-z0-9._-]{1,40}$",
+          "title": "Phase B",
+          "type": "string"
+        },
+        "phase_coupling": {
+          "description": "Phase factor between the two objects under the chart.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Phase Coupling",
+          "type": "number"
+        },
+        "shared_terms": {
+          "default": [],
+          "description": "Words both objects carry (display only).",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Shared Terms",
+          "type": "array"
+        },
+        "spliced_similarity": {
+          "description": "Cosine in the splice space = content x coupling.",
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Spliced Similarity",
+          "type": "number"
+        },
+        "status": {
+          "const": "candidate",
+          "default": "candidate",
+          "description": "Always a candidate; a person labels it.",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "phase_a",
+        "phase_b",
+        "content_similarity",
+        "phase_coupling",
+        "spliced_similarity",
+        "angular_distance_deg"
+      ],
+      "title": "SpliceJunction",
+      "type": "object"
+    },
+    "SpliceRecord": {
+      "additionalProperties": false,
+      "description": "One object in the splice space.",
+      "properties": {
+        "assignment": {
+          "$ref": "#/$defs/PhaseAssignment",
+          "description": "Phase evidence."
+        },
+        "bins_used": {
+          "default": [],
+          "description": "Phase bins carrying mass (0-based bin index).",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Bins Used",
+          "type": "array"
+        },
+        "content_sha256": {
+          "description": "Raw content lineage.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "embedding": {
+          "$ref": "#/$defs/EmbeddingRecord",
+          "description": "Sparse vector, zero-based indices. Block 0 is phase-free; block 1+b is bin b."
+        },
+        "kind": {
+          "description": "Object kind.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "object_id": {
+          "description": "Object.",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "tokens": {
+          "description": "Distinct content tokens hashed (words + slots).",
+          "minimum": 0,
+          "title": "Tokens",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "object_id",
+        "kind",
+        "content_sha256",
+        "assignment",
+        "tokens",
+        "embedding"
+      ],
+      "title": "SpliceRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Sparse records, cross-phase junction candidates and the diagnostics of one splice.",
+  "properties": {
+    "chart_digest": {
+      "description": "Chart digest.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Chart Digest",
+      "type": "string"
+    },
+    "diagnostics": {
+      "default": [],
+      "description": "Evidence that was present but not usable.",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 1000,
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "excluded": {
+      "default": [],
+      "description": "Objects kept out by kind.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+        "type": "string"
+      },
+      "title": "Excluded",
+      "type": "array"
+    },
+    "junctions": {
+      "default": [],
+      "description": "Cross-phase candidates, best first.",
+      "items": {
+        "$ref": "#/$defs/SpliceJunction"
+      },
+      "title": "Junctions",
+      "type": "array"
+    },
+    "junctions_considered": {
+      "default": 0,
+      "description": "Cross-phase pairs above the content threshold before the cap.",
+      "minimum": 0,
+      "title": "Junctions Considered",
+      "type": "integer"
+    },
+    "profile_digest": {
+      "description": "Profile digest.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Profile Digest",
+      "type": "string"
+    },
+    "records": {
+      "description": "One per object not excluded, input order.",
+      "items": {
+        "$ref": "#/$defs/SpliceRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "datamesh-splice/v1",
+      "default": "datamesh-splice/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "space": {
+      "$ref": "#/$defs/EmbeddingSpace",
+      "description": "Embedding space of every record."
+    }
+  },
+  "required": [
+    "profile_digest",
+    "chart_digest",
+    "space",
+    "records"
+  ],
+  "title": "SpliceResult",
+  "type": "object"
+}

@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "CandidateCluster": {
+      "additionalProperties": false,
+      "description": "A cluster of aperture records proposed for labeling.",
+      "properties": {
+        "centroid": {
+          "description": "Plate centroid.",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Centroid",
+          "type": "array"
+        },
+        "cluster_id": {
+          "description": "Hash of the sorted member ids.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Cluster Id",
+          "type": "string"
+        },
+        "cohesion": {
+          "description": "1 - mean intra distance / mean aperture distance, clipped.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Cohesion",
+          "type": "number"
+        },
+        "members": {
+          "description": "Member ids.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "title": "Members",
+          "type": "array"
+        },
+        "status": {
+          "const": "candidate",
+          "default": "candidate",
+          "description": "Never a label until a human records one.",
+          "title": "Status",
+          "type": "string"
+        },
+        "suggested_terms": {
+          "description": "Contrast terms against the aperture; a naming aid, not a label.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Suggested Terms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cluster_id",
+        "members",
+        "centroid",
+        "cohesion",
+        "suggested_terms"
+      ],
+      "title": "CandidateCluster",
+      "type": "object"
+    },
+    "PairCandidate": {
+      "additionalProperties": false,
+      "description": "A record pair proposed for labeling.",
+      "properties": {
+        "a": {
+          "description": "First record.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "A",
+          "type": "string"
+        },
+        "b": {
+          "description": "Second record.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "B",
+          "type": "string"
+        },
+        "score": {
+          "description": "Source score.",
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "source": {
+          "const": "enrichment_shortcut",
+          "description": "Where the pair came from.",
+          "title": "Source",
+          "type": "string"
+        },
+        "status": {
+          "const": "candidate",
+          "default": "candidate",
+          "description": "Candidate only.",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "source",
+        "score"
+      ],
+      "title": "PairCandidate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Candidates at one pose.",
+  "properties": {
+    "clusters": {
+      "description": "Clusters, largest first.",
+      "items": {
+        "$ref": "#/$defs/CandidateCluster"
+      },
+      "title": "Clusters",
+      "type": "array"
+    },
+    "pairs": {
+      "description": "Enrichment shortcut pairs with both ends in the aperture.",
+      "items": {
+        "$ref": "#/$defs/PairCandidate"
+      },
+      "title": "Pairs",
+      "type": "array"
+    },
+    "request_digest": {
+      "description": "Digest of the probe request.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Digest",
+      "type": "string"
+    },
+    "unclustered": {
+      "description": "Aperture records in no cluster.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "title": "Unclustered",
+      "type": "array"
+    }
+  },
+  "required": [
+    "request_digest",
+    "clusters",
+    "unclustered",
+    "pairs"
+  ],
+  "title": "CandidateSet",
+  "type": "object"
+}

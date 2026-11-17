@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "description": "A typed, evidenced relation from this object to another.",
+  "properties": {
+    "evidence": {
+      "description": "Field or header the relation was read from.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Evidence",
+      "type": "string"
+    },
+    "target_id": {
+      "description": "Target object id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Target Id",
+      "type": "string"
+    },
+    "type": {
+      "description": "Relation type, e.g. blocks, reply_to, produces.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "type",
+    "target_id",
+    "evidence"
+  ],
+  "title": "TypedRelation",
+  "type": "object"
+}

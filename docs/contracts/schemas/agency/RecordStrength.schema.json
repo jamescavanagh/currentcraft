@@ -1,0 +1,33 @@
+{
+  "additionalProperties": false,
+  "description": "Explicit vortex strength for one record, with evidence. Never inferred from projection handedness.",
+  "properties": {
+    "id": {
+      "description": "Record id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "source_ref": {
+      "description": "Evidence for the strength.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Source Ref",
+      "type": "string"
+    },
+    "strength": {
+      "description": "Circulation Gamma; sign is spin direction, not good or bad.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "Strength",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "strength",
+    "source_ref"
+  ],
+  "title": "RecordStrength",
+  "type": "object"
+}

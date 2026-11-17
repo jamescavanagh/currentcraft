@@ -1,0 +1,109 @@
+{
+  "additionalProperties": false,
+  "description": "A keyed table (rate card, plan list, link list). One object per row with a code; section rows are kept as context.",
+  "properties": {
+    "capture_hyperlinks": {
+      "default": false,
+      "description": "Keep the code cell's hyperlink target as a field. Never fetched.",
+      "title": "Capture Hyperlinks",
+      "type": "boolean"
+    },
+    "code_col": {
+      "description": "Code column; rows without a code are skipped or treated as sections.",
+      "pattern": "^[A-Z]{1,3}$",
+      "title": "Code Col",
+      "type": "string"
+    },
+    "fields": {
+      "description": "Extra field -> column, kept as raw text.",
+      "patternProperties": {
+        "^[A-Za-z0-9._:-]{1,80}$": {
+          "pattern": "^[A-Z]{1,3}$",
+          "type": "string"
+        }
+      },
+      "title": "Fields",
+      "type": "object"
+    },
+    "first_row": {
+      "description": "First data row.",
+      "maximum": 1048576,
+      "minimum": 1,
+      "title": "First Row",
+      "type": "integer"
+    },
+    "kind": {
+      "description": "Object kind emitted, e.g. labor_role, support_plan_option, travel_line, reference_link.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Kind",
+      "type": "string"
+    },
+    "label_col": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z]{1,3}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label column.",
+      "title": "Label Col"
+    },
+    "last_row": {
+      "anyOf": [
+        {
+          "maximum": 1048576,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Last data row.",
+      "title": "Last Row"
+    },
+    "section_pattern": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Regex on the label column marking a section row (code column holds the section name).",
+      "title": "Section Pattern"
+    },
+    "sheet": {
+      "description": "Sheet name.",
+      "maxLength": 31,
+      "minLength": 1,
+      "title": "Sheet",
+      "type": "string"
+    },
+    "skip_codes": {
+      "default": [],
+      "description": "Codes treated as non-entries, e.g. 'Total:'.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Skip Codes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "kind",
+    "sheet",
+    "first_row",
+    "code_col"
+  ],
+  "title": "CatalogSpec",
+  "type": "object"
+}

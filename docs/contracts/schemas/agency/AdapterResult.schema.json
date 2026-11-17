@@ -1,0 +1,341 @@
+{
+  "$defs": {
+    "DomainObject": {
+      "additionalProperties": false,
+      "description": "A domain record after the anti-corruption layer: an object (thing), never a person.",
+      "properties": {
+        "epistemic_status": {
+          "const": "computed",
+          "default": "computed",
+          "description": "Read from a record, not modelled.",
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "fields": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": "Flat scalar fields (at most 64).",
+          "title": "Fields",
+          "type": "object"
+        },
+        "kind": {
+          "description": "Object kind, e.g. email_message, document, work_item, process_execution.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "object_id": {
+          "description": "Deterministic id from platform and natural key.",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "occurred_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Timestamp from the record itself, if any.",
+          "title": "Occurred At"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance",
+          "description": "Source and transform."
+        },
+        "relations": {
+          "default": [],
+          "description": "Typed relations.",
+          "items": {
+            "$ref": "#/$defs/TypedRelation"
+          },
+          "maxItems": 256,
+          "title": "Relations",
+          "type": "array"
+        },
+        "resources": {
+          "default": [],
+          "description": "Pseudonymous resources.",
+          "items": {
+            "$ref": "#/$defs/ResourceRef"
+          },
+          "maxItems": 256,
+          "title": "Resources",
+          "type": "array"
+        },
+        "schema_version": {
+          "const": "datamesh-ingest/v1",
+          "default": "datamesh-ingest/v1",
+          "description": "Contract version.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "text": {
+          "default": "",
+          "description": "Bounded extracted text.",
+          "maxLength": 20000,
+          "title": "Text",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "description": "Title or subject.",
+          "maxLength": 500,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "object_id",
+        "kind",
+        "provenance"
+      ],
+      "title": "DomainObject",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where a domain object came from and which transform made it.",
+      "properties": {
+        "adapter": {
+          "description": "Adapter name.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Adapter",
+          "type": "string"
+        },
+        "adapter_version": {
+          "description": "Adapter version.",
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "content_sha256": {
+          "description": "SHA-256 of the raw bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "format": {
+          "description": "Source format.",
+          "enum": [
+            "email",
+            "docx",
+            "pdf",
+            "json",
+            "data_contract",
+            "text",
+            "xlsx"
+          ],
+          "title": "Format",
+          "type": "string"
+        },
+        "platform": {
+          "description": "Source platform.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Platform",
+          "type": "string"
+        },
+        "received_at": {
+          "description": "Intake time.",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "Source item id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "platform",
+        "format",
+        "source_id",
+        "content_sha256",
+        "adapter",
+        "adapter_version",
+        "received_at"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "Rejection": {
+      "additionalProperties": false,
+      "description": "Quarantined input. Never a partial object.",
+      "properties": {
+        "adapter": {
+          "description": "Adapter that rejected it.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Adapter",
+          "type": "string"
+        },
+        "content_sha256": {
+          "description": "SHA-256 of the raw bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Why.",
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "received_at": {
+          "description": "Intake time.",
+          "format": "date-time",
+          "title": "Received At",
+          "type": "string"
+        },
+        "topic": {
+          "description": "Raw topic.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Topic",
+          "type": "string"
+        }
+      },
+      "required": [
+        "topic",
+        "content_sha256",
+        "adapter",
+        "reason",
+        "received_at"
+      ],
+      "title": "Rejection",
+      "type": "object"
+    },
+    "ResourceRef": {
+      "additionalProperties": false,
+      "description": "A person or party as a pseudonymous resource. People are never objects.",
+      "properties": {
+        "role": {
+          "description": "Role in the record.",
+          "enum": [
+            "sender",
+            "recipient",
+            "author",
+            "assignee",
+            "owner",
+            "executor",
+            "other"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "role_label": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Business role, if known (e.g. coordinator).",
+          "title": "Role Label"
+        },
+        "token": {
+          "description": "Salted pseudonym; never the raw address or name.",
+          "pattern": "^res-[0-9a-f]{16}$",
+          "title": "Token",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "token"
+      ],
+      "title": "ResourceRef",
+      "type": "object"
+    },
+    "TypedRelation": {
+      "additionalProperties": false,
+      "description": "A typed, evidenced relation from this object to another.",
+      "properties": {
+        "evidence": {
+          "description": "Field or header the relation was read from.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "target_id": {
+          "description": "Target object id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+          "title": "Target Id",
+          "type": "string"
+        },
+        "type": {
+          "description": "Relation type, e.g. blocks, reply_to, produces.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "target_id",
+        "evidence"
+      ],
+      "title": "TypedRelation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Objects, or a rejection; never both.",
+  "properties": {
+    "objects": {
+      "default": [],
+      "description": "Parsed objects.",
+      "items": {
+        "$ref": "#/$defs/DomainObject"
+      },
+      "title": "Objects",
+      "type": "array"
+    },
+    "rejection": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Rejection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Why the input was quarantined."
+    }
+  },
+  "title": "AdapterResult",
+  "type": "object"
+}

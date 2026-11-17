@@ -1,0 +1,378 @@
+{
+  "$defs": {
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Output of ParticipationNullPort.test(). Rewiring tests signal vs chance; only the paired bootstrap tests locality.",
+  "properties": {
+    "auc_diff": {
+      "description": "auc_local - auc_global.",
+      "maximum": 1,
+      "minimum": -1,
+      "title": "Auc Diff",
+      "type": "number"
+    },
+    "auc_global": {
+      "description": "Stage-stratified AUC of the global score.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Auc Global",
+      "type": "number"
+    },
+    "auc_local": {
+      "description": "Stage-stratified AUC of the local score.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Auc Local",
+      "type": "number"
+    },
+    "bootstrap_diff": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to B bootstrap differences."
+    },
+    "diff_ci_high": {
+      "description": "Upper bootstrap bound (1 - alpha/2).",
+      "maximum": 1,
+      "minimum": -1,
+      "title": "Diff Ci High",
+      "type": "number"
+    },
+    "diff_ci_low": {
+      "description": "Lower bootstrap bound (alpha/2).",
+      "maximum": 1,
+      "minimum": -1,
+      "title": "Diff Ci Low",
+      "type": "number"
+    },
+    "frame_id": {
+      "description": "Frame identity.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "n_pairs": {
+      "description": "Pairs in used stages.",
+      "minimum": 0,
+      "title": "N Pairs",
+      "type": "integer"
+    },
+    "n_positive": {
+      "description": "Co-participating pairs in used stages.",
+      "minimum": 0,
+      "title": "N Positive",
+      "type": "integer"
+    },
+    "null_auc": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to R x 2 null AUCs."
+    },
+    "p_global": {
+      "description": "Same for the global score.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "P Global",
+      "type": "number"
+    },
+    "p_local": {
+      "description": "(1 + #null >= observed) / (R + 1) for the local score.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "P Local",
+      "type": "number"
+    },
+    "request_digest": {
+      "description": "SHA-256 of the request.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Digest",
+      "type": "string"
+    },
+    "result_kind": {
+      "const": "embedding_geometry",
+      "default": "embedding_geometry",
+      "description": "Always embedding_geometry: research instrument, not a forecast.",
+      "title": "Result Kind",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "datamesh-gauge/v1",
+      "default": "datamesh-gauge/v1",
+      "description": "Contract version; bump on any breaking change.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "stages_used": {
+      "description": "Stages with both labels (others cannot contribute to AUC).",
+      "items": {
+        "type": "string"
+      },
+      "title": "Stages Used",
+      "type": "array"
+    },
+    "verdict": {
+      "description": "not_above_null if p_local > alpha; local_beats_global if diff_ci_low > 0 and auc_diff >= gain_bar; else local_signal_no_gain.",
+      "enum": [
+        "local_beats_global",
+        "local_signal_no_gain",
+        "not_above_null"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    }
+  },
+  "required": [
+    "frame_id",
+    "request_digest",
+    "stages_used",
+    "n_pairs",
+    "n_positive",
+    "auc_local",
+    "auc_global",
+    "auc_diff",
+    "diff_ci_low",
+    "diff_ci_high",
+    "p_local",
+    "p_global",
+    "verdict",
+    "null_auc",
+    "bootstrap_diff"
+  ],
+  "title": "StageNullResult",
+  "type": "object"
+}

@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "description": "Spatial isosceles initial condition: two mirrored side bodies on the plate, the object body on the axis.",
+  "properties": {
+    "object_mass": {
+      "default": 0.3,
+      "description": "Initial object mass m3.",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "title": "Object Mass",
+      "type": "number"
+    },
+    "side_mass": {
+      "default": 1.0,
+      "description": "Mass m of each side body.",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "title": "Side Mass",
+      "type": "number"
+    },
+    "side_radius": {
+      "default": 1.0,
+      "description": "Initial distance r of each side body from the axis.",
+      "exclusiveMinimum": 0,
+      "maximum": 10,
+      "title": "Side Radius",
+      "type": "number"
+    },
+    "softening": {
+      "default": 0.03,
+      "description": "Plummer softening epsilon.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Softening",
+      "type": "number"
+    },
+    "spin_factor": {
+      "default": 1.0,
+      "description": "Side speed as a multiple of the instantaneous circular speed.",
+      "exclusiveMinimum": 0,
+      "maximum": 3,
+      "title": "Spin Factor",
+      "type": "number"
+    },
+    "zeta0": {
+      "default": 0.7,
+      "description": "Initial object height above the plate; nonzero.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "Zeta0",
+      "type": "number"
+    },
+    "zeta_dot0": {
+      "default": 0.0,
+      "description": "Initial rate of zeta.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "Zeta Dot0",
+      "type": "number"
+    }
+  },
+  "title": "IsoscelesParams",
+  "type": "object"
+}

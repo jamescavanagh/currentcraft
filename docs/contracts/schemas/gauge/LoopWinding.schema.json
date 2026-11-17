@@ -1,0 +1,68 @@
+{
+  "additionalProperties": false,
+  "description": "Winding of the director around one requested loop. Gauge invariant; quantized when complete.",
+  "properties": {
+    "complete": {
+      "description": "True when every consecutive pair is a kept connection link.",
+      "title": "Complete",
+      "type": "boolean"
+    },
+    "holonomy_deg": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Wrapped loop holonomy (degrees): curvature enclosed.",
+      "title": "Holonomy Deg"
+    },
+    "loop_id": {
+      "description": "GaugeLoop.id.",
+      "title": "Loop Id",
+      "type": "string"
+    },
+    "missing_links": {
+      "description": "Consecutive pairs that are not kept links.",
+      "minimum": 0,
+      "title": "Missing Links",
+      "type": "integer"
+    },
+    "quantized": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "winding rounded to the charge quantum.",
+      "title": "Quantized"
+    },
+    "winding": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "(sum of links - sum of connection) / 2 pi; None if incomplete.",
+      "title": "Winding"
+    }
+  },
+  "required": [
+    "loop_id",
+    "complete",
+    "missing_links"
+  ],
+  "title": "LoopWinding",
+  "type": "object"
+}

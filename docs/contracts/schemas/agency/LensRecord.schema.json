@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "description": "A record under the lens.",
+  "properties": {
+    "distance": {
+      "description": "Plate distance from the pointer.",
+      "minimum": 0,
+      "title": "Distance",
+      "type": "number"
+    },
+    "id": {
+      "description": "Record id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "labelled": {
+      "description": "Already labelled.",
+      "title": "Labelled",
+      "type": "boolean"
+    },
+    "title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Record title, if supplied.",
+      "title": "Title"
+    },
+    "u": {
+      "description": "Plate u.",
+      "title": "U",
+      "type": "number"
+    },
+    "v": {
+      "description": "Plate v.",
+      "title": "V",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "distance",
+    "u",
+    "v",
+    "labelled"
+  ],
+  "title": "LensRecord",
+  "type": "object"
+}

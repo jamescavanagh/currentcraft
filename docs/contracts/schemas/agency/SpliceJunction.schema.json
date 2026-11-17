@@ -1,0 +1,87 @@
+{
+  "additionalProperties": false,
+  "description": "A cross-phase coupling candidate: two objects in different phases whose content overlaps. Never a relation.",
+  "properties": {
+    "a": {
+      "description": "First object (lower id).",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "A",
+      "type": "string"
+    },
+    "angular_distance_deg": {
+      "description": "Chart distance between dominant phases.",
+      "maximum": 180.0,
+      "minimum": 0.0,
+      "title": "Angular Distance Deg",
+      "type": "number"
+    },
+    "b": {
+      "description": "Second object.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "B",
+      "type": "string"
+    },
+    "content_similarity": {
+      "description": "Cosine of the phase-free content vectors.",
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "title": "Content Similarity",
+      "type": "number"
+    },
+    "phase_a": {
+      "description": "Dominant phase of a.",
+      "pattern": "^[A-Za-z0-9._-]{1,40}$",
+      "title": "Phase A",
+      "type": "string"
+    },
+    "phase_b": {
+      "description": "Dominant phase of b.",
+      "pattern": "^[A-Za-z0-9._-]{1,40}$",
+      "title": "Phase B",
+      "type": "string"
+    },
+    "phase_coupling": {
+      "description": "Phase factor between the two objects under the chart.",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Phase Coupling",
+      "type": "number"
+    },
+    "shared_terms": {
+      "default": [],
+      "description": "Words both objects carry (display only).",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Shared Terms",
+      "type": "array"
+    },
+    "spliced_similarity": {
+      "description": "Cosine in the splice space = content x coupling.",
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "title": "Spliced Similarity",
+      "type": "number"
+    },
+    "status": {
+      "const": "candidate",
+      "default": "candidate",
+      "description": "Always a candidate; a person labels it.",
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "a",
+    "b",
+    "phase_a",
+    "phase_b",
+    "content_similarity",
+    "phase_coupling",
+    "spliced_similarity",
+    "angular_distance_deg"
+  ],
+  "title": "SpliceJunction",
+  "type": "object"
+}

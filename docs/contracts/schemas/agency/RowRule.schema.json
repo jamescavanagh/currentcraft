@@ -1,0 +1,68 @@
+{
+  "additionalProperties": false,
+  "description": "Classifies a row by a regex on one column. First matching rule wins; unmatched non-empty rows use the table default.",
+  "properties": {
+    "code_group": {
+      "anyOf": [
+        {
+          "maximum": 9,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Regex group holding a code (e.g. phase number).",
+      "title": "Code Group"
+    },
+    "col": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z]{1,3}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Column tested; defaults to the table's label column.",
+      "title": "Col"
+    },
+    "pattern": {
+      "description": "Python regex, matched with re.search on the cell text.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Pattern",
+      "type": "string"
+    },
+    "row_kind": {
+      "description": "Row kind, e.g. phase, task, subtotal, copy_marker, section.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Row Kind",
+      "type": "string"
+    },
+    "sets_section": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "For section rows: the line kind for following rows.",
+      "title": "Sets Section"
+    }
+  },
+  "required": [
+    "row_kind",
+    "pattern"
+  ],
+  "title": "RowRule",
+  "type": "object"
+}

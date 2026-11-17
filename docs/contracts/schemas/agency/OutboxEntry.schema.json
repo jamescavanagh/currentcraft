@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "description": "An event stored in the same transaction as the change it reports; published after commit.",
+  "properties": {
+    "enqueued_at": {
+      "description": "When stored.",
+      "format": "date-time",
+      "title": "Enqueued At",
+      "type": "string"
+    },
+    "envelope": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "description": "EventEnvelope.model_dump(mode='json').",
+      "title": "Envelope",
+      "type": "object"
+    },
+    "event_id": {
+      "description": "EventEnvelope.event_id.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "When relayed to the broker.",
+      "title": "Published At"
+    },
+    "topic": {
+      "description": "Topic.",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Topic",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "topic",
+    "envelope",
+    "enqueued_at"
+  ],
+  "title": "OutboxEntry",
+  "type": "object"
+}

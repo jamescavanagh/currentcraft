@@ -1,0 +1,26 @@
+# Default deny reference data; only explicitly reviewed public templates may be tracked.
+/references/**
+# Private references ship in coordinator bundles (export_public.py --with-private) and are never tracked.
+/references/private/
+!/references/README.md
+!/references/public/
+/references/public/**
+!/references/public/manifest.example.json
+# All enterprise-derived inputs, outputs and embeddings stay local.
+/data/
+/local/
+/ci-artifacts/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+__pycache__/
+*.py[cod]
+.venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/

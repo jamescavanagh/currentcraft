@@ -1,0 +1,78 @@
+{
+  "additionalProperties": false,
+  "description": "A pair the sparse code links but the dense kNN gradient keeps apart. A candidate for HIL labeling only.",
+  "properties": {
+    "a": {
+      "description": "First record id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "A",
+      "type": "string"
+    },
+    "arm": {
+      "description": "Arm the pair was found in.",
+      "enum": [
+        "real-on",
+        "real-off",
+        "null-on",
+        "null-off"
+      ],
+      "title": "Arm",
+      "type": "string"
+    },
+    "b": {
+      "description": "Second record id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "B",
+      "type": "string"
+    },
+    "co_passes": {
+      "description": "Passes in which both condensed.",
+      "minimum": 0,
+      "title": "Co Passes",
+      "type": "integer"
+    },
+    "cross_cluster": {
+      "description": "Different cluster labels.",
+      "title": "Cross Cluster",
+      "type": "boolean"
+    },
+    "hops": {
+      "description": "kNN hops between them; 99 = not connected.",
+      "minimum": 0,
+      "title": "Hops",
+      "type": "integer"
+    },
+    "phase_bin": {
+      "description": "Shared dominant 30 degree phase bin.",
+      "exclusiveMaximum": 12,
+      "minimum": 0,
+      "title": "Phase Bin",
+      "type": "integer"
+    },
+    "score": {
+      "description": "co_passes x min(hops, 12).",
+      "minimum": 0,
+      "title": "Score",
+      "type": "number"
+    },
+    "status": {
+      "const": "candidate",
+      "default": "candidate",
+      "description": "Never a relation until a human labels it.",
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "arm",
+    "a",
+    "b",
+    "co_passes",
+    "hops",
+    "cross_cluster",
+    "phase_bin",
+    "score"
+  ],
+  "title": "ShortcutCandidate",
+  "type": "object"
+}

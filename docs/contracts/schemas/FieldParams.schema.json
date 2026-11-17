@@ -1,0 +1,30 @@
+{
+  "additionalProperties": false,
+  "description": "Kernel constants shared by every simulator. Defaults match the labeling bench.",
+  "properties": {
+    "scale": {
+      "default": 6.0,
+      "description": "Overall circulation scale (divided by N).",
+      "exclusiveMinimum": 0,
+      "title": "Scale",
+      "type": "number"
+    },
+    "seeds": {
+      "default": 40,
+      "description": "Newton seed grid per side for critical points.",
+      "maximum": 200,
+      "minimum": 8,
+      "title": "Seeds",
+      "type": "integer"
+    },
+    "softening": {
+      "default": 0.02,
+      "description": "Added to r^2 to avoid singular cores.",
+      "exclusiveMinimum": 0,
+      "title": "Softening",
+      "type": "number"
+    }
+  },
+  "title": "FieldParams",
+  "type": "object"
+}

@@ -1,0 +1,30 @@
+{
+  "additionalProperties": false,
+  "description": "Outcome of storing one source-occurrence version.",
+  "properties": {
+    "object_id": {
+      "description": "Object id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Object Id",
+      "type": "string"
+    },
+    "stored": {
+      "description": "False when this exact digest was already stored (idempotent no-op).",
+      "title": "Stored",
+      "type": "boolean"
+    },
+    "version_no": {
+      "description": "Stored version number (1 = first).",
+      "exclusiveMinimum": 0,
+      "title": "Version No",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "object_id",
+    "version_no",
+    "stored"
+  ],
+  "title": "StoreResult",
+  "type": "object"
+}

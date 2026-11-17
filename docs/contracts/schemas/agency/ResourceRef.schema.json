@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "description": "A person or party as a pseudonymous resource. People are never objects.",
+  "properties": {
+    "role": {
+      "description": "Role in the record.",
+      "enum": [
+        "sender",
+        "recipient",
+        "author",
+        "assignee",
+        "owner",
+        "executor",
+        "other"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "role_label": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Business role, if known (e.g. coordinator).",
+      "title": "Role Label"
+    },
+    "token": {
+      "description": "Salted pseudonym; never the raw address or name.",
+      "pattern": "^res-[0-9a-f]{16}$",
+      "title": "Token",
+      "type": "string"
+    }
+  },
+  "required": [
+    "role",
+    "token"
+  ],
+  "title": "ResourceRef",
+  "type": "object"
+}

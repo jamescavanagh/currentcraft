@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "description": "Frozen slab frame in embedding coordinates. Never refit per run.",
+  "properties": {
+    "normal": {
+      "description": "Plane normal, D values; normalised by the adapter.",
+      "items": {
+        "type": "number"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "title": "Normal",
+      "type": "array"
+    },
+    "origin": {
+      "description": "Plane origin, D values.",
+      "items": {
+        "type": "number"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "title": "Origin",
+      "type": "array"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "maxLength": 300,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "How the frame was chosen (e.g. seed plane, global PC).",
+      "title": "Provenance"
+    }
+  },
+  "required": [
+    "origin",
+    "normal"
+  ],
+  "title": "SlabFrame",
+  "type": "object"
+}

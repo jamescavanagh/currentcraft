@@ -1,0 +1,88 @@
+{
+  "additionalProperties": false,
+  "description": "Vortex readings on the aperture ring. Each has its own mask.",
+  "properties": {
+    "certified_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Continuous-field index under the analytic bound.",
+      "title": "Certified Index"
+    },
+    "circulation": {
+      "description": "Signed circulation of the ring.",
+      "title": "Circulation",
+      "type": "number"
+    },
+    "eta_kin": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Rotation share of squared gradient; None when masked.",
+      "title": "Eta Kin"
+    },
+    "leakage": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Radial share of absolute flux; None when masked.",
+      "title": "Leakage"
+    },
+    "masks": {
+      "description": "Which readings were masked and why.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Masks",
+      "type": "array"
+    },
+    "sampled_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Polygon index, when the polygon is safe.",
+      "title": "Sampled Index"
+    },
+    "winding_status": {
+      "description": "Velocity-index status.",
+      "enum": [
+        "invalid",
+        "sampled_only",
+        "certified"
+      ],
+      "title": "Winding Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "circulation",
+    "eta_kin",
+    "leakage",
+    "winding_status",
+    "sampled_index",
+    "certified_index",
+    "masks"
+  ],
+  "title": "RingReading",
+  "type": "object"
+}

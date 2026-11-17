@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "description": "Codes in one catalog compared to another by prefix; differing labels are reported, never resolved.",
+  "properties": {
+    "name": {
+      "description": "Check name.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "source_kind": {
+      "description": "Catalog kind holding the short codes.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Source Kind",
+      "type": "string"
+    },
+    "target_kind": {
+      "description": "Catalog kind holding canonical codes.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Target Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "source_kind",
+    "target_kind"
+  ],
+  "title": "CrosswalkCheck",
+  "type": "object"
+}

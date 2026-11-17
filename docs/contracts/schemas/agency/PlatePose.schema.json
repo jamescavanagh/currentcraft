@@ -1,0 +1,89 @@
+{
+  "additionalProperties": false,
+  "description": "The 2D plate inside the fluid: base normal re-aimed by tilt and yaw, offset, phase, spin, slab.",
+  "properties": {
+    "normal": {
+      "description": "Base plate normal (normalised by the adapter).",
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Normal",
+      "type": "array"
+    },
+    "offset": {
+      "default": 0.0,
+      "description": "Plate offset h* along the effective normal.",
+      "title": "Offset",
+      "type": "number"
+    },
+    "omega": {
+      "default": 0.0,
+      "description": "Global spin rate of the plate, for inertial readings.",
+      "title": "Omega",
+      "type": "number"
+    },
+    "origin": {
+      "description": "Frozen origin in the fluid.",
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Origin",
+      "type": "array"
+    },
+    "phase": {
+      "default": 0.0,
+      "description": "Plate phase theta (rad): in-plane axes rotate by theta.",
+      "title": "Phase",
+      "type": "number"
+    },
+    "slab_half_width": {
+      "description": "Slab half-width w along the effective normal.",
+      "exclusiveMinimum": 0,
+      "title": "Slab Half Width",
+      "type": "number"
+    },
+    "tilt_deg": {
+      "default": 0.0,
+      "description": "Aperture tilt beta away from the base normal.",
+      "maximum": 85,
+      "minimum": 0,
+      "title": "Tilt Deg",
+      "type": "number"
+    },
+    "yaw_deg": {
+      "default": 0.0,
+      "description": "Aperture yaw psi: precession about the base normal.",
+      "maximum": 360,
+      "minimum": -360,
+      "title": "Yaw Deg",
+      "type": "number"
+    }
+  },
+  "required": [
+    "origin",
+    "normal",
+    "slab_half_width"
+  ],
+  "title": "PlatePose",
+  "type": "object"
+}

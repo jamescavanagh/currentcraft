@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "LensRecord": {
+      "additionalProperties": false,
+      "description": "A record under the lens.",
+      "properties": {
+        "distance": {
+          "description": "Plate distance from the pointer.",
+          "minimum": 0,
+          "title": "Distance",
+          "type": "number"
+        },
+        "id": {
+          "description": "Record id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "labelled": {
+          "description": "Already labelled.",
+          "title": "Labelled",
+          "type": "boolean"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record title, if supplied.",
+          "title": "Title"
+        },
+        "u": {
+          "description": "Plate u.",
+          "title": "U",
+          "type": "number"
+        },
+        "v": {
+          "description": "Plate v.",
+          "title": "V",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "distance",
+        "u",
+        "v",
+        "labelled"
+      ],
+      "title": "LensRecord",
+      "type": "object"
+    },
+    "TermWeight": {
+      "additionalProperties": false,
+      "description": "One word with its weight.",
+      "properties": {
+        "count": {
+          "description": "Occurrences in the lens or record.",
+          "minimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "term": {
+          "description": "Word.",
+          "maxLength": 60,
+          "minLength": 1,
+          "title": "Term",
+          "type": "string"
+        },
+        "weight": {
+          "description": "Contrast (log-odds) or tf-idf weight.",
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "term",
+        "weight",
+        "count"
+      ],
+      "title": "TermWeight",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What the lens shows at the pointer.",
+  "properties": {
+    "contrast_terms": {
+      "description": "Lens terms by smoothed log-odds against the slab.",
+      "items": {
+        "$ref": "#/$defs/TermWeight"
+      },
+      "title": "Contrast Terms",
+      "type": "array"
+    },
+    "hovered": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/LensRecord"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Nearest record, if any."
+    },
+    "hovered_terms": {
+      "description": "Hovered record's tf-idf terms against the slab.",
+      "items": {
+        "$ref": "#/$defs/TermWeight"
+      },
+      "title": "Hovered Terms",
+      "type": "array"
+    },
+    "lens_radius": {
+      "description": "Radius actually used.",
+      "exclusiveMinimum": 0,
+      "title": "Lens Radius",
+      "type": "number"
+    },
+    "records": {
+      "description": "Records under the lens, nearest first.",
+      "items": {
+        "$ref": "#/$defs/LensRecord"
+      },
+      "title": "Records",
+      "type": "array"
+    }
+  },
+  "required": [
+    "lens_radius",
+    "records",
+    "hovered",
+    "hovered_terms",
+    "contrast_terms"
+  ],
+  "title": "LensReading",
+  "type": "object"
+}

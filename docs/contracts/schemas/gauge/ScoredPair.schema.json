@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "description": "Two nodes at one stage with a local (gauge/patch) score and a global (cosine) score from the caller.",
+  "properties": {
+    "a": {
+      "description": "First node.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "A",
+      "type": "string"
+    },
+    "b": {
+      "description": "Second node.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "B",
+      "type": "string"
+    },
+    "global_score": {
+      "description": "Global baseline similarity (e.g. full-space cosine).",
+      "title": "Global Score",
+      "type": "number"
+    },
+    "local_score": {
+      "description": "Local-gauge similarity (e.g. demand-only patch score).",
+      "title": "Local Score",
+      "type": "number"
+    },
+    "stage": {
+      "description": "Stage the pair is scored for.",
+      "pattern": "^[A-Za-z0-9._:/ -]{1,80}$",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "a",
+    "b",
+    "stage",
+    "local_score",
+    "global_score"
+  ],
+  "title": "ScoredPair",
+  "type": "object"
+}

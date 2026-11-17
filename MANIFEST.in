@@ -1,0 +1,17 @@
+include README.md CHANGELOG.md SECURITY.md DATA_POLICY.md LICENSE_DECISION.md pyproject.toml
+recursive-include src *.py
+recursive-include tests *.py
+recursive-include scripts *.py *.sh
+recursive-include docs *.md *.json
+include references/README.md
+include references/public/manifest.example.json
+prune references/private
+prune data
+prune ci-artifacts
+prune dist
+prune build
+prune .git
+prune .venv
+global-exclude *.pyc *.pyo *.env *.pem *.key
+include .gitignore requirements-ci.txt
+include .github/workflows/public-ci.yml

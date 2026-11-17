@@ -1,0 +1,77 @@
+{
+  "additionalProperties": false,
+  "description": "An object lifecycle event derived from an execution.",
+  "properties": {
+    "execution_id": {
+      "description": "Execution that caused the event.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "index": {
+      "description": "Position in the derived event chain.",
+      "minimum": 0,
+      "title": "Index",
+      "type": "integer"
+    },
+    "kind": {
+      "description": "birth from produces, death from consumes, otherwise state change.",
+      "enum": [
+        "birth",
+        "death",
+        "state_change"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "object_id": {
+      "description": "Object the event is about.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Object Id",
+      "type": "string"
+    },
+    "occurred_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Execution timestamp, if recorded.",
+      "title": "Occurred At"
+    },
+    "stage": {
+      "description": "Stage of that execution.",
+      "pattern": "^[A-Za-z0-9._:-]{1,40}$",
+      "title": "Stage",
+      "type": "string"
+    },
+    "state": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "State after the event; None for deaths.",
+      "title": "State"
+    }
+  },
+  "required": [
+    "object_id",
+    "kind",
+    "execution_id",
+    "stage",
+    "index"
+  ],
+  "title": "ObjectEvent",
+  "type": "object"
+}

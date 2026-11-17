@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "description": "A local vortex pinned in the plate frame. Strength is given explicitly, never inferred from projection handedness.",
+  "properties": {
+    "id": {
+      "description": "Stable vortex id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "source_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Evidence for position and strength.",
+      "title": "Source Ref"
+    },
+    "strength": {
+      "description": "Circulation Gamma; sign is spin direction, not good or bad.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "Strength",
+      "type": "number"
+    },
+    "u": {
+      "description": "Plate-frame x.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "U",
+      "type": "number"
+    },
+    "v": {
+      "description": "Plate-frame y.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "V",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "u",
+    "v",
+    "strength"
+  ],
+  "title": "PlateVortex",
+  "type": "object"
+}

@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "description": "Classifies a role block by its code: who supplies the labor.",
+  "properties": {
+    "labor_source": {
+      "description": "Internal staff, contract/freelance, or vendor-provided service.",
+      "enum": [
+        "internal",
+        "contract",
+        "vendor"
+      ],
+      "title": "Labor Source",
+      "type": "string"
+    },
+    "pattern": {
+      "description": "Regex on the role code.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Pattern",
+      "type": "string"
+    },
+    "priced_elsewhere": {
+      "default": false,
+      "description": "Hours recorded here but priced as another line (e.g. sold with equipment).",
+      "title": "Priced Elsewhere",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "pattern",
+    "labor_source"
+  ],
+  "title": "RoleClassRule",
+  "type": "object"
+}

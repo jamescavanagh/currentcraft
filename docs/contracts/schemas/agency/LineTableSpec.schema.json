@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "RowRule": {
+      "additionalProperties": false,
+      "description": "Classifies a row by a regex on one column. First matching rule wins; unmatched non-empty rows use the table default.",
+      "properties": {
+        "code_group": {
+          "anyOf": [
+            {
+              "maximum": 9,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regex group holding a code (e.g. phase number).",
+          "title": "Code Group"
+        },
+        "col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column tested; defaults to the table's label column.",
+          "title": "Col"
+        },
+        "pattern": {
+          "description": "Python regex, matched with re.search on the cell text.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Pattern",
+          "type": "string"
+        },
+        "row_kind": {
+          "description": "Row kind, e.g. phase, task, subtotal, copy_marker, section.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Row Kind",
+          "type": "string"
+        },
+        "sets_section": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For section rows: the line kind for following rows.",
+          "title": "Sets Section"
+        }
+      },
+      "required": [
+        "row_kind",
+        "pattern"
+      ],
+      "title": "RowRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A sectioned line table (bill of equipment, allowances). Quantity-bearing rows become estimate lines.",
+  "properties": {
+    "classification_field": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Field resolved against a vocabulary.",
+      "title": "Classification Field"
+    },
+    "classification_set": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Vocabulary set_name for classification_field.",
+      "title": "Classification Set"
+    },
+    "columns": {
+      "description": "Field -> column. Needs description, quantity, part_number, manufacturer.",
+      "patternProperties": {
+        "^[A-Za-z0-9._:-]{1,80}$": {
+          "pattern": "^[A-Z]{1,3}$",
+          "type": "string"
+        }
+      },
+      "title": "Columns",
+      "type": "object"
+    },
+    "content_fields": {
+      "default": [
+        "part_number",
+        "description"
+      ],
+      "description": "A row is a line only if one of these is non-empty.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+        "type": "string"
+      },
+      "title": "Content Fields",
+      "type": "array"
+    },
+    "default_section": {
+      "default": "line",
+      "description": "Line kind before the first section row.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Default Section",
+      "type": "string"
+    },
+    "first_row": {
+      "description": "First data row.",
+      "maximum": 1048576,
+      "minimum": 1,
+      "title": "First Row",
+      "type": "integer"
+    },
+    "last_row": {
+      "anyOf": [
+        {
+          "maximum": 1048576,
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Last data row.",
+      "title": "Last Row"
+    },
+    "money_fields": {
+      "default": [],
+      "description": "Fields kept as raw text only (Decimal downstream).",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+        "type": "string"
+      },
+      "title": "Money Fields",
+      "type": "array"
+    },
+    "name": {
+      "description": "Table name, e.g. bill_of_equipment.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "rules": {
+      "default": [],
+      "description": "Section, group, subtotal and total rows.",
+      "items": {
+        "$ref": "#/$defs/RowRule"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "sheet": {
+      "description": "Sheet name.",
+      "maxLength": 31,
+      "minLength": 1,
+      "title": "Sheet",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "sheet",
+    "first_row",
+    "columns"
+  ],
+  "title": "LineTableSpec",
+  "type": "object"
+}

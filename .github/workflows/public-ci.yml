@@ -1,0 +1,93 @@
+name: public-toolkit-ci
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install .
+      - run: bash scripts/ci_public.sh
+      - run: python -m pip install "duckdb>=1.1,<2"
+      - run: python -m unittest tests.test_persistence -v
+  postgres-18:
+    # The only job that can support a PostgreSQL compatibility claim. The suite skips nothing here.
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: datamesh
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+          POSTGRES_DB: datamesh
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U datamesh" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATAMESH_PG_DSN: postgresql://datamesh:ci-only-not-a-secret@localhost:5432/datamesh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install ".[postgres]"
+      - run: python -c "import psycopg; print('psycopg', psycopg.__version__)"
+      - run: python -m unittest tests.test_persistence.PostgresContract -v
+
+  jetstream:
+    runs-on: ubuntu-latest
+    env:
+      DATAMESH_NATS_URL: nats://127.0.0.1:4222
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install ".[nats]"
+      - run: docker run -d --name datamesh-nats -p 127.0.0.1:4222:4222 nats:2.11-alpine -js -sd /data
+      - name: Wait for broker
+        run: |
+          python - <<'PY'
+          import socket, time
+          for attempt in range(60):
+              try:
+                  with socket.create_connection(('127.0.0.1', 4222), timeout=1): break
+              except OSError: time.sleep(1)
+          else: raise SystemExit('NATS did not start')
+          PY
+      - run: python -m unittest tests.test_durable_messaging -v
+      - if: always()
+        run: docker logs datamesh-nats; docker rm -f datamesh-nats
+
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/local_stack.py config
+      - run: python scripts/local_stack.py smoke
+      - name: Restart durable services and verify again
+        run: |
+          docker compose -f deploy/local/compose.json restart postgres nats worker
+          python scripts/local_stack.py smoke
+      - if: always()
+        run: python scripts/local_stack.py logs
+      - if: always()
+        run: python scripts/local_stack.py down

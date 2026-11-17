@@ -1,0 +1,80 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "available": {
+      "description": "Exact object identity was verified present.",
+      "title": "Available",
+      "type": "boolean"
+    },
+    "content_sha256": {
+      "description": "Verified SHA-256, never an assumed ETag.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Sha256",
+      "type": "string"
+    },
+    "generation": {
+      "description": "Authoritative generation changing on refs/holds/leases/policy/availability changes.",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Generation",
+      "type": "string"
+    },
+    "hold_count": {
+      "description": "Active retention/legal/review holds.",
+      "minimum": 0,
+      "title": "Hold Count",
+      "type": "integer"
+    },
+    "lease_count": {
+      "description": "Active ingestion/read/extraction leases.",
+      "minimum": 0,
+      "title": "Lease Count",
+      "type": "integer"
+    },
+    "object_ref": {
+      "description": "Opaque managed object reference, not a presigned URL.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Object Ref",
+      "type": "string"
+    },
+    "observed_at": {
+      "description": "Timezone-aware authoritative inventory observation.",
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "reference_count": {
+      "description": "Includes historical, shared and current retaining references.",
+      "minimum": 0,
+      "title": "Reference Count",
+      "type": "integer"
+    },
+    "retention_allows_delete": {
+      "description": "Explicit approved policy permits deletion; unknown means false.",
+      "title": "Retention Allows Delete",
+      "type": "boolean"
+    },
+    "storage_version": {
+      "description": "Exact version identity or trusted immutable content identity.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Storage Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "object_ref",
+    "content_sha256",
+    "storage_version",
+    "generation",
+    "reference_count",
+    "hold_count",
+    "lease_count",
+    "retention_allows_delete",
+    "available",
+    "observed_at"
+  ],
+  "title": "ObjectInventory",
+  "type": "object"
+}

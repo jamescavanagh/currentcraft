@@ -1,0 +1,754 @@
+{
+  "$defs": {
+    "BracketState": {
+      "additionalProperties": false,
+      "description": "Where a coordinate sits in its bracket.",
+      "properties": {
+        "at_wall": {
+          "description": "True when |e| has reached (1 - margin) k_b.",
+          "title": "At Wall",
+          "type": "boolean"
+        },
+        "barrier": {
+          "description": "V = 0.5 ln(k_b^2 / (k_b^2 - e^2)); 0 at the centre, unbounded at the walls.",
+          "minimum": 0,
+          "title": "Barrier",
+          "type": "number"
+        },
+        "error": {
+          "description": "e = value - centre.",
+          "title": "Error",
+          "type": "number"
+        },
+        "fraction": {
+          "description": "|e| / k_b.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Fraction",
+          "type": "number"
+        },
+        "value": {
+          "description": "Current coordinate.",
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "error",
+        "barrier",
+        "fraction",
+        "at_wall"
+      ],
+      "title": "BracketState",
+      "type": "object"
+    },
+    "FieldReading": {
+      "additionalProperties": false,
+      "description": "Field readings on a grid inside the aperture.",
+      "properties": {
+        "max_speed": {
+          "description": "Max speed over the aperture grid.",
+          "minimum": 0,
+          "title": "Max Speed",
+          "type": "number"
+        },
+        "mean_strain": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Mean ||S||_F over unmasked grid points.",
+          "title": "Mean Strain"
+        },
+        "mean_vorticity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Mean vorticity over unmasked grid points.",
+          "title": "Mean Vorticity"
+        },
+        "unmasked_fraction": {
+          "description": "Grid points above speed_floor.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unmasked Fraction",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mean_vorticity",
+        "mean_strain",
+        "max_speed",
+        "unmasked_fraction"
+      ],
+      "title": "FieldReading",
+      "type": "object"
+    },
+    "PlaneReading": {
+      "additionalProperties": false,
+      "description": "Local plane of aperture records in the 3D fluid (sign-free).",
+      "properties": {
+        "n_used": {
+          "description": "Aperture records used for the fit.",
+          "minimum": 0,
+          "title": "N Used",
+          "type": "integer"
+        },
+        "planarity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "1 - lambda_min / lambda_mid.",
+          "title": "Planarity"
+        },
+        "tilt_to_plate_deg": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Unsigned angle between local plane and plate (0 = parallel).",
+          "title": "Tilt To Plate Deg"
+        },
+        "valid": {
+          "description": "At least 3 records and a nondegenerate spread.",
+          "title": "Valid",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "n_used",
+        "valid",
+        "planarity",
+        "tilt_to_plate_deg"
+      ],
+      "title": "PlaneReading",
+      "type": "object"
+    },
+    "RingReading": {
+      "additionalProperties": false,
+      "description": "Vortex readings on the aperture ring. Each has its own mask.",
+      "properties": {
+        "certified_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Continuous-field index under the analytic bound.",
+          "title": "Certified Index"
+        },
+        "circulation": {
+          "description": "Signed circulation of the ring.",
+          "title": "Circulation",
+          "type": "number"
+        },
+        "eta_kin": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Rotation share of squared gradient; None when masked.",
+          "title": "Eta Kin"
+        },
+        "leakage": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Radial share of absolute flux; None when masked.",
+          "title": "Leakage"
+        },
+        "masks": {
+          "description": "Which readings were masked and why.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Masks",
+          "type": "array"
+        },
+        "sampled_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Polygon index, when the polygon is safe.",
+          "title": "Sampled Index"
+        },
+        "winding_status": {
+          "description": "Velocity-index status.",
+          "enum": [
+            "invalid",
+            "sampled_only",
+            "certified"
+          ],
+          "title": "Winding Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "circulation",
+        "eta_kin",
+        "leakage",
+        "winding_status",
+        "sampled_index",
+        "certified_index",
+        "masks"
+      ],
+      "title": "RingReading",
+      "type": "object"
+    },
+    "SpinGauges": {
+      "additionalProperties": false,
+      "description": "Global and local spin, and the balance of explicit strengths inside the aperture.",
+      "properties": {
+        "balance": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "(G+ - G-) / (G+ + G-); None with no vortices inside.",
+          "title": "Balance"
+        },
+        "global_spin": {
+          "description": "Plate spin rate Omega.",
+          "title": "Global Spin",
+          "type": "number"
+        },
+        "local_spin": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Half the mean vorticity in the aperture.",
+          "title": "Local Spin"
+        },
+        "negative_circulation": {
+          "description": "Sum of |negative strengths| inside the aperture.",
+          "minimum": 0,
+          "title": "Negative Circulation",
+          "type": "number"
+        },
+        "positive_circulation": {
+          "description": "Sum of positive strengths inside the aperture.",
+          "minimum": 0,
+          "title": "Positive Circulation",
+          "type": "number"
+        }
+      },
+      "required": [
+        "global_spin",
+        "local_spin",
+        "positive_circulation",
+        "negative_circulation",
+        "balance"
+      ],
+      "title": "SpinGauges",
+      "type": "object"
+    },
+    "StateReading": {
+      "additionalProperties": false,
+      "description": "Counts and density at this pose.",
+      "properties": {
+        "condensed": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Aperture records with a nonzero sparse code; None without enrichment.",
+          "title": "Condensed"
+        },
+        "density_ratio": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Aperture density over slab density (per plate area).",
+          "title": "Density Ratio"
+        },
+        "in_aperture": {
+          "description": "Slab records inside the aperture.",
+          "minimum": 0,
+          "title": "In Aperture",
+          "type": "integer"
+        },
+        "in_slab": {
+          "description": "Records taken in by the plate.",
+          "minimum": 0,
+          "title": "In Slab",
+          "type": "integer"
+        },
+        "labelled": {
+          "description": "Aperture records already labelled.",
+          "minimum": 0,
+          "title": "Labelled",
+          "type": "integer"
+        },
+        "total": {
+          "description": "Records in the fluid.",
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "with_strength": {
+          "description": "Aperture records with an explicit strength.",
+          "minimum": 0,
+          "title": "With Strength",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "in_slab",
+        "in_aperture",
+        "with_strength",
+        "condensed",
+        "labelled",
+        "density_ratio"
+      ],
+      "title": "StateReading",
+      "type": "object"
+    },
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Everything the probe measured at one pose.",
+  "properties": {
+    "aperture_ids": {
+      "description": "Aperture records, nearest to the centre first.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "title": "Aperture Ids",
+      "type": "array"
+    },
+    "axis_u": {
+      "description": "Plate u axis at this phase.",
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Axis U",
+      "type": "array"
+    },
+    "axis_v": {
+      "description": "Plate v axis at this phase.",
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Axis V",
+      "type": "array"
+    },
+    "effective_normal": {
+      "description": "Normal after tilt and yaw.",
+      "maxItems": 3,
+      "minItems": 3,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Effective Normal",
+      "type": "array"
+    },
+    "field": {
+      "$ref": "#/$defs/FieldReading",
+      "description": "Field readings."
+    },
+    "field_model": {
+      "const": "regularised point vortices at slab records, explicit strengths",
+      "default": "regularised point vortices at slab records, explicit strengths",
+      "description": "What the vortex and field readings measure.",
+      "title": "Field Model",
+      "type": "string"
+    },
+    "offset_state": {
+      "$ref": "#/$defs/BracketState",
+      "description": "Offset in its bracket."
+    },
+    "plane": {
+      "$ref": "#/$defs/PlaneReading",
+      "description": "Plane readings."
+    },
+    "radius_state": {
+      "$ref": "#/$defs/BracketState",
+      "description": "Radius in its bracket."
+    },
+    "request_digest": {
+      "description": "Digest of the request.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Digest",
+      "type": "string"
+    },
+    "result_kind": {
+      "const": "embedding_geometry",
+      "default": "embedding_geometry",
+      "description": "Never an operational forecast.",
+      "title": "Result Kind",
+      "type": "string"
+    },
+    "ring": {
+      "$ref": "#/$defs/RingReading",
+      "description": "Vortex readings."
+    },
+    "schema_version": {
+      "const": "datamesh-probe/v1",
+      "default": "datamesh-probe/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "slab_coords": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to M x 2 plate coordinates of slab records."
+    },
+    "slab_ids": {
+      "description": "Slab records, row order of slab_coords.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "title": "Slab Ids",
+      "type": "array"
+    },
+    "spin": {
+      "$ref": "#/$defs/SpinGauges",
+      "description": "Spin gauges."
+    },
+    "states": {
+      "$ref": "#/$defs/StateReading",
+      "description": "State readings."
+    }
+  },
+  "required": [
+    "request_digest",
+    "effective_normal",
+    "axis_u",
+    "axis_v",
+    "offset_state",
+    "radius_state",
+    "ring",
+    "field",
+    "plane",
+    "states",
+    "spin",
+    "aperture_ids",
+    "slab_ids",
+    "slab_coords"
+  ],
+  "title": "ProbeReading",
+  "type": "object"
+}

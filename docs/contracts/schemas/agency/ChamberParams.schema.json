@@ -1,0 +1,112 @@
+{
+  "additionalProperties": false,
+  "description": "Chamber rule parameters (defaults match the Condensation Chamber v8).",
+  "properties": {
+    "S0": {
+      "default": 0.82,
+      "description": "Base supersaturation.",
+      "maximum": 2,
+      "minimum": 0,
+      "title": "S0",
+      "type": "number"
+    },
+    "Sc": {
+      "default": 1.0,
+      "description": "Condensation threshold.",
+      "exclusiveMinimum": 0,
+      "maximum": 3,
+      "title": "Sc",
+      "type": "number"
+    },
+    "act_threshold": {
+      "default": 0.18,
+      "description": "Mean slab ion load I* that counts as activation.",
+      "exclusiveMinimum": 0,
+      "maximum": 10,
+      "title": "Act Threshold",
+      "type": "number"
+    },
+    "alpha": {
+      "default": 1.5,
+      "description": "Ion deposit rate per unit coupling.",
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Alpha",
+      "type": "number"
+    },
+    "eps": {
+      "default": 0.12,
+      "description": "Expansion term from ray speed |Z dot| / Z dot_ref.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Eps",
+      "type": "number"
+    },
+    "gain": {
+      "default": 1.0,
+      "description": "Multiplies P equally in every arm.",
+      "maximum": 1000,
+      "minimum": 1,
+      "title": "Gain",
+      "type": "number"
+    },
+    "k": {
+      "default": 10,
+      "description": "kNN neighbours.",
+      "maximum": 64,
+      "minimum": 2,
+      "title": "K",
+      "type": "integer"
+    },
+    "kappa": {
+      "default": 0.1,
+      "description": "Out-of-slab vapour coupling; needs no ions.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Kappa",
+      "type": "number"
+    },
+    "lam": {
+      "default": 0.3,
+      "description": "Barrier lowering per unit ion load (lambda).",
+      "maximum": 3,
+      "minimum": 0,
+      "title": "Lam",
+      "type": "number"
+    },
+    "reach_fraction": {
+      "default": 0.2,
+      "description": "Reach band beyond the slab as a fraction of h_q.",
+      "exclusiveMinimum": 0,
+      "maximum": 2,
+      "title": "Reach Fraction",
+      "type": "number"
+    },
+    "tau_drop": {
+      "default": 0.5,
+      "description": "Droplet evaporation time.",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "title": "Tau Drop",
+      "type": "number"
+    },
+    "tau_ion": {
+      "default": 1.4,
+      "description": "Ion decay time.",
+      "exclusiveMinimum": 0,
+      "maximum": 100,
+      "title": "Tau Ion",
+      "type": "number"
+    },
+    "width_fraction": {
+      "default": 0.08,
+      "description": "Slab half-width w as a fraction of h_q.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "Width Fraction",
+      "type": "number"
+    }
+  },
+  "title": "ChamberParams",
+  "type": "object"
+}

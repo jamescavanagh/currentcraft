@@ -1,0 +1,515 @@
+{
+  "$defs": {
+    "LoopWinding": {
+      "additionalProperties": false,
+      "description": "Winding of the director around one requested loop. Gauge invariant; quantized when complete.",
+      "properties": {
+        "complete": {
+          "description": "True when every consecutive pair is a kept connection link.",
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "holonomy_deg": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Wrapped loop holonomy (degrees): curvature enclosed.",
+          "title": "Holonomy Deg"
+        },
+        "loop_id": {
+          "description": "GaugeLoop.id.",
+          "title": "Loop Id",
+          "type": "string"
+        },
+        "missing_links": {
+          "description": "Consecutive pairs that are not kept links.",
+          "minimum": 0,
+          "title": "Missing Links",
+          "type": "integer"
+        },
+        "quantized": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "winding rounded to the charge quantum.",
+          "title": "Quantized"
+        },
+        "winding": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "(sum of links - sum of connection) / 2 pi; None if incomplete.",
+          "title": "Winding"
+        }
+      },
+      "required": [
+        "loop_id",
+        "complete",
+        "missing_links"
+      ],
+      "title": "LoopWinding",
+      "type": "object"
+    },
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Output of GaugeReductionPort.reduce(): operand gauges plus the lattice connection and its invariants.",
+  "properties": {
+    "charge_quantum": {
+      "description": "0.5 for axis directors, 1.0 for vector directors.",
+      "enum": [
+        0.5,
+        1.0
+      ],
+      "title": "Charge Quantum",
+      "type": "number"
+    },
+    "director": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to N gauge-dependent director angles."
+    },
+    "director_mode": {
+      "description": "Director used.",
+      "enum": [
+        "principal_axis",
+        "supply_demand"
+      ],
+      "title": "Director Mode",
+      "type": "string"
+    },
+    "edge_connection": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to E gauge-dependent connection angles (vector potential)."
+    },
+    "edge_index": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to 2 x E link index."
+    },
+    "edge_link": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to E gauge-invariant links."
+    },
+    "edge_reliability": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to E link reliabilities."
+    },
+    "embeddings_sha256": {
+      "description": "SHA-256 of the embeddings tensor that was reduced.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Embeddings Sha256",
+      "type": "string"
+    },
+    "frame_id": {
+      "description": "Frame identity, pinned to its labeling round.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "global_link_coherence": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Cloud-wide mean link coherence (None without links).",
+      "title": "Global Link Coherence"
+    },
+    "loops": {
+      "default": [],
+      "description": "Windings for the requested loops, in request order.",
+      "items": {
+        "$ref": "#/$defs/LoopWinding"
+      },
+      "title": "Loops",
+      "type": "array"
+    },
+    "n_links": {
+      "description": "E: kept links.",
+      "minimum": 0,
+      "title": "N Links",
+      "type": "integer"
+    },
+    "n_triangles": {
+      "description": "T: triangles of reliable links.",
+      "minimum": 0,
+      "title": "N Triangles",
+      "type": "integer"
+    },
+    "n_valid": {
+      "description": "Nodes with node_mask True.",
+      "minimum": 0,
+      "title": "N Valid",
+      "type": "integer"
+    },
+    "net_charge": {
+      "default": 0.0,
+      "description": "Sum of finite triangle charges.",
+      "title": "Net Charge",
+      "type": "number"
+    },
+    "node_feature_names": {
+      "default": [
+        "planarity",
+        "anisotropy",
+        "log_density_ratio",
+        "supersaturated",
+        "link_coherence",
+        "coherence_vs_global",
+        "net_holonomy",
+        "defect_load",
+        "z2_defects",
+        "degree"
+      ],
+      "description": "Column order of node_gauges.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Feature Names",
+      "type": "array"
+    },
+    "node_gauges": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to N x F operand gauges."
+    },
+    "node_ids": {
+      "description": "Row order of every node tensor.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Node Ids",
+      "type": "array"
+    },
+    "node_mask": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to N validity mask."
+    },
+    "orientation_conflicts": {
+      "description": "Reliable links dropped because frames could not be oriented consistently.",
+      "minimum": 0,
+      "title": "Orientation Conflicts",
+      "type": "integer"
+    },
+    "request_digest": {
+      "description": "SHA-256 of the request that produced this result.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Digest",
+      "type": "string"
+    },
+    "result_kind": {
+      "const": "embedding_geometry",
+      "default": "embedding_geometry",
+      "description": "Always embedding_geometry: research instrument, not a forecast.",
+      "title": "Result Kind",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "datamesh-gauge/v1",
+      "default": "datamesh-gauge/v1",
+      "description": "Contract version; bump on any breaking change.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "triangle_charge": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to T triangle defect charges."
+    },
+    "triangle_holonomy": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to T triangle holonomies."
+    },
+    "triangle_z2": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to T orientation signs."
+    },
+    "triangles": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to 3 x T triangle corners."
+    }
+  },
+  "required": [
+    "frame_id",
+    "request_digest",
+    "embeddings_sha256",
+    "director_mode",
+    "charge_quantum",
+    "node_ids",
+    "n_valid",
+    "n_links",
+    "n_triangles",
+    "orientation_conflicts",
+    "node_gauges",
+    "node_mask",
+    "director",
+    "edge_index",
+    "edge_connection",
+    "edge_link",
+    "edge_reliability",
+    "triangles",
+    "triangle_holonomy",
+    "triangle_charge",
+    "triangle_z2"
+  ],
+  "title": "GaugeResult",
+  "type": "object"
+}

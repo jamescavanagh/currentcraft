@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "Quarantined input. Never a partial object.",
+  "properties": {
+    "adapter": {
+      "description": "Adapter that rejected it.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Adapter",
+      "type": "string"
+    },
+    "content_sha256": {
+      "description": "SHA-256 of the raw bytes.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Content Sha256",
+      "type": "string"
+    },
+    "reason": {
+      "description": "Why.",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "received_at": {
+      "description": "Intake time.",
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    },
+    "topic": {
+      "description": "Raw topic.",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Topic",
+      "type": "string"
+    }
+  },
+  "required": [
+    "topic",
+    "content_sha256",
+    "adapter",
+    "reason",
+    "received_at"
+  ],
+  "title": "Rejection",
+  "type": "object"
+}

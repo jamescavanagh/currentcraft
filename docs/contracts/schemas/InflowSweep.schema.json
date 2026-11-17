@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "description": "Inflow values to evaluate, strictly increasing in [0, 1].",
+  "properties": {
+    "values": {
+      "description": "Inflow per slice.",
+      "items": {
+        "type": "number"
+      },
+      "maxItems": 512,
+      "minItems": 1,
+      "title": "Values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "values"
+  ],
+  "title": "InflowSweep",
+  "type": "object"
+}

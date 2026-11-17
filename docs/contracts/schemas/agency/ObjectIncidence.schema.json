@@ -1,0 +1,102 @@
+{
+  "additionalProperties": false,
+  "description": "What one execution does to one object. Objects are things, never people.",
+  "properties": {
+    "destination_buffer": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "transfers only: buffer (place) the object arrives at. Set with origin_buffer or not at all.",
+      "title": "Destination Buffer"
+    },
+    "effect": {
+      "description": "produces=birth, consumes=death, revises/transfers/holds=state change, checks=gate, reads=no change.",
+      "enum": [
+        "produces",
+        "consumes",
+        "reads",
+        "revises",
+        "holds",
+        "checks",
+        "transfers"
+      ],
+      "title": "Effect",
+      "type": "string"
+    },
+    "object_id": {
+      "description": "Persistent object id (one per asset; references to it are not new objects).",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Object Id",
+      "type": "string"
+    },
+    "object_kind": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Caller vocabulary, e.g. drawing, purchase_order, device.",
+      "title": "Object Kind"
+    },
+    "origin_buffer": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "transfers only: buffer (place) the object leaves. Optional; HFGT reports a gap when missing.",
+      "title": "Origin Buffer"
+    },
+    "state_after": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "State after the execution, where the effect changes state.",
+      "title": "State After"
+    },
+    "state_before": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Expected state before the execution, if asserted.",
+      "title": "State Before"
+    }
+  },
+  "required": [
+    "object_id",
+    "effect"
+  ],
+  "title": "ObjectIncidence",
+  "type": "object"
+}

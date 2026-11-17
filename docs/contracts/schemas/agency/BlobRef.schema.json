@@ -1,0 +1,39 @@
+{
+  "additionalProperties": false,
+  "description": "Handle to raw content in a blob store. Only adapters read the bytes.",
+  "properties": {
+    "key": {
+      "description": "Blob store key.",
+      "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+      "title": "Key",
+      "type": "string"
+    },
+    "media_type": {
+      "description": "Declared media type.",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Media Type",
+      "type": "string"
+    },
+    "sha256": {
+      "description": "SHA-256 of the bytes.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Sha256",
+      "type": "string"
+    },
+    "size": {
+      "description": "Byte length.",
+      "minimum": 0,
+      "title": "Size",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "key",
+    "sha256",
+    "size",
+    "media_type"
+  ],
+  "title": "BlobRef",
+  "type": "object"
+}

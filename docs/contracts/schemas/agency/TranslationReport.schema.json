@@ -1,0 +1,85 @@
+{
+  "$defs": {
+    "TranslationGap": {
+      "additionalProperties": false,
+      "description": "A record that did not translate. Reported, never guessed: unknown is not 0.",
+      "properties": {
+        "execution_id": {
+          "description": "Execution that did not translate.",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Incidence involved, if any.",
+          "title": "Object Id"
+        },
+        "reason": {
+          "description": "Why.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "execution_id",
+        "reason"
+      ],
+      "title": "TranslationGap",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "deviations": {
+      "default": [
+        "who-vs-where: buffers are places and resources execute; HFGT fuses them in transformation resources M",
+        "control executions map to transformation processes at their buffer (extension)",
+        "reads and undecided checks are non-consuming identities: pull and inject the same operand (extension)",
+        "exchange has no HFGT class yet and is reported as a gap"
+      ],
+      "description": "Documented departures from the paper.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Deviations",
+      "type": "array"
+    },
+    "gaps": {
+      "default": [],
+      "description": "Everything that did not translate.",
+      "items": {
+        "$ref": "#/$defs/TranslationGap"
+      },
+      "title": "Gaps",
+      "type": "array"
+    },
+    "n_executions": {
+      "description": "Executions read.",
+      "minimum": 0,
+      "title": "N Executions",
+      "type": "integer"
+    },
+    "n_translated": {
+      "description": "Executions that produced at least one capability.",
+      "minimum": 0,
+      "title": "N Translated",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "n_executions",
+    "n_translated"
+  ],
+  "title": "TranslationReport",
+  "type": "object"
+}

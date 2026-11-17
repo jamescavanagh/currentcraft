@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "description": "How one object kind gets its phase. Declared evidence only; first matching rule wins.",
+  "properties": {
+    "field": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_]{1,60}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "field: the field holding the phase code.",
+      "title": "Field"
+    },
+    "hours_field_template": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_]*\\{code\\}[A-Za-z0-9_]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "per_phase_hours: field name with {code}, e.g. ph{code}_raw. Only values > 0 count.",
+      "title": "Hours Field Template"
+    },
+    "kind": {
+      "description": "Object kind the rule applies to.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Kind",
+      "type": "string"
+    },
+    "relation_types": {
+      "default": [],
+      "description": "relation: follow one hop to a target that has field evidence.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+        "type": "string"
+      },
+      "maxItems": 16,
+      "title": "Relation Types",
+      "type": "array"
+    },
+    "source": {
+      "description": "Evidence type.",
+      "enum": [
+        "field",
+        "relation",
+        "per_phase_hours"
+      ],
+      "title": "Source",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kind",
+    "source"
+  ],
+  "title": "PhaseEvidenceRule",
+  "type": "object"
+}

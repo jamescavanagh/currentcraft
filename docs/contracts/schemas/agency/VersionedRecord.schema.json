@@ -1,0 +1,71 @@
+{
+  "$defs": {
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "description": "One version of an aggregate: opaque UUID identity, monotonic version, JSON payload (Decimals as strings).",
+  "properties": {
+    "aggregate_id": {
+      "description": "Opaque identity; never a business number.",
+      "format": "uuid",
+      "title": "Aggregate Id",
+      "type": "string"
+    },
+    "aggregate_type": {
+      "description": "Aggregate type, e.g. work_package.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Aggregate Type",
+      "type": "string"
+    },
+    "command_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Command that produced this version.",
+      "title": "Command Id"
+    },
+    "payload": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "description": "model_dump(mode='json') of the aggregate.",
+      "title": "Payload",
+      "type": "object"
+    },
+    "recorded_at": {
+      "description": "When this version was recorded (timezone-aware).",
+      "format": "date-time",
+      "title": "Recorded At",
+      "type": "string"
+    },
+    "schema_version": {
+      "description": "Payload schema version.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "version": {
+      "description": "Monotonic version, 1 on create.",
+      "exclusiveMinimum": 0,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "aggregate_type",
+    "aggregate_id",
+    "version",
+    "schema_version",
+    "payload",
+    "recorded_at"
+  ],
+  "title": "VersionedRecord",
+  "type": "object"
+}

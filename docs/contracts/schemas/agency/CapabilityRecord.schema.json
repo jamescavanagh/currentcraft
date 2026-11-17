@@ -1,0 +1,103 @@
+{
+  "additionalProperties": false,
+  "description": "One capability after translation: what it pulls from where and what it injects where.",
+  "properties": {
+    "capability_class": {
+      "description": "transform / control (P_mu) or hold / transport (refined P_gamma x P_eta).",
+      "enum": [
+        "transform",
+        "control",
+        "hold",
+        "transport"
+      ],
+      "title": "Capability Class",
+      "type": "string"
+    },
+    "evidence_count": {
+      "description": "Executions that evidence the capability.",
+      "minimum": 0,
+      "title": "Evidence Count",
+      "type": "integer"
+    },
+    "evidenced": {
+      "description": "At least one binding names an evidence_ref (else asserted only).",
+      "title": "Evidenced",
+      "type": "boolean"
+    },
+    "injects": {
+      "description": "(operand, buffer) places it puts into: M+ column.",
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Injects",
+      "type": "array"
+    },
+    "nonconsuming": {
+      "default": false,
+      "description": "Reads or undecided checks: identity extension.",
+      "title": "Nonconsuming",
+      "type": "boolean"
+    },
+    "process": {
+      "description": "Translated process id.",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Process",
+      "type": "string"
+    },
+    "pulls": {
+      "description": "(operand, buffer) places it takes from: M- column.",
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Pulls",
+      "type": "array"
+    },
+    "resource_id": {
+      "description": "Executing resource.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Resource Id",
+      "type": "string"
+    },
+    "stages": {
+      "description": "Stages where it was executed.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Stages",
+      "type": "array"
+    }
+  },
+  "required": [
+    "process",
+    "resource_id",
+    "capability_class",
+    "pulls",
+    "injects",
+    "evidence_count",
+    "evidenced",
+    "stages"
+  ],
+  "title": "CapabilityRecord",
+  "type": "object"
+}

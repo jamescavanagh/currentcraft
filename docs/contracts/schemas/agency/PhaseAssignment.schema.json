@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "description": "The phase evidence of one object. Weights are shares over phase codes, summing to 1 when phased.",
+  "properties": {
+    "basis": {
+      "description": "Rule and evidence that produced the assignment, or why none.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Basis",
+      "type": "string"
+    },
+    "object_id": {
+      "description": "Object.",
+      "pattern": "^[A-Za-z0-9._:-]{1,160}$",
+      "title": "Object Id",
+      "type": "string"
+    },
+    "state": {
+      "description": "One phase, several phases, or none.",
+      "enum": [
+        "phased",
+        "mixed",
+        "unphased"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "weights": {
+      "default": [],
+      "description": "(phase_code, share) pairs, codes sorted.",
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "pattern": "^[A-Za-z0-9._-]{1,40}$",
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Weights",
+      "type": "array"
+    }
+  },
+  "required": [
+    "object_id",
+    "state",
+    "basis"
+  ],
+  "title": "PhaseAssignment",
+  "type": "object"
+}

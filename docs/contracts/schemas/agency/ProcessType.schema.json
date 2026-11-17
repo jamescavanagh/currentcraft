@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "A kind of process: what it does to objects, independent of any project instance.",
+  "properties": {
+    "approved": {
+      "default": false,
+      "description": "True only after a process SME signs off the classification; inferred classes stay False.",
+      "title": "Approved",
+      "type": "boolean"
+    },
+    "code": {
+      "description": "Caller vocabulary process code, e.g. 'design' or a catalogue number.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Code",
+      "type": "string"
+    },
+    "function_classes": {
+      "description": "What the process does: transform, transport, hold, exchange, control.",
+      "items": {
+        "enum": [
+          "transform",
+          "transport",
+          "hold",
+          "exchange",
+          "control"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Function Classes",
+      "type": "array"
+    },
+    "name": {
+      "description": "Human-readable process name.",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "function_classes"
+  ],
+  "title": "ProcessType",
+  "type": "object"
+}

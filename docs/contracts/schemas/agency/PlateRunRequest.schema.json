@@ -1,0 +1,289 @@
+{
+  "$defs": {
+    "IsoscelesParams": {
+      "additionalProperties": false,
+      "description": "Spatial isosceles initial condition: two mirrored side bodies on the plate, the object body on the axis.",
+      "properties": {
+        "object_mass": {
+          "default": 0.3,
+          "description": "Initial object mass m3.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Object Mass",
+          "type": "number"
+        },
+        "side_mass": {
+          "default": 1.0,
+          "description": "Mass m of each side body.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Side Mass",
+          "type": "number"
+        },
+        "side_radius": {
+          "default": 1.0,
+          "description": "Initial distance r of each side body from the axis.",
+          "exclusiveMinimum": 0,
+          "maximum": 10,
+          "title": "Side Radius",
+          "type": "number"
+        },
+        "softening": {
+          "default": 0.03,
+          "description": "Plummer softening epsilon.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Softening",
+          "type": "number"
+        },
+        "spin_factor": {
+          "default": 1.0,
+          "description": "Side speed as a multiple of the instantaneous circular speed.",
+          "exclusiveMinimum": 0,
+          "maximum": 3,
+          "title": "Spin Factor",
+          "type": "number"
+        },
+        "zeta0": {
+          "default": 0.7,
+          "description": "Initial object height above the plate; nonzero.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "Zeta0",
+          "type": "number"
+        },
+        "zeta_dot0": {
+          "default": 0.0,
+          "description": "Initial rate of zeta.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "Zeta Dot0",
+          "type": "number"
+        }
+      },
+      "title": "IsoscelesParams",
+      "type": "object"
+    },
+    "ObjectMassEvent": {
+      "additionalProperties": false,
+      "description": "Live change of the object mass, e.g. a gate's held load. The run continues; nothing resets.",
+      "properties": {
+        "cause": {
+          "description": "Why the mass changed.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Cause",
+          "type": "string"
+        },
+        "object_mass": {
+          "description": "New object mass.",
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Object Mass",
+          "type": "number"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Event provenance.",
+          "title": "Source Ref"
+        },
+        "t": {
+          "description": "Model time at which the new mass applies (first step boundary at or after t).",
+          "exclusiveMinimum": 0,
+          "title": "T",
+          "type": "number"
+        }
+      },
+      "required": [
+        "t",
+        "object_mass",
+        "cause"
+      ],
+      "title": "ObjectMassEvent",
+      "type": "object"
+    },
+    "PlateVortex": {
+      "additionalProperties": false,
+      "description": "A local vortex pinned in the plate frame. Strength is given explicitly, never inferred from projection handedness.",
+      "properties": {
+        "id": {
+          "description": "Stable vortex id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Evidence for position and strength.",
+          "title": "Source Ref"
+        },
+        "strength": {
+          "description": "Circulation Gamma; sign is spin direction, not good or bad.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "Strength",
+          "type": "number"
+        },
+        "u": {
+          "description": "Plate-frame x.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "U",
+          "type": "number"
+        },
+        "v": {
+          "description": "Plate-frame y.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "V",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "u",
+        "v",
+        "strength"
+      ],
+      "title": "PlateVortex",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One simulated plate run.",
+  "properties": {
+    "core_radius": {
+      "default": 0.09,
+      "description": "Vortex core delta.",
+      "exclusiveMinimum": 0,
+      "maximum": 1,
+      "title": "Core Radius",
+      "type": "number"
+    },
+    "dt": {
+      "default": 0.002,
+      "description": "Integrator step.",
+      "exclusiveMinimum": 0,
+      "maximum": 0.05,
+      "title": "Dt",
+      "type": "number"
+    },
+    "escape_radius": {
+      "default": 6.0,
+      "description": "Stop as escaped when r exceeds this.",
+      "exclusiveMinimum": 0,
+      "title": "Escape Radius",
+      "type": "number"
+    },
+    "escape_zeta": {
+      "default": 9.0,
+      "description": "Stop as escaped when |zeta| exceeds this.",
+      "exclusiveMinimum": 0,
+      "title": "Escape Zeta",
+      "type": "number"
+    },
+    "mass_events": {
+      "default": [],
+      "description": "Live mass changes, strictly increasing t.",
+      "items": {
+        "$ref": "#/$defs/ObjectMassEvent"
+      },
+      "maxItems": 1000,
+      "title": "Mass Events",
+      "type": "array"
+    },
+    "object_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Object riding the axis; crossings carry it.",
+      "title": "Object Id"
+    },
+    "params": {
+      "$ref": "#/$defs/IsoscelesParams",
+      "description": "Initial condition."
+    },
+    "plate_id": {
+      "description": "Plate id; used in broker topics.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Plate Id",
+      "type": "string"
+    },
+    "plate_radius": {
+      "default": 1.8,
+      "description": "Plate radius (field domain).",
+      "exclusiveMinimum": 0,
+      "maximum": 20,
+      "title": "Plate Radius",
+      "type": "number"
+    },
+    "publish": {
+      "default": true,
+      "description": "Publish crossing and run events when a broker is wired.",
+      "title": "Publish",
+      "type": "boolean"
+    },
+    "record_every": {
+      "default": 20,
+      "description": "Snapshot stride in steps.",
+      "minimum": 1,
+      "title": "Record Every",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "datamesh-plate/v1",
+      "default": "datamesh-plate/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "steps": {
+      "default": 20000,
+      "description": "Number of steps.",
+      "maximum": 2000000,
+      "minimum": 1,
+      "title": "Steps",
+      "type": "integer"
+    },
+    "vortices": {
+      "default": [],
+      "description": "Local vortices in the plate frame.",
+      "items": {
+        "$ref": "#/$defs/PlateVortex"
+      },
+      "maxItems": 64,
+      "title": "Vortices",
+      "type": "array"
+    }
+  },
+  "required": [
+    "plate_id"
+  ],
+  "title": "PlateRunRequest",
+  "type": "object"
+}

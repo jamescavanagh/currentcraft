@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "NodeRole": {
+      "description": "Resource-Process-Operand working triad (see the domain prototype's Body). Mapping is not yet approved.",
+      "enum": [
+        "resource",
+        "process",
+        "operand",
+        "unassigned"
+      ],
+      "title": "NodeRole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One record as a point vortex: position from salted embedding PCs, strength from density, sign from PC3.",
+  "properties": {
+    "id": {
+      "description": "Stable node id (record id or vortex index).",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "maxLength": 300,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human label, e.g. the record text.",
+      "title": "Label"
+    },
+    "role": {
+      "$ref": "#/$defs/NodeRole",
+      "default": "unassigned",
+      "description": "Resource/Process/Operand role, if known."
+    },
+    "source_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Provenance: record id/version or citation.",
+      "title": "Source Ref"
+    },
+    "strength": {
+      "description": "Signed circulation; sign is spin direction.",
+      "maximum": 10,
+      "minimum": -10,
+      "title": "Strength",
+      "type": "number"
+    },
+    "x": {
+      "description": "Field-plane x (model units).",
+      "maximum": 100,
+      "minimum": -100,
+      "title": "X",
+      "type": "number"
+    },
+    "y": {
+      "description": "Field-plane y (model units).",
+      "maximum": 100,
+      "minimum": -100,
+      "title": "Y",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "x",
+    "y",
+    "strength"
+  ],
+  "title": "InteractionNode",
+  "type": "object"
+}

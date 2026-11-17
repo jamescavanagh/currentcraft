@@ -1,0 +1,42 @@
+{
+  "additionalProperties": false,
+  "description": "Model identity of a vector. Vectors from different spaces are never compared.",
+  "properties": {
+    "dim": {
+      "description": "Dimension.",
+      "exclusiveMinimum": 0,
+      "maximum": 65536,
+      "title": "Dim",
+      "type": "integer"
+    },
+    "model_name": {
+      "description": "Embedding model name.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Model Name",
+      "type": "string"
+    },
+    "model_version": {
+      "description": "Model version.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Model Version",
+      "type": "string"
+    },
+    "precision": {
+      "default": "float32",
+      "description": "Precision the model emits.",
+      "enum": [
+        "float32",
+        "float64"
+      ],
+      "title": "Precision",
+      "type": "string"
+    }
+  },
+  "required": [
+    "model_name",
+    "model_version",
+    "dim"
+  ],
+  "title": "EmbeddingSpace",
+  "type": "object"
+}

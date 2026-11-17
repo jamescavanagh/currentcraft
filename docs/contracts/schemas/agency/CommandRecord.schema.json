@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "description": "A processed command. Replaying the same command id returns this instead of acting twice.",
+  "properties": {
+    "command_id": {
+      "description": "Caller-supplied idempotency key.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Command Id",
+      "type": "string"
+    },
+    "command_type": {
+      "description": "Command type.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Command Type",
+      "type": "string"
+    },
+    "detail": {
+      "anyOf": [
+        {
+          "maxLength": 500,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Reason when rejected.",
+      "title": "Detail"
+    },
+    "outcome": {
+      "description": "What happened the first time.",
+      "enum": [
+        "applied",
+        "rejected"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "recorded_at": {
+      "description": "When it was first processed.",
+      "format": "date-time",
+      "title": "Recorded At",
+      "type": "string"
+    },
+    "result_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Id of what it produced.",
+      "title": "Result Ref"
+    }
+  },
+  "required": [
+    "command_id",
+    "command_type",
+    "outcome",
+    "recorded_at"
+  ],
+  "title": "CommandRecord",
+  "type": "object"
+}

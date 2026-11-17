@@ -1,0 +1,728 @@
+{
+  "$defs": {
+    "AuthorityRef": {
+      "additionalProperties": false,
+      "description": "A decision right attached to an execution.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the right is documented.",
+          "title": "Evidence Ref"
+        },
+        "holder_role": {
+          "description": "Role holding the right.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Holder Role",
+          "type": "string"
+        },
+        "scope": {
+          "description": "What the right covers.",
+          "enum": [
+            "release",
+            "reject",
+            "return",
+            "hold",
+            "approve_design",
+            "transfer_custody",
+            "commit_spend",
+            "displace_allocation"
+          ],
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "holder_role",
+        "scope"
+      ],
+      "title": "AuthorityRef",
+      "type": "object"
+    },
+    "Buffer": {
+      "additionalProperties": false,
+      "description": "A place or container where operands sit: B_S. Never a person, never an object.",
+      "properties": {
+        "buffer_id": {
+          "description": "Buffer id referenced by at_buffer / origin_buffer / destination_buffer.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Buffer Id",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the buffer is evidenced.",
+          "title": "Evidence Ref"
+        },
+        "kind": {
+          "description": "store holds, work transforms, custody marks a handover point.",
+          "enum": [
+            "store",
+            "work",
+            "custody"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Human-readable label.",
+          "title": "Label"
+        }
+      },
+      "required": [
+        "buffer_id",
+        "kind"
+      ],
+      "title": "Buffer",
+      "type": "object"
+    },
+    "CandidateEdge": {
+      "additionalProperties": false,
+      "description": "A proposed link (splice junction, knn neighbour). Never merged into feasible sequences.",
+      "properties": {
+        "origin": {
+          "description": "Where the proposal came from, e.g. 'splice:junction'.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Origin",
+          "type": "string"
+        },
+        "score": {
+          "description": "Retrieval score. Retrieval confidence is not relation confidence.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "source": {
+          "$ref": "#/$defs/CapabilityRef",
+          "description": "Proposed predecessor."
+        },
+        "target": {
+          "$ref": "#/$defs/CapabilityRef",
+          "description": "Proposed successor."
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "score",
+        "origin"
+      ],
+      "title": "CandidateEdge",
+      "type": "object"
+    },
+    "CapabilityBinding": {
+      "additionalProperties": false,
+      "description": "A resource executing the process. Resources (people, teams, tools) appear only here.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the capability is evidenced; None means asserted, not evidenced.",
+          "title": "Evidence Ref"
+        },
+        "resource_id": {
+          "description": "Resource id; never an object id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "resource_role": {
+          "description": "Role, not a person's name, in shared artifacts.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Resource Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "resource_role"
+      ],
+      "title": "CapabilityBinding",
+      "type": "object"
+    },
+    "CapabilityConstraint": {
+      "additionalProperties": false,
+      "description": "One K_S row: a capability that exists but is not available (PTO, region, oversize load, no authority).",
+      "properties": {
+        "capability": {
+          "$ref": "#/$defs/CapabilityRef",
+          "description": "The capability this constraint switches off."
+        },
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the constraint is evidenced.",
+          "title": "Evidence Ref"
+        },
+        "reason": {
+          "description": "Why it is unavailable.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive start; None = always.",
+          "title": "Valid From"
+        },
+        "valid_to": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exclusive end; None = open-ended.",
+          "title": "Valid To"
+        }
+      },
+      "required": [
+        "capability",
+        "reason"
+      ],
+      "title": "CapabilityConstraint",
+      "type": "object"
+    },
+    "CapabilityRef": {
+      "additionalProperties": false,
+      "description": "Names one capability: a resource doing a process (an element of E_S).",
+      "properties": {
+        "process": {
+          "description": "Translated process id, e.g. 'transform:build_rack@bench' or 'refined:hold(rack:built):bench->room201'.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Process",
+          "type": "string"
+        },
+        "resource_id": {
+          "description": "Executing resource.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "process",
+        "resource_id"
+      ],
+      "title": "CapabilityRef",
+      "type": "object"
+    },
+    "ObjectIncidence": {
+      "additionalProperties": false,
+      "description": "What one execution does to one object. Objects are things, never people.",
+      "properties": {
+        "destination_buffer": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "transfers only: buffer (place) the object arrives at. Set with origin_buffer or not at all.",
+          "title": "Destination Buffer"
+        },
+        "effect": {
+          "description": "produces=birth, consumes=death, revises/transfers/holds=state change, checks=gate, reads=no change.",
+          "enum": [
+            "produces",
+            "consumes",
+            "reads",
+            "revises",
+            "holds",
+            "checks",
+            "transfers"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "object_id": {
+          "description": "Persistent object id (one per asset; references to it are not new objects).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "object_kind": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Caller vocabulary, e.g. drawing, purchase_order, device.",
+          "title": "Object Kind"
+        },
+        "origin_buffer": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "transfers only: buffer (place) the object leaves. Optional; HFGT reports a gap when missing.",
+          "title": "Origin Buffer"
+        },
+        "state_after": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "State after the execution, where the effect changes state.",
+          "title": "State After"
+        },
+        "state_before": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected state before the execution, if asserted.",
+          "title": "State Before"
+        }
+      },
+      "required": [
+        "object_id",
+        "effect"
+      ],
+      "title": "ObjectIncidence",
+      "type": "object"
+    },
+    "ProcessExecution": {
+      "additionalProperties": false,
+      "description": "The root record: one execution of a process type. Everything else is derived from executions.",
+      "properties": {
+        "at_buffer": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Buffer (place) where a transform, control or hold happens. Optional; HFGT reports a gap when missing.",
+          "title": "At Buffer"
+        },
+        "authority": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Decision right; required for release."
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "enum": [
+                "hold",
+                "release",
+                "reject",
+                "return"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Gate decision; control executions only.",
+          "title": "Decision"
+        },
+        "epistemic_status": {
+          "default": "computed",
+          "description": "computed = from records; simulated work can never release.",
+          "enum": [
+            "computed",
+            "simulated",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "executed_by": {
+          "default": [],
+          "description": "Who executed it. Empty means the executor is unknown.",
+          "items": {
+            "$ref": "#/$defs/CapabilityBinding"
+          },
+          "title": "Executed By",
+          "type": "array"
+        },
+        "execution_id": {
+          "description": "Instance id, e.g. '<project>:<process-code>[:<n>]'.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "incidence": {
+          "default": [],
+          "description": "Objects the execution acts on, one entry per object.",
+          "items": {
+            "$ref": "#/$defs/ObjectIncidence"
+          },
+          "title": "Incidence",
+          "type": "array"
+        },
+        "occurred_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Real timestamp, if recorded. Required before process claims.",
+          "title": "Occurred At"
+        },
+        "process": {
+          "$ref": "#/$defs/ProcessType",
+          "description": "The process type executed."
+        },
+        "schema_version": {
+          "const": "datamesh-process/v1",
+          "default": "datamesh-process/v1",
+          "description": "Contract version.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Caller ordering within ties; None means unordered.",
+          "title": "Sequence"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Provenance of the record.",
+          "title": "Source Ref"
+        },
+        "stage": {
+          "description": "Caller stage code; the participation null never crosses stages.",
+          "pattern": "^[A-Za-z0-9._:-]{1,40}$",
+          "title": "Stage",
+          "type": "string"
+        },
+        "subsystem_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Subsystem the execution belongs to, if known.",
+          "title": "Subsystem Id"
+        },
+        "verification_evidence": {
+          "default": [],
+          "description": "Object ids the decision relied on; each must be read or checked here.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "title": "Verification Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "execution_id",
+        "process",
+        "stage"
+      ],
+      "title": "ProcessExecution",
+      "type": "object"
+    },
+    "ProcessType": {
+      "additionalProperties": false,
+      "description": "A kind of process: what it does to objects, independent of any project instance.",
+      "properties": {
+        "approved": {
+          "default": false,
+          "description": "True only after a process SME signs off the classification; inferred classes stay False.",
+          "title": "Approved",
+          "type": "boolean"
+        },
+        "code": {
+          "description": "Caller vocabulary process code, e.g. 'design' or a catalogue number.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "function_classes": {
+          "description": "What the process does: transform, transport, hold, exchange, control.",
+          "items": {
+            "enum": [
+              "transform",
+              "transport",
+              "hold",
+              "exchange",
+              "control"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Function Classes",
+          "type": "array"
+        },
+        "name": {
+          "description": "Human-readable process name.",
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "function_classes"
+      ],
+      "title": "ProcessType",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Build a capability graph from process records.",
+  "properties": {
+    "as_of": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Constraints are evaluated at this time; None = all active.",
+      "title": "As Of"
+    },
+    "buffers": {
+      "default": [],
+      "description": "Declared buffers. Undeclared references become gaps.",
+      "items": {
+        "$ref": "#/$defs/Buffer"
+      },
+      "title": "Buffers",
+      "type": "array"
+    },
+    "candidates": {
+      "default": [],
+      "description": "Proposals kept apart from edge_index.",
+      "items": {
+        "$ref": "#/$defs/CandidateEdge"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "constraint_mode": {
+      "default": "mask",
+      "description": "mask keeps blocked nodes with no edges; drop removes them.",
+      "enum": [
+        "mask",
+        "drop"
+      ],
+      "title": "Constraint Mode",
+      "type": "string"
+    },
+    "constraints": {
+      "default": [],
+      "description": "K_S rows.",
+      "items": {
+        "$ref": "#/$defs/CapabilityConstraint"
+      },
+      "title": "Constraints",
+      "type": "array"
+    },
+    "executions": {
+      "description": "Process records to read.",
+      "items": {
+        "$ref": "#/$defs/ProcessExecution"
+      },
+      "maxItems": 20000,
+      "minItems": 1,
+      "title": "Executions",
+      "type": "array"
+    },
+    "existence_basis": {
+      "const": "observed",
+      "default": "observed",
+      "description": "J_S from computed executions only.",
+      "title": "Existence Basis",
+      "type": "string"
+    },
+    "frame_id": {
+      "description": "Frame identity, e.g. 'wme-rack-synthetic'.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "layer_scheme": {
+      "default": "input_operand_set",
+      "description": "How edge types are chosen.",
+      "enum": [
+        "input_operand_set",
+        "output_operand_set"
+      ],
+      "title": "Layer Scheme",
+      "type": "string"
+    },
+    "operand_key": {
+      "default": "kind_state",
+      "description": "kind_state keeps order through state changes.",
+      "enum": [
+        "kind_state",
+        "kind"
+      ],
+      "title": "Operand Key",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "datamesh-hfgt/v1",
+      "default": "datamesh-hfgt/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "start_operands": {
+      "default": [],
+      "description": "Operand@buffer places work starts from, e.g. 'equipment_kit:received@warehouse'. Empty = every capability with no predecessor.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Start Operands",
+      "type": "array"
+    },
+    "terminal_operands": {
+      "default": [],
+      "description": "Operand keys that count as the end of the work, e.g. 'rack:commissioned'.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Terminal Operands",
+      "type": "array"
+    }
+  },
+  "required": [
+    "frame_id",
+    "executions"
+  ],
+  "title": "HfgtGraphRequest",
+  "type": "object"
+}

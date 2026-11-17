@@ -1,0 +1,513 @@
+{
+  "$defs": {
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    },
+    "TranslationGap": {
+      "additionalProperties": false,
+      "description": "A record that did not translate. Reported, never guessed: unknown is not 0.",
+      "properties": {
+        "execution_id": {
+          "description": "Execution that did not translate.",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Incidence involved, if any.",
+          "title": "Object Id"
+        },
+        "reason": {
+          "description": "Why.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "execution_id",
+        "reason"
+      ],
+      "title": "TranslationGap",
+      "type": "object"
+    },
+    "TranslationReport": {
+      "additionalProperties": false,
+      "properties": {
+        "deviations": {
+          "default": [
+            "who-vs-where: buffers are places and resources execute; HFGT fuses them in transformation resources M",
+            "control executions map to transformation processes at their buffer (extension)",
+            "reads and undecided checks are non-consuming identities: pull and inject the same operand (extension)",
+            "exchange has no HFGT class yet and is reported as a gap"
+          ],
+          "description": "Documented departures from the paper.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Deviations",
+          "type": "array"
+        },
+        "gaps": {
+          "default": [],
+          "description": "Everything that did not translate.",
+          "items": {
+            "$ref": "#/$defs/TranslationGap"
+          },
+          "title": "Gaps",
+          "type": "array"
+        },
+        "n_executions": {
+          "description": "Executions read.",
+          "minimum": 0,
+          "title": "N Executions",
+          "type": "integer"
+        },
+        "n_translated": {
+          "description": "Executions that produced at least one capability.",
+          "minimum": 0,
+          "title": "N Translated",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "n_executions",
+        "n_translated"
+      ],
+      "title": "TranslationReport",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Output of HfgtGraphPort.build(): PyTorch Geometric conventions, held as refs.",
+  "properties": {
+    "candidate_edge_index": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TensorRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Ref to proposed links, if any."
+    },
+    "constraint_mode": {
+      "description": "How K_S was applied.",
+      "enum": [
+        "mask",
+        "drop"
+      ],
+      "title": "Constraint Mode",
+      "type": "string"
+    },
+    "dead_ends": {
+      "default": [],
+      "description": "Available capabilities that feed nothing and are not terminal.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Dead Ends",
+      "type": "array"
+    },
+    "dof_rho": {
+      "description": "Feasible sequences after constraints: sum of A_rho.",
+      "minimum": 0,
+      "title": "Dof Rho",
+      "type": "integer"
+    },
+    "dof_s": {
+      "description": "Available capabilities: sum of A_S.",
+      "minimum": 0,
+      "title": "Dof S",
+      "type": "integer"
+    },
+    "edge_attr": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to edge features."
+    },
+    "edge_feature_names": {
+      "default": [
+        "n_witnesses",
+        "crosses_buffer",
+        "same_resource",
+        "crosses_stage",
+        "via_nonconsuming"
+      ],
+      "description": "Column order of edge_attr.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Edge Feature Names",
+      "type": "array"
+    },
+    "edge_index": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to COO edges."
+    },
+    "edge_type": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to edge types."
+    },
+    "frame_id": {
+      "description": "Frame identity.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "layer_ids": {
+      "description": "Edge type vocabulary: operand sets joined with ' + '.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Layer Ids",
+      "type": "array"
+    },
+    "node_feature_names": {
+      "default": [
+        "fc_transform",
+        "fc_transport",
+        "fc_hold",
+        "fc_control_ext",
+        "available",
+        "evidenced",
+        "log1p_evidence",
+        "n_pull_operands",
+        "n_inject_operands",
+        "nonconsuming",
+        "self_sequence",
+        "terminal"
+      ],
+      "description": "Column order of x.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Feature Names",
+      "type": "array"
+    },
+    "node_ids": {
+      "description": "'process|resource' per x row.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Ids",
+      "type": "array"
+    },
+    "readiness": {
+      "description": "Structural reading for a person, never a release.",
+      "enum": [
+        "reachable",
+        "blocked: constraints",
+        "unknown: translation gaps",
+        "unreachable"
+      ],
+      "title": "Readiness",
+      "type": "string"
+    },
+    "report": {
+      "$ref": "#/$defs/TranslationReport",
+      "description": "Translation gaps and coverage."
+    },
+    "request_digest": {
+      "description": "Digest of the request.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Digest",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "datamesh-hfgt/v1",
+      "default": "datamesh-hfgt/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "witnesses": {
+      "default": [],
+      "description": "(edge index, operand, buffer) for every edge.",
+      "items": {
+        "maxItems": 3,
+        "minItems": 3,
+        "prefixItems": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "string"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Witnesses",
+      "type": "array"
+    },
+    "x": {
+      "$ref": "#/$defs/TensorRef",
+      "description": "Ref to node features."
+    }
+  },
+  "required": [
+    "frame_id",
+    "request_digest",
+    "node_ids",
+    "layer_ids",
+    "dof_s",
+    "dof_rho",
+    "readiness",
+    "report",
+    "constraint_mode",
+    "x",
+    "edge_index",
+    "edge_attr",
+    "edge_type"
+  ],
+  "title": "CapabilityGraphSample",
+  "type": "object"
+}

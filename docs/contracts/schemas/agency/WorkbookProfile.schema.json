@@ -1,0 +1,1008 @@
+{
+  "$defs": {
+    "CatalogSpec": {
+      "additionalProperties": false,
+      "description": "A keyed table (rate card, plan list, link list). One object per row with a code; section rows are kept as context.",
+      "properties": {
+        "capture_hyperlinks": {
+          "default": false,
+          "description": "Keep the code cell's hyperlink target as a field. Never fetched.",
+          "title": "Capture Hyperlinks",
+          "type": "boolean"
+        },
+        "code_col": {
+          "description": "Code column; rows without a code are skipped or treated as sections.",
+          "pattern": "^[A-Z]{1,3}$",
+          "title": "Code Col",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Extra field -> column, kept as raw text.",
+          "patternProperties": {
+            "^[A-Za-z0-9._:-]{1,80}$": {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            }
+          },
+          "title": "Fields",
+          "type": "object"
+        },
+        "first_row": {
+          "description": "First data row.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "First Row",
+          "type": "integer"
+        },
+        "kind": {
+          "description": "Object kind emitted, e.g. labor_role, support_plan_option, travel_line, reference_link.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "label_col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Label column.",
+          "title": "Label Col"
+        },
+        "last_row": {
+          "anyOf": [
+            {
+              "maximum": 1048576,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Last data row.",
+          "title": "Last Row"
+        },
+        "section_pattern": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regex on the label column marking a section row (code column holds the section name).",
+          "title": "Section Pattern"
+        },
+        "sheet": {
+          "description": "Sheet name.",
+          "maxLength": 31,
+          "minLength": 1,
+          "title": "Sheet",
+          "type": "string"
+        },
+        "skip_codes": {
+          "default": [],
+          "description": "Codes treated as non-entries, e.g. 'Total:'.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Skip Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "sheet",
+        "first_row",
+        "code_col"
+      ],
+      "title": "CatalogSpec",
+      "type": "object"
+    },
+    "CellAnchor": {
+      "additionalProperties": false,
+      "description": "A cell whose text must match for the profile to apply (case- and whitespace-insensitive).",
+      "properties": {
+        "cell": {
+          "description": "Cell reference.",
+          "pattern": "^[A-Z]{1,3}[1-9][0-9]{0,6}$",
+          "title": "Cell",
+          "type": "string"
+        },
+        "sheet": {
+          "description": "Sheet name.",
+          "maxLength": 31,
+          "minLength": 1,
+          "title": "Sheet",
+          "type": "string"
+        },
+        "text": {
+          "description": "Expected text after whitespace collapse and casefold.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sheet",
+        "cell",
+        "text"
+      ],
+      "title": "CellAnchor",
+      "type": "object"
+    },
+    "CrosswalkCheck": {
+      "additionalProperties": false,
+      "description": "Codes in one catalog compared to another by prefix; differing labels are reported, never resolved.",
+      "properties": {
+        "name": {
+          "description": "Check name.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "source_kind": {
+          "description": "Catalog kind holding the short codes.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "target_kind": {
+          "description": "Catalog kind holding canonical codes.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Target Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "source_kind",
+        "target_kind"
+      ],
+      "title": "CrosswalkCheck",
+      "type": "object"
+    },
+    "HierarchySpec": {
+      "additionalProperties": false,
+      "description": "How a task-list column carries its WBS levels when the sheet has no outline grouping or WBS code column.\n\nLevels: 1 phase (root), 2 stem (boilerplate task or sub-system heading), 3 leaf (task under a sub-system).\nText rules classify; formatting confirms. Disagreement is a diagnostic, never a silent override. Leaf parents are\nproposals: the template does not state them.",
+      "properties": {
+        "bold_kinds": {
+          "default": [
+            "phase",
+            "subtotal",
+            "total"
+          ],
+          "description": "Row kinds expected to be bold.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+            "type": "string"
+          },
+          "title": "Bold Kinds",
+          "type": "array"
+        },
+        "leaf_code_pattern": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regex, group 1 a sub-system code, naming a leaf, e.g. '^([A-Z0-9]{2,8})\\s+-\\s+'.",
+          "title": "Leaf Code Pattern"
+        },
+        "leaf_min_indent": {
+          "anyOf": [
+            {
+              "maximum": 15,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Indent marking a leaf; default subsystem_min_indent + 1.",
+          "title": "Leaf Min Indent"
+        },
+        "placeholder_pattern": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regex, group 1 an example code, for template placeholder rows. Examples never resolve.",
+          "title": "Placeholder Pattern"
+        },
+        "section_start_pattern": {
+          "description": "Regex for the row opening a sub-system section.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Section Start Pattern",
+          "type": "string"
+        },
+        "subsystem_min_indent": {
+          "default": 3,
+          "description": "Alignment indent marking a sub-system row inside a section.",
+          "maximum": 15,
+          "minimum": 1,
+          "title": "Subsystem Min Indent",
+          "type": "integer"
+        },
+        "subsystem_set": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Vocabulary resolving sub-system codes from row names.",
+          "title": "Subsystem Set"
+        },
+        "use_outline_levels": {
+          "default": true,
+          "description": "Prefer Excel outline levels when the sheet has them.",
+          "title": "Use Outline Levels",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "section_start_pattern"
+      ],
+      "title": "HierarchySpec",
+      "type": "object"
+    },
+    "LineTableSpec": {
+      "additionalProperties": false,
+      "description": "A sectioned line table (bill of equipment, allowances). Quantity-bearing rows become estimate lines.",
+      "properties": {
+        "classification_field": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Field resolved against a vocabulary.",
+          "title": "Classification Field"
+        },
+        "classification_set": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Vocabulary set_name for classification_field.",
+          "title": "Classification Set"
+        },
+        "columns": {
+          "description": "Field -> column. Needs description, quantity, part_number, manufacturer.",
+          "patternProperties": {
+            "^[A-Za-z0-9._:-]{1,80}$": {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            }
+          },
+          "title": "Columns",
+          "type": "object"
+        },
+        "content_fields": {
+          "default": [
+            "part_number",
+            "description"
+          ],
+          "description": "A row is a line only if one of these is non-empty.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+            "type": "string"
+          },
+          "title": "Content Fields",
+          "type": "array"
+        },
+        "default_section": {
+          "default": "line",
+          "description": "Line kind before the first section row.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Default Section",
+          "type": "string"
+        },
+        "first_row": {
+          "description": "First data row.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "First Row",
+          "type": "integer"
+        },
+        "last_row": {
+          "anyOf": [
+            {
+              "maximum": 1048576,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Last data row.",
+          "title": "Last Row"
+        },
+        "money_fields": {
+          "default": [],
+          "description": "Fields kept as raw text only (Decimal downstream).",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+            "type": "string"
+          },
+          "title": "Money Fields",
+          "type": "array"
+        },
+        "name": {
+          "description": "Table name, e.g. bill_of_equipment.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "rules": {
+          "default": [],
+          "description": "Section, group, subtotal and total rows.",
+          "items": {
+            "$ref": "#/$defs/RowRule"
+          },
+          "title": "Rules",
+          "type": "array"
+        },
+        "sheet": {
+          "description": "Sheet name.",
+          "maxLength": 31,
+          "minLength": 1,
+          "title": "Sheet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "sheet",
+        "first_row",
+        "columns"
+      ],
+      "title": "LineTableSpec",
+      "type": "object"
+    },
+    "RoleClassRule": {
+      "additionalProperties": false,
+      "description": "Classifies a role block by its code: who supplies the labor.",
+      "properties": {
+        "labor_source": {
+          "description": "Internal staff, contract/freelance, or vendor-provided service.",
+          "enum": [
+            "internal",
+            "contract",
+            "vendor"
+          ],
+          "title": "Labor Source",
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Regex on the role code.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Pattern",
+          "type": "string"
+        },
+        "priced_elsewhere": {
+          "default": false,
+          "description": "Hours recorded here but priced as another line (e.g. sold with equipment).",
+          "title": "Priced Elsewhere",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pattern",
+        "labor_source"
+      ],
+      "title": "RoleClassRule",
+      "type": "object"
+    },
+    "RoleMatrixSpec": {
+      "additionalProperties": false,
+      "description": "A task x role effort grid: one label column, repeated role blocks of (count, hours each, total).",
+      "properties": {
+        "block_count": {
+          "description": "Number of role blocks.",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Block Count",
+          "type": "integer"
+        },
+        "block_width": {
+          "default": 3,
+          "description": "Columns per role block.",
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Block Width",
+          "type": "integer"
+        },
+        "count_offset": {
+          "default": 0,
+          "description": "Offset of the crew count column within a block.",
+          "minimum": 0,
+          "title": "Count Offset",
+          "type": "integer"
+        },
+        "default_kind": {
+          "default": "task",
+          "description": "Kind for non-empty rows that match no rule.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Default Kind",
+          "type": "string"
+        },
+        "first_block_col": {
+          "description": "First column of the first role block.",
+          "pattern": "^[A-Z]{1,3}$",
+          "title": "First Block Col",
+          "type": "string"
+        },
+        "first_row": {
+          "description": "First row of the grid body.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "First Row",
+          "type": "integer"
+        },
+        "header_row": {
+          "description": "Row holding role headers (code on the first line).",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "Header Row",
+          "type": "integer"
+        },
+        "hierarchy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HierarchySpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "WBS level detection for the label column."
+        },
+        "hours_offset": {
+          "default": 1,
+          "description": "Offset of the hours-each column.",
+          "minimum": 0,
+          "title": "Hours Offset",
+          "type": "integer"
+        },
+        "label_col": {
+          "description": "Task label column.",
+          "pattern": "^[A-Z]{1,3}$",
+          "title": "Label Col",
+          "type": "string"
+        },
+        "last_row": {
+          "description": "Last row of the grid body.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "Last Row",
+          "type": "integer"
+        },
+        "notes_col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Scope-notes column.",
+          "title": "Notes Col"
+        },
+        "placeholder_values": {
+          "default": [],
+          "description": "Cell texts meaning 'not filled in', e.g. 'Drop Down List'.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Placeholder Values",
+          "type": "array"
+        },
+        "rate_row": {
+          "anyOf": [
+            {
+              "maximum": 1048576,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Row holding the hourly rate per block.",
+          "title": "Rate Row"
+        },
+        "responsibility_classes": {
+          "additionalProperties": {
+            "items": {
+              "enum": [
+                "internal",
+                "contract",
+                "vendor",
+                "client"
+              ],
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": "Responsibility value (case-insensitive) -> party classes it names, e.g. 'Team / Client' -> internal, client.",
+          "title": "Responsibility Classes",
+          "type": "object"
+        },
+        "responsibility_col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Responsibility column (raw text).",
+          "title": "Responsibility Col"
+        },
+        "responsibility_precedence": {
+          "default": "none",
+          "description": "'internal': when hours and responsibility disagree and internal staff is on either side, internal wins.",
+          "enum": [
+            "internal",
+            "none"
+          ],
+          "title": "Responsibility Precedence",
+          "type": "string"
+        },
+        "role_classes": {
+          "default": [],
+          "description": "First matching rule classifies a role block.",
+          "items": {
+            "$ref": "#/$defs/RoleClassRule"
+          },
+          "title": "Role Classes",
+          "type": "array"
+        },
+        "role_code_format": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regex with named groups series, number, year splitting a role code.",
+          "title": "Role Code Format"
+        },
+        "role_code_pattern": {
+          "default": "^\\s*(\\S+)",
+          "description": "Regex; group 1 is the role code in the header cell.",
+          "title": "Role Code Pattern",
+          "type": "string"
+        },
+        "row_total_col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Row total column.",
+          "title": "Row Total Col"
+        },
+        "rules": {
+          "description": "Row classification. Rows of kind 'phase' open a phase block.",
+          "items": {
+            "$ref": "#/$defs/RowRule"
+          },
+          "minItems": 1,
+          "title": "Rules",
+          "type": "array"
+        },
+        "sheet": {
+          "description": "Sheet name.",
+          "maxLength": 31,
+          "minLength": 1,
+          "title": "Sheet",
+          "type": "string"
+        },
+        "task_kinds": {
+          "default": [
+            "task"
+          ],
+          "description": "Row kinds that become task occurrences.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+            "type": "string"
+          },
+          "title": "Task Kinds",
+          "type": "array"
+        },
+        "total_offset": {
+          "default": 2,
+          "description": "Offset of the block total column.",
+          "minimum": 0,
+          "title": "Total Offset",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sheet",
+        "label_col",
+        "header_row",
+        "first_row",
+        "last_row",
+        "first_block_col",
+        "block_count",
+        "rules"
+      ],
+      "title": "RoleMatrixSpec",
+      "type": "object"
+    },
+    "RowReferenceCheck": {
+      "additionalProperties": false,
+      "description": "On each row, formulas in ref_cols must reference one target column, and that column's role block must carry the\nrow's code. Findings are diagnostics; formulas are never repaired.",
+      "properties": {
+        "code_col": {
+          "description": "Column holding the row's role code.",
+          "pattern": "^[A-Z]{1,3}$",
+          "title": "Code Col",
+          "type": "string"
+        },
+        "first_row": {
+          "description": "First row.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "First Row",
+          "type": "integer"
+        },
+        "last_row": {
+          "description": "Last row.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "Last Row",
+          "type": "integer"
+        },
+        "name": {
+          "description": "Check name.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "ref_cols": {
+          "description": "Columns whose formulas reference the role matrix.",
+          "items": {
+            "pattern": "^[A-Z]{1,3}$",
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Ref Cols",
+          "type": "array"
+        },
+        "sheet": {
+          "description": "Sheet name.",
+          "maxLength": 31,
+          "minLength": 1,
+          "title": "Sheet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "sheet",
+        "first_row",
+        "last_row",
+        "code_col",
+        "ref_cols"
+      ],
+      "title": "RowReferenceCheck",
+      "type": "object"
+    },
+    "RowRule": {
+      "additionalProperties": false,
+      "description": "Classifies a row by a regex on one column. First matching rule wins; unmatched non-empty rows use the table default.",
+      "properties": {
+        "code_group": {
+          "anyOf": [
+            {
+              "maximum": 9,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Regex group holding a code (e.g. phase number).",
+          "title": "Code Group"
+        },
+        "col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Column tested; defaults to the table's label column.",
+          "title": "Col"
+        },
+        "pattern": {
+          "description": "Python regex, matched with re.search on the cell text.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Pattern",
+          "type": "string"
+        },
+        "row_kind": {
+          "description": "Row kind, e.g. phase, task, subtotal, copy_marker, section.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Row Kind",
+          "type": "string"
+        },
+        "sets_section": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For section rows: the line kind for following rows.",
+          "title": "Sets Section"
+        }
+      },
+      "required": [
+        "row_kind",
+        "pattern"
+      ],
+      "title": "RowRule",
+      "type": "object"
+    },
+    "VocabularySpec": {
+      "additionalProperties": false,
+      "description": "A code list, read as reference values. A vocabulary is classification, not a list of installed things.",
+      "properties": {
+        "code_col": {
+          "description": "Code column.",
+          "pattern": "^[A-Z]{1,3}$",
+          "title": "Code Col",
+          "type": "string"
+        },
+        "first_row": {
+          "description": "First data row.",
+          "maximum": 1048576,
+          "minimum": 1,
+          "title": "First Row",
+          "type": "integer"
+        },
+        "label_col": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Label column; None when the code is its own label.",
+          "title": "Label Col"
+        },
+        "last_row": {
+          "anyOf": [
+            {
+              "maximum": 1048576,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Last data row; None reads to the sheet end.",
+          "title": "Last Row"
+        },
+        "set_name": {
+          "description": "Reference set name.",
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "title": "Set Name",
+          "type": "string"
+        },
+        "sheet": {
+          "description": "Sheet name.",
+          "maxLength": 31,
+          "minLength": 1,
+          "title": "Sheet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "set_name",
+        "sheet",
+        "code_col",
+        "first_row"
+      ],
+      "title": "VocabularySpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Declared reading of one workbook template version. Unknown layouts are rejected, not guessed.",
+  "properties": {
+    "anchors": {
+      "description": "All must match, else the workbook is quarantined.",
+      "items": {
+        "$ref": "#/$defs/CellAnchor"
+      },
+      "minItems": 1,
+      "title": "Anchors",
+      "type": "array"
+    },
+    "catalogs": {
+      "default": [],
+      "description": "Keyed tables.",
+      "items": {
+        "$ref": "#/$defs/CatalogSpec"
+      },
+      "title": "Catalogs",
+      "type": "array"
+    },
+    "crosswalk_checks": {
+      "default": [],
+      "description": "Code crosswalk checks.",
+      "items": {
+        "$ref": "#/$defs/CrosswalkCheck"
+      },
+      "title": "Crosswalk Checks",
+      "type": "array"
+    },
+    "document_type": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "When set, the workbook is emitted as a project document of this type.",
+      "title": "Document Type"
+    },
+    "excluded_sheets": {
+      "default": [],
+      "description": "Sheets deliberately not interpreted; references into them are reported.",
+      "items": {
+        "maxLength": 31,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Excluded Sheets",
+      "type": "array"
+    },
+    "line_tables": {
+      "default": [],
+      "description": "Sectioned line tables.",
+      "items": {
+        "$ref": "#/$defs/LineTableSpec"
+      },
+      "title": "Line Tables",
+      "type": "array"
+    },
+    "name": {
+      "description": "Profile name; RawItem.mapping selects it.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "reference_checks": {
+      "default": [],
+      "description": "Formula reference consistency checks.",
+      "items": {
+        "$ref": "#/$defs/RowReferenceCheck"
+      },
+      "title": "Reference Checks",
+      "type": "array"
+    },
+    "role_matrix": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RoleMatrixSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Task x role effort grid."
+    },
+    "version": {
+      "description": "Profile version; part of every object's provenance fields.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Version",
+      "type": "string"
+    },
+    "vocabularies": {
+      "default": [],
+      "description": "Code lists.",
+      "items": {
+        "$ref": "#/$defs/VocabularySpec"
+      },
+      "title": "Vocabularies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "anchors"
+  ],
+  "title": "WorkbookProfile",
+  "type": "object"
+}

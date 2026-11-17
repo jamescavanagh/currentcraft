@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "description": "A record that did not translate. Reported, never guessed: unknown is not 0.",
+  "properties": {
+    "execution_id": {
+      "description": "Execution that did not translate.",
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "object_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Incidence involved, if any.",
+      "title": "Object Id"
+    },
+    "reason": {
+      "description": "Why.",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "execution_id",
+    "reason"
+  ],
+  "title": "TranslationGap",
+  "type": "object"
+}

@@ -1,0 +1,92 @@
+{
+  "$defs": {
+    "FlowSide": {
+      "description": "Which side of a subsystem's supply/demand balance a node sits on. Used only by the proposed director.",
+      "enum": [
+        "supply",
+        "demand",
+        "neutral"
+      ],
+      "title": "FlowSide",
+      "type": "string"
+    },
+    "NodeRole": {
+      "description": "Resource-Process-Operand working triad (see the domain prototype's Body). Mapping is not yet approved.",
+      "enum": [
+        "resource",
+        "process",
+        "operand",
+        "unassigned"
+      ],
+      "title": "NodeRole",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One operand/resource/process record whose reduced embedding row is measured.",
+  "properties": {
+    "flow": {
+      "$ref": "#/$defs/FlowSide",
+      "default": "neutral",
+      "description": "Supply/demand side; drives the proposed supply_demand director."
+    },
+    "id": {
+      "description": "Stable node id; rows of the embeddings tensor follow request.nodes order.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "label": {
+      "anyOf": [
+        {
+          "maxLength": 300,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human label, e.g. record text.",
+      "title": "Label"
+    },
+    "role": {
+      "$ref": "#/$defs/NodeRole",
+      "default": "unassigned",
+      "description": "Resource/Process/Operand role (simulation NodeRole)."
+    },
+    "source_ref": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Provenance: record id/version or citation.",
+      "title": "Source Ref"
+    },
+    "stage": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:/ -]{1,80}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Process stage the record belongs to, if known.",
+      "title": "Stage"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "GaugeNode",
+  "type": "object"
+}

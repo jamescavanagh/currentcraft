@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "Measuring disc on the plate.",
+  "properties": {
+    "center": {
+      "description": "Centre (u, v) in plate coordinates.",
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Center",
+      "type": "array"
+    },
+    "grid": {
+      "default": 24,
+      "description": "Field grid size across the aperture.",
+      "maximum": 256,
+      "minimum": 4,
+      "title": "Grid",
+      "type": "integer"
+    },
+    "radius": {
+      "description": "Aperture radius r.",
+      "exclusiveMinimum": 0,
+      "title": "Radius",
+      "type": "number"
+    },
+    "ring_samples": {
+      "default": 128,
+      "description": "Ring samples K.",
+      "maximum": 8192,
+      "minimum": 8,
+      "title": "Ring Samples",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "center",
+    "radius"
+  ],
+  "title": "Aperture",
+  "type": "object"
+}

@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "description": "One word with its weight.",
+  "properties": {
+    "count": {
+      "description": "Occurrences in the lens or record.",
+      "minimum": 0,
+      "title": "Count",
+      "type": "integer"
+    },
+    "term": {
+      "description": "Word.",
+      "maxLength": 60,
+      "minLength": 1,
+      "title": "Term",
+      "type": "string"
+    },
+    "weight": {
+      "description": "Contrast (log-odds) or tf-idf weight.",
+      "title": "Weight",
+      "type": "number"
+    }
+  },
+  "required": [
+    "term",
+    "weight",
+    "count"
+  ],
+  "title": "TermWeight",
+  "type": "object"
+}

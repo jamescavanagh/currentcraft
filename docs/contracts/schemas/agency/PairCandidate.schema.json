@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "description": "A record pair proposed for labeling.",
+  "properties": {
+    "a": {
+      "description": "First record.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "A",
+      "type": "string"
+    },
+    "b": {
+      "description": "Second record.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "B",
+      "type": "string"
+    },
+    "score": {
+      "description": "Source score.",
+      "minimum": 0,
+      "title": "Score",
+      "type": "number"
+    },
+    "source": {
+      "const": "enrichment_shortcut",
+      "description": "Where the pair came from.",
+      "title": "Source",
+      "type": "string"
+    },
+    "status": {
+      "const": "candidate",
+      "default": "candidate",
+      "description": "Candidate only.",
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "a",
+    "b",
+    "source",
+    "score"
+  ],
+  "title": "PairCandidate",
+  "type": "object"
+}

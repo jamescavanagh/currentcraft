@@ -1,0 +1,1215 @@
+{
+  "$defs": {
+    "Aperture": {
+      "additionalProperties": false,
+      "description": "Measuring disc on the plate.",
+      "properties": {
+        "center": {
+          "description": "Centre (u, v) in plate coordinates.",
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Center",
+          "type": "array"
+        },
+        "grid": {
+          "default": 24,
+          "description": "Field grid size across the aperture.",
+          "maximum": 256,
+          "minimum": 4,
+          "title": "Grid",
+          "type": "integer"
+        },
+        "radius": {
+          "description": "Aperture radius r.",
+          "exclusiveMinimum": 0,
+          "title": "Radius",
+          "type": "number"
+        },
+        "ring_samples": {
+          "default": 128,
+          "description": "Ring samples K.",
+          "maximum": 8192,
+          "minimum": 8,
+          "title": "Ring Samples",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "center",
+        "radius"
+      ],
+      "title": "Aperture",
+      "type": "object"
+    },
+    "ArmStats": {
+      "additionalProperties": false,
+      "description": "Per-arm summary of passes, droplets, sparsity, shortcuts and graph readout.",
+      "properties": {
+        "anomalous_passes": {
+          "description": "Passes that condensed without activation first.",
+          "minimum": 0,
+          "title": "Anomalous Passes",
+          "type": "integer"
+        },
+        "arm": {
+          "description": "Arm.",
+          "enum": [
+            "real-on",
+            "real-off",
+            "null-on",
+            "null-off"
+          ],
+          "title": "Arm",
+          "type": "string"
+        },
+        "droplets": {
+          "description": "Total nucleations.",
+          "minimum": 0,
+          "title": "Droplets",
+          "type": "integer"
+        },
+        "ion_free": {
+          "description": "Nucleations that needed no ions.",
+          "minimum": 0,
+          "title": "Ion Free",
+          "type": "integer"
+        },
+        "passes": {
+          "description": "Closed passes.",
+          "minimum": 0,
+          "title": "Passes",
+          "type": "integer"
+        },
+        "shortcut_count": {
+          "description": "Exact number of candidates in this arm.",
+          "minimum": 0,
+          "title": "Shortcut Count",
+          "type": "integer"
+        },
+        "small_world": {
+          "$ref": "#/$defs/SmallWorldStats",
+          "description": "Graph readout."
+        },
+        "sparsity": {
+          "description": "Fraction of zero entries in this arm's sparse code.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Sparsity",
+          "type": "number"
+        }
+      },
+      "required": [
+        "arm",
+        "passes",
+        "anomalous_passes",
+        "droplets",
+        "ion_free",
+        "sparsity",
+        "shortcut_count",
+        "small_world"
+      ],
+      "title": "ArmStats",
+      "type": "object"
+    },
+    "Bracket": {
+      "additionalProperties": false,
+      "description": "A human-set search window [lo, hi] guarded by a Barrier Lyapunov Function.",
+      "properties": {
+        "gain": {
+          "default": 0.0,
+          "description": "Optional centring gain k.",
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Gain",
+          "type": "number"
+        },
+        "hi": {
+          "description": "Upper wall.",
+          "title": "Hi",
+          "type": "number"
+        },
+        "lo": {
+          "description": "Lower wall.",
+          "title": "Lo",
+          "type": "number"
+        },
+        "margin": {
+          "default": 0.02,
+          "description": "Keep |e| <= (1 - margin) k_b.",
+          "exclusiveMaximum": 0.5,
+          "minimum": 0,
+          "title": "Margin",
+          "type": "number"
+        }
+      },
+      "required": [
+        "lo",
+        "hi"
+      ],
+      "title": "Bracket",
+      "type": "object"
+    },
+    "EnrichmentResult": {
+      "additionalProperties": false,
+      "description": "Sparse condensation code, passes, shortcut candidates and graph readouts for four lockstep arms.",
+      "properties": {
+        "arm_stats": {
+          "description": "Per-arm summaries, ARMS order.",
+          "items": {
+            "$ref": "#/$defs/ArmStats"
+          },
+          "title": "Arm Stats",
+          "type": "array"
+        },
+        "arms": {
+          "default": [
+            "real-on",
+            "real-off",
+            "null-on",
+            "null-off"
+          ],
+          "description": "Axis 'arm' order.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Arms",
+          "type": "array"
+        },
+        "embeddings_sha256": {
+          "description": "Input embedding digest.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Embeddings Sha256",
+          "type": "string"
+        },
+        "enrichment_id": {
+          "description": "Run id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Enrichment Id",
+          "type": "string"
+        },
+        "epistemic_status": {
+          "const": "simulated",
+          "default": "simulated",
+          "description": "Defined rules on model state; never evidence.",
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "h_scale": {
+          "description": "h_q: 95th percentile of |h| in the real arm.",
+          "exclusiveMinimum": 0,
+          "title": "H Scale",
+          "type": "number"
+        },
+        "ids": {
+          "description": "Axis 'node' order.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "title": "Ids",
+          "type": "array"
+        },
+        "ion_free_counts": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to 4 x N ion-free totals."
+        },
+        "nucleations": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to 4 x N totals."
+        },
+        "null_mode": {
+          "description": "Null used for the null arms.",
+          "enum": [
+            "axis_shuffle",
+            "height_preserving"
+          ],
+          "title": "Null Mode",
+          "type": "string"
+        },
+        "passes": {
+          "description": "Closed passes, all arms.",
+          "items": {
+            "$ref": "#/$defs/PassRecord"
+          },
+          "title": "Passes",
+          "type": "array"
+        },
+        "plate_request_digest": {
+          "description": "Digest of the plate run that drove the ray.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Plate Request Digest",
+          "type": "string"
+        },
+        "request_digest": {
+          "description": "Digest of the complete request.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Request Digest",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "datamesh-enrichment/v1",
+          "default": "datamesh-enrichment/v1",
+          "description": "Contract version.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "shortcut_excess_off": {
+          "description": "real-off minus null-off candidate count.",
+          "title": "Shortcut Excess Off",
+          "type": "integer"
+        },
+        "shortcut_excess_on": {
+          "description": "real-on minus null-on candidate count; one salt is a description, not a test.",
+          "title": "Shortcut Excess On",
+          "type": "integer"
+        },
+        "shortcuts": {
+          "description": "Top candidates per arm, by score.",
+          "items": {
+            "$ref": "#/$defs/ShortcutCandidate"
+          },
+          "title": "Shortcuts",
+          "type": "array"
+        },
+        "sparse_code": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "Ref to 4 x N x 12 phase counts."
+        }
+      },
+      "required": [
+        "enrichment_id",
+        "request_digest",
+        "embeddings_sha256",
+        "plate_request_digest",
+        "ids",
+        "h_scale",
+        "passes",
+        "shortcuts",
+        "arm_stats",
+        "null_mode",
+        "shortcut_excess_on",
+        "shortcut_excess_off",
+        "sparse_code",
+        "nucleations",
+        "ion_free_counts"
+      ],
+      "title": "EnrichmentResult",
+      "type": "object"
+    },
+    "PassRecord": {
+      "additionalProperties": false,
+      "description": "One closed pass of the ray in one arm.",
+      "properties": {
+        "anomalous": {
+          "description": "Condensation without activation having come first.",
+          "title": "Anomalous",
+          "type": "boolean"
+        },
+        "arm": {
+          "description": "Arm.",
+          "enum": [
+            "real-on",
+            "real-off",
+            "null-on",
+            "null-off"
+          ],
+          "title": "Arm",
+          "type": "string"
+        },
+        "closed_by": {
+          "description": "Splice that closed the pass.",
+          "enum": [
+            "cross_up",
+            "cross_down",
+            "apex_top",
+            "apex_bottom"
+          ],
+          "title": "Closed By",
+          "type": "string"
+        },
+        "droplets": {
+          "description": "Nucleations in the pass.",
+          "minimum": 0,
+          "title": "Droplets",
+          "type": "integer"
+        },
+        "index": {
+          "description": "Pass number (shared across arms).",
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "ion_free": {
+          "description": "Of those, nucleations that needed no ions.",
+          "minimum": 0,
+          "title": "Ion Free",
+          "type": "integer"
+        },
+        "min_margin": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Smallest barrier minus supersaturation seen in the slab; negative means condensation.",
+          "title": "Min Margin"
+        },
+        "order": {
+          "description": "Order class.",
+          "enum": [
+            "cond-off",
+            "cond-noact",
+            "cond-first",
+            "act-first",
+            "act-only",
+            "quiet"
+          ],
+          "title": "Order",
+          "type": "string"
+        },
+        "p_peak": {
+          "description": "Peak post-condensation P (after gain).",
+          "minimum": 0,
+          "title": "P Peak",
+          "type": "number"
+        },
+        "t0": {
+          "description": "Pass start time.",
+          "title": "T0",
+          "type": "number"
+        },
+        "t1": {
+          "description": "Pass end time.",
+          "title": "T1",
+          "type": "number"
+        },
+        "t_activation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "First time mean slab ion load reached I*.",
+          "title": "T Activation"
+        },
+        "t_condensation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "First nucleation time.",
+          "title": "T Condensation"
+        }
+      },
+      "required": [
+        "arm",
+        "index",
+        "t0",
+        "t1",
+        "closed_by",
+        "order",
+        "anomalous",
+        "droplets",
+        "ion_free",
+        "p_peak"
+      ],
+      "title": "PassRecord",
+      "type": "object"
+    },
+    "PlatePose": {
+      "additionalProperties": false,
+      "description": "The 2D plate inside the fluid: base normal re-aimed by tilt and yaw, offset, phase, spin, slab.",
+      "properties": {
+        "normal": {
+          "description": "Base plate normal (normalised by the adapter).",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Normal",
+          "type": "array"
+        },
+        "offset": {
+          "default": 0.0,
+          "description": "Plate offset h* along the effective normal.",
+          "title": "Offset",
+          "type": "number"
+        },
+        "omega": {
+          "default": 0.0,
+          "description": "Global spin rate of the plate, for inertial readings.",
+          "title": "Omega",
+          "type": "number"
+        },
+        "origin": {
+          "description": "Frozen origin in the fluid.",
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Origin",
+          "type": "array"
+        },
+        "phase": {
+          "default": 0.0,
+          "description": "Plate phase theta (rad): in-plane axes rotate by theta.",
+          "title": "Phase",
+          "type": "number"
+        },
+        "slab_half_width": {
+          "description": "Slab half-width w along the effective normal.",
+          "exclusiveMinimum": 0,
+          "title": "Slab Half Width",
+          "type": "number"
+        },
+        "tilt_deg": {
+          "default": 0.0,
+          "description": "Aperture tilt beta away from the base normal.",
+          "maximum": 85,
+          "minimum": 0,
+          "title": "Tilt Deg",
+          "type": "number"
+        },
+        "yaw_deg": {
+          "default": 0.0,
+          "description": "Aperture yaw psi: precession about the base normal.",
+          "maximum": 360,
+          "minimum": -360,
+          "title": "Yaw Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "origin",
+        "normal",
+        "slab_half_width"
+      ],
+      "title": "PlatePose",
+      "type": "object"
+    },
+    "ProbeCloud": {
+      "additionalProperties": false,
+      "description": "The 3D fluid: frozen projection, explicit strengths, text, existing labels, optional enrichment run.",
+      "properties": {
+        "cloud_id": {
+          "description": "Cloud id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Cloud Id",
+          "type": "string"
+        },
+        "enrichment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EnrichmentResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Enrichment run over the same ids, for condensed states and shortcut pairs."
+        },
+        "enrichment_arm": {
+          "default": "real-on",
+          "description": "Arm used from the enrichment run.",
+          "enum": [
+            "real-on",
+            "real-off",
+            "null-on",
+            "null-off"
+          ],
+          "title": "Enrichment Arm",
+          "type": "string"
+        },
+        "ids": {
+          "description": "Record ids, rows of positions.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "maxItems": 20000,
+          "minItems": 3,
+          "title": "Ids",
+          "type": "array"
+        },
+        "labelled_ids": {
+          "default": [],
+          "description": "Records that already carry a human label.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "title": "Labelled Ids",
+          "type": "array"
+        },
+        "positions": {
+          "$ref": "#/$defs/TensorRef",
+          "description": "N x 3 POSITIONS_SPEC."
+        },
+        "projection_ref": {
+          "description": "Frozen projection provenance (model, space, version, fit data).",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Projection Ref",
+          "type": "string"
+        },
+        "strengths": {
+          "default": [],
+          "description": "Explicit strengths; records without one carry no vortex.",
+          "items": {
+            "$ref": "#/$defs/RecordStrength"
+          },
+          "title": "Strengths",
+          "type": "array"
+        },
+        "texts": {
+          "default": [],
+          "description": "Record words.",
+          "items": {
+            "$ref": "#/$defs/RecordText"
+          },
+          "title": "Texts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "cloud_id",
+        "ids",
+        "positions",
+        "projection_ref"
+      ],
+      "title": "ProbeCloud",
+      "type": "object"
+    },
+    "ProbeRequest": {
+      "additionalProperties": false,
+      "description": "One probe measurement.",
+      "properties": {
+        "aperture": {
+          "$ref": "#/$defs/Aperture",
+          "description": "Aperture."
+        },
+        "cloud": {
+          "$ref": "#/$defs/ProbeCloud",
+          "description": "The fluid."
+        },
+        "core_radius": {
+          "default": 0.09,
+          "description": "Vortex core delta.",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "title": "Core Radius",
+          "type": "number"
+        },
+        "frame": {
+          "default": "plate",
+          "description": "plate: vortices only; inertial: adds global spin.",
+          "enum": [
+            "plate",
+            "inertial"
+          ],
+          "title": "Frame",
+          "type": "string"
+        },
+        "gradient_floor": {
+          "default": 1e-08,
+          "description": "Mask eta when mean ring gradient energy is below this.",
+          "minimum": 0,
+          "title": "Gradient Floor",
+          "type": "number"
+        },
+        "offset_bracket": {
+          "$ref": "#/$defs/Bracket",
+          "description": "Human search window for the plate offset."
+        },
+        "pose": {
+          "$ref": "#/$defs/PlatePose",
+          "description": "Plate pose."
+        },
+        "radius_bracket": {
+          "$ref": "#/$defs/Bracket",
+          "description": "Human search window for the aperture radius."
+        },
+        "schema_version": {
+          "const": "datamesh-probe/v1",
+          "default": "datamesh-probe/v1",
+          "description": "Contract version.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "speed_floor": {
+          "default": 1e-08,
+          "description": "Mask leakage and field points when speed is below this.",
+          "minimum": 0,
+          "title": "Speed Floor",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cloud",
+        "pose",
+        "aperture",
+        "offset_bracket",
+        "radius_bracket"
+      ],
+      "title": "ProbeRequest",
+      "type": "object"
+    },
+    "RecordStrength": {
+      "additionalProperties": false,
+      "description": "Explicit vortex strength for one record, with evidence. Never inferred from projection handedness.",
+      "properties": {
+        "id": {
+          "description": "Record id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "source_ref": {
+          "description": "Evidence for the strength.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "strength": {
+          "description": "Circulation Gamma; sign is spin direction, not good or bad.",
+          "maximum": 10,
+          "minimum": -10,
+          "title": "Strength",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "strength",
+        "source_ref"
+      ],
+      "title": "RecordStrength",
+      "type": "object"
+    },
+    "RecordText": {
+      "additionalProperties": false,
+      "description": "Words shown on hover and used for contrast terms.",
+      "properties": {
+        "id": {
+          "description": "Record id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "maxLength": 4000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional body text.",
+          "title": "Text"
+        },
+        "title": {
+          "description": "Record title; CamelCase is split into words.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title"
+      ],
+      "title": "RecordText",
+      "type": "object"
+    },
+    "ShortcutCandidate": {
+      "additionalProperties": false,
+      "description": "A pair the sparse code links but the dense kNN gradient keeps apart. A candidate for HIL labeling only.",
+      "properties": {
+        "a": {
+          "description": "First record id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "A",
+          "type": "string"
+        },
+        "arm": {
+          "description": "Arm the pair was found in.",
+          "enum": [
+            "real-on",
+            "real-off",
+            "null-on",
+            "null-off"
+          ],
+          "title": "Arm",
+          "type": "string"
+        },
+        "b": {
+          "description": "Second record id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "B",
+          "type": "string"
+        },
+        "co_passes": {
+          "description": "Passes in which both condensed.",
+          "minimum": 0,
+          "title": "Co Passes",
+          "type": "integer"
+        },
+        "cross_cluster": {
+          "description": "Different cluster labels.",
+          "title": "Cross Cluster",
+          "type": "boolean"
+        },
+        "hops": {
+          "description": "kNN hops between them; 99 = not connected.",
+          "minimum": 0,
+          "title": "Hops",
+          "type": "integer"
+        },
+        "phase_bin": {
+          "description": "Shared dominant 30 degree phase bin.",
+          "exclusiveMaximum": 12,
+          "minimum": 0,
+          "title": "Phase Bin",
+          "type": "integer"
+        },
+        "score": {
+          "description": "co_passes x min(hops, 12).",
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "status": {
+          "const": "candidate",
+          "default": "candidate",
+          "description": "Never a relation until a human labels it.",
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arm",
+        "a",
+        "b",
+        "co_passes",
+        "hops",
+        "cross_cluster",
+        "phase_bin",
+        "score"
+      ],
+      "title": "ShortcutCandidate",
+      "type": "object"
+    },
+    "SmallWorldStats": {
+      "additionalProperties": false,
+      "description": "Clustering and path length of the kNN graph, without and with the arm's shortcut candidates.",
+      "properties": {
+        "clustering": {
+          "description": "Mean local clustering coefficient, kNN graph.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Clustering",
+          "type": "number"
+        },
+        "clustering_with_shortcuts": {
+          "description": "Same, shortcuts added.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Clustering With Shortcuts",
+          "type": "number"
+        },
+        "efficiency": {
+          "description": "Global efficiency: mean 1/d over sampled pairs, 0 when unreachable; robust to disconnection.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Efficiency",
+          "type": "number"
+        },
+        "efficiency_with_shortcuts": {
+          "description": "Same, shortcuts added. Compare efficiency, not path length, when reachability changes.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Efficiency With Shortcuts",
+          "type": "number"
+        },
+        "path_length": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Mean shortest path over reachable sampled pairs, kNN graph.",
+          "title": "Path Length"
+        },
+        "path_length_with_shortcuts": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Same, shortcuts added.",
+          "title": "Path Length With Shortcuts"
+        },
+        "unreachable_fraction": {
+          "description": "Sampled pairs with no path, kNN graph.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unreachable Fraction",
+          "type": "number"
+        },
+        "unreachable_fraction_with_shortcuts": {
+          "description": "Same, shortcuts added.",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Unreachable Fraction With Shortcuts",
+          "type": "number"
+        }
+      },
+      "required": [
+        "clustering",
+        "path_length",
+        "unreachable_fraction",
+        "efficiency",
+        "clustering_with_shortcuts",
+        "path_length_with_shortcuts",
+        "unreachable_fraction_with_shortcuts",
+        "efficiency_with_shortcuts"
+      ],
+      "title": "SmallWorldStats",
+      "type": "object"
+    },
+    "TensorRef": {
+      "additionalProperties": false,
+      "description": "A validated handle to a tensor held by an infrastructure store. Carries no array data.",
+      "properties": {
+        "key": {
+          "description": "Store key; resolve only through a TensorStorePort.",
+          "pattern": "^[A-Za-z0-9._:/-]{1,200}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "producer": {
+          "description": "Adapter that produced the tensor.",
+          "minLength": 1,
+          "title": "Producer",
+          "type": "string"
+        },
+        "sha256": {
+          "description": "SHA-256 over dtype, shape and C-order bytes.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Concrete shape of the stored array.",
+          "items": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "spec": {
+          "$ref": "#/$defs/TensorSpec",
+          "description": "Contract spec the tensor satisfies."
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TensorStats"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Summary statistics recorded by the store."
+        }
+      },
+      "required": [
+        "spec",
+        "key",
+        "shape",
+        "sha256",
+        "producer"
+      ],
+      "title": "TensorRef",
+      "type": "object"
+    },
+    "TensorSpec": {
+      "additionalProperties": false,
+      "description": "What a tensor must look like. Symbols (``N``, ``S``) bind to sizes per contract instance.",
+      "properties": {
+        "description": {
+          "description": "What the values mean.",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "dims": {
+          "description": "Axis names, outermost first.",
+          "items": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "dtype": {
+          "description": "Element type; adapters must not silently cast.",
+          "enum": [
+            "float32",
+            "float64",
+            "int64",
+            "int32",
+            "int16",
+            "int8",
+            "uint8",
+            "bool"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "finite": {
+          "default": true,
+          "description": "Floating values must be finite (no NaN or inf).",
+          "title": "Finite",
+          "type": "boolean"
+        },
+        "layout": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Layout tag such as SCHW, NF or COO.",
+          "title": "Layout"
+        },
+        "max_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive upper bound on values, if any.",
+          "title": "Max Value"
+        },
+        "min_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive lower bound on values, if any.",
+          "title": "Min Value"
+        },
+        "name": {
+          "description": "Stable tensor name used in docs, stores and keys.",
+          "pattern": "^[a-z][a-z0-9_.]*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "shape": {
+          "description": "Size per axis: a positive int or a symbol bound per contract.",
+          "items": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0,
+                "type": "integer"
+              },
+              {
+                "pattern": "^[A-Z][A-Za-z0-9_]*$",
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Shape",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or model unit of the values, if any.",
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "name",
+        "dims",
+        "shape",
+        "dtype",
+        "description"
+      ],
+      "title": "TensorSpec",
+      "type": "object"
+    },
+    "TensorStats": {
+      "additionalProperties": false,
+      "description": "Cheap summary recorded by the store; lets docs, logs and APIs describe a tensor without its data.",
+      "properties": {
+        "max": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum finite value.",
+          "title": "Max"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mean of finite values.",
+          "title": "Mean"
+        },
+        "min": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Minimum finite value.",
+          "title": "Min"
+        },
+        "nonfinite": {
+          "default": 0,
+          "description": "Count of NaN or inf values.",
+          "minimum": 0,
+          "title": "Nonfinite",
+          "type": "integer"
+        }
+      },
+      "title": "TensorStats",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Hover and magnify at a pointer on the plate.",
+  "properties": {
+    "magnification": {
+      "default": 1.0,
+      "description": "Lens radius = aperture radius / magnification.",
+      "maximum": 1000,
+      "minimum": 1,
+      "title": "Magnification",
+      "type": "number"
+    },
+    "pointer": {
+      "description": "Pointer (u, v) in plate coordinates.",
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "title": "Pointer",
+      "type": "array"
+    },
+    "probe": {
+      "$ref": "#/$defs/ProbeRequest",
+      "description": "Pose and cloud."
+    },
+    "top_terms": {
+      "default": 10,
+      "description": "Terms returned.",
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Top Terms",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "probe",
+    "pointer"
+  ],
+  "title": "LensRequest",
+  "type": "object"
+}

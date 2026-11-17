@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "description": "What a raw item is about, supplied at intake by the source system (never parsed from a filename or cell).\n\nTies a document (e.g. a project estimation workbook) to the project or opportunity it belongs to. The reference is a\ngoverned external reference, not a graph key; the canonical Project entity is resolved later by a reviewed mapping.",
+  "properties": {
+    "document_type": {
+      "description": "Business document type, e.g. PEW.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Document Type",
+      "type": "string"
+    },
+    "revision_label": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Supplied stage label, e.g. 'Round 1'. Never inferred from content.",
+      "title": "Revision Label"
+    },
+    "subject_kind": {
+      "description": "What the document belongs to.",
+      "enum": [
+        "project",
+        "opportunity"
+      ],
+      "title": "Subject Kind",
+      "type": "string"
+    },
+    "subject_namespace": {
+      "description": "Issuing system of the reference, e.g. erp.project, crm.opportunity.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Subject Namespace",
+      "type": "string"
+    },
+    "subject_ref": {
+      "description": "Reference value as issued by that system.",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$",
+      "title": "Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "subject_kind",
+    "subject_namespace",
+    "subject_ref",
+    "document_type"
+  ],
+  "title": "IntakeBinding",
+  "type": "object"
+}

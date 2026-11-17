@@ -1,0 +1,39 @@
+{
+  "additionalProperties": false,
+  "description": "Words shown on hover and used for contrast terms.",
+  "properties": {
+    "id": {
+      "description": "Record id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "maxLength": 4000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional body text.",
+      "title": "Text"
+    },
+    "title": {
+      "description": "Record title; CamelCase is split into words.",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title"
+  ],
+  "title": "RecordText",
+  "type": "object"
+}

@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "description": "Where a coordinate sits in its bracket.",
+  "properties": {
+    "at_wall": {
+      "description": "True when |e| has reached (1 - margin) k_b.",
+      "title": "At Wall",
+      "type": "boolean"
+    },
+    "barrier": {
+      "description": "V = 0.5 ln(k_b^2 / (k_b^2 - e^2)); 0 at the centre, unbounded at the walls.",
+      "minimum": 0,
+      "title": "Barrier",
+      "type": "number"
+    },
+    "error": {
+      "description": "e = value - centre.",
+      "title": "Error",
+      "type": "number"
+    },
+    "fraction": {
+      "description": "|e| / k_b.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Fraction",
+      "type": "number"
+    },
+    "value": {
+      "description": "Current coordinate.",
+      "title": "Value",
+      "type": "number"
+    }
+  },
+  "required": [
+    "value",
+    "error",
+    "barrier",
+    "fraction",
+    "at_wall"
+  ],
+  "title": "BracketState",
+  "type": "object"
+}

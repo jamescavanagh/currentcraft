@@ -1,0 +1,169 @@
+{
+  "$defs": {
+    "ParticipationEdge": {
+      "additionalProperties": false,
+      "description": "A resource node took part in a process at a stage (bipartite participation record).",
+      "properties": {
+        "process_id": {
+          "description": "Process instance.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Process Id",
+          "type": "string"
+        },
+        "resource_id": {
+          "description": "Participating resource (person, team or tool). Never an operand: objects are things, never contributors.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "stage": {
+          "description": "Stage of the process; rewiring never crosses stages.",
+          "pattern": "^[A-Za-z0-9._:/ -]{1,80}$",
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "process_id",
+        "stage"
+      ],
+      "title": "ParticipationEdge",
+      "type": "object"
+    },
+    "ScoredPair": {
+      "additionalProperties": false,
+      "description": "Two nodes at one stage with a local (gauge/patch) score and a global (cosine) score from the caller.",
+      "properties": {
+        "a": {
+          "description": "First node.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "A",
+          "type": "string"
+        },
+        "b": {
+          "description": "Second node.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "B",
+          "type": "string"
+        },
+        "global_score": {
+          "description": "Global baseline similarity (e.g. full-space cosine).",
+          "title": "Global Score",
+          "type": "number"
+        },
+        "local_score": {
+          "description": "Local-gauge similarity (e.g. demand-only patch score).",
+          "title": "Local Score",
+          "type": "number"
+        },
+        "stage": {
+          "description": "Stage the pair is scored for.",
+          "pattern": "^[A-Za-z0-9._:/ -]{1,80}$",
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "a",
+        "b",
+        "stage",
+        "local_score",
+        "global_score"
+      ],
+      "title": "ScoredPair",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Does the local score predict co-participation beyond stage-matched chance, and beyond the global score?",
+  "properties": {
+    "alpha": {
+      "default": 0.05,
+      "description": "Significance level for the null p-value and two-sided CI.",
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Alpha",
+      "type": "number"
+    },
+    "frame_id": {
+      "description": "Frame identity, pinned to its labeling round.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Frame Id",
+      "type": "string"
+    },
+    "gain_bar": {
+      "default": 0.05,
+      "description": "Minimum AUC_local - AUC_global to call a local gain.",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Gain Bar",
+      "type": "number"
+    },
+    "n_bootstrap": {
+      "default": 500,
+      "description": "B: stage-stratified paired bootstrap resamples of the AUC difference.",
+      "maximum": 10000,
+      "minimum": 50,
+      "title": "N Bootstrap",
+      "type": "integer"
+    },
+    "n_rewires": {
+      "default": 200,
+      "description": "R: stage-preserving curveball rewirings for the null.",
+      "maximum": 5000,
+      "minimum": 10,
+      "title": "N Rewires",
+      "type": "integer"
+    },
+    "pairs": {
+      "description": "Scored node pairs.",
+      "items": {
+        "$ref": "#/$defs/ScoredPair"
+      },
+      "maxItems": 200000,
+      "minItems": 2,
+      "title": "Pairs",
+      "type": "array"
+    },
+    "participation": {
+      "description": "Observed participation records.",
+      "items": {
+        "$ref": "#/$defs/ParticipationEdge"
+      },
+      "maxItems": 200000,
+      "minItems": 2,
+      "title": "Participation",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "datamesh-gauge/v1",
+      "default": "datamesh-gauge/v1",
+      "description": "Contract version; bump on any breaking change.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "seed": {
+      "default": 0,
+      "description": "RNG seed.",
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "trades_per_node": {
+      "default": 5,
+      "description": "Curveball trades per participating node per rewiring.",
+      "maximum": 100,
+      "minimum": 1,
+      "title": "Trades Per Node",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "frame_id",
+    "participation",
+    "pairs"
+  ],
+  "title": "StageNullRequest",
+  "type": "object"
+}

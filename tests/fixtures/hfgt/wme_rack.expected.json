@@ -1,0 +1,223 @@
+{
+  "fixture": "wme_rack.synthetic",
+  "synthetic": true,
+  "gaps": [],
+  "scenarios": [
+    {
+      "scenario": "baseline",
+      "mode": "drop",
+      "dof_s": 10,
+      "nodes": 10,
+      "dof_rho": 12,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "reachable",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):bench->bench by builder -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "refined:hold(rack:built):bench->room201 by truck -> refined:hold(rack:built):room201->room201 by installer",
+        "refined:hold(rack:built):bench->room201 by truck -> transform:install_rack@room201 by installer",
+        "refined:hold(rack:built):room201->room201 by installer -> transform:install_rack@room201 by installer",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->bench by builder",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "transform:install_rack@room201 by installer -> control:commission_rack@room201 by commissioner"
+      ]
+    },
+    {
+      "scenario": "baseline",
+      "mode": "mask",
+      "dof_s": 10,
+      "nodes": 10,
+      "dof_rho": 12,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "reachable",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):bench->bench by builder -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "refined:hold(rack:built):bench->room201 by truck -> refined:hold(rack:built):room201->room201 by installer",
+        "refined:hold(rack:built):bench->room201 by truck -> transform:install_rack@room201 by installer",
+        "refined:hold(rack:built):room201->room201 by installer -> transform:install_rack@room201 by installer",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->bench by builder",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "transform:install_rack@room201 by installer -> control:commission_rack@room201 by commissioner"
+      ]
+    },
+    {
+      "scenario": "truck_cannot_carry_rack",
+      "mode": "drop",
+      "dof_s": 9,
+      "nodes": 9,
+      "dof_rho": 8,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "blocked: constraints",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):bench->bench by builder -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):room201->room201 by installer -> transform:install_rack@room201 by installer",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->bench by builder",
+        "transform:install_rack@room201 by installer -> control:commission_rack@room201 by commissioner"
+      ]
+    },
+    {
+      "scenario": "truck_cannot_carry_rack",
+      "mode": "mask",
+      "dof_s": 9,
+      "nodes": 10,
+      "dof_rho": 8,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "blocked: constraints",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):bench->bench by builder -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> transform:build_rack@bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):room201->room201 by installer -> transform:install_rack@room201 by installer",
+        "transform:build_rack@bench by builder -> refined:hold(rack:built):bench->bench by builder",
+        "transform:install_rack@room201 by installer -> control:commission_rack@room201 by commissioner"
+      ]
+    },
+    {
+      "scenario": "builder_unavailable_for_build",
+      "mode": "drop",
+      "dof_s": 9,
+      "nodes": 9,
+      "dof_rho": 8,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "blocked: constraints",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "refined:hold(rack:built):bench->room201 by truck -> refined:hold(rack:built):room201->room201 by installer",
+        "refined:hold(rack:built):bench->room201 by truck -> transform:install_rack@room201 by installer",
+        "refined:hold(rack:built):room201->room201 by installer -> transform:install_rack@room201 by installer",
+        "transform:install_rack@room201 by installer -> control:commission_rack@room201 by commissioner"
+      ]
+    },
+    {
+      "scenario": "builder_unavailable_for_build",
+      "mode": "mask",
+      "dof_s": 9,
+      "nodes": 10,
+      "dof_rho": 8,
+      "operands": [
+        "equipment_kit:received",
+        "rack:built",
+        "rack:commissioned",
+        "rack:installed"
+      ],
+      "buffers": [
+        "bench",
+        "room201",
+        "warehouse"
+      ],
+      "boolean_equals_real": true,
+      "matches_five_rule_oracle": true,
+      "terminal_reachable": "blocked: constraints",
+      "dead_ends": [
+        "refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->room201 by truck"
+      ],
+      "edges": [
+        "refined:hold(equipment_kit:received):warehouse->bench by truck -> refined:hold(equipment_kit:received):bench->bench by builder",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->bench by truck",
+        "refined:hold(equipment_kit:received):warehouse->warehouse by clerk -> refined:hold(equipment_kit:received):warehouse->room201 by truck",
+        "refined:hold(rack:built):bench->bench by builder -> refined:hold(rack:built):bench->room201 by truck",
+        "refined:hold(rack:built):bench->room201 by truck -> refined:hold(rack:built):room201->room201 by installer",
+        "refined:hold(rack:built):bench->room201 by truck -> transform:install_rack@room201 by installer",
+        "refined:hold(rack:built):room201->room201 by installer -> transform:install_rack@room201 by installer",
+        "transform:install_rack@room201 by installer -> control:commission_rack@room201 by commissioner"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "name": "datamesh-local",
+  "services": {
+    "postgres": {
+      "image": "postgres:18",
+      "restart": "unless-stopped",
+      "environment": {
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_DB": "datamesh",
+        "POSTGRES_PASSWORD_FILE": "/run/secrets/pg_admin",
+        "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256"
+      },
+      "secrets": [
+        "pg_admin",
+        "pg_app"
+      ],
+      "volumes": [
+        "postgres_data:/var/lib/postgresql",
+        "./init_postgres.sh:/docker-entrypoint-initdb.d/10-datamesh.sh:ro"
+      ],
+      "ports": [
+        "127.0.0.1:${DATAMESH_PG_PORT:-5433}:5432"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d datamesh"
+        ],
+        "interval": "5s",
+        "timeout": "3s",
+        "retries": 30
+      }
+    },
+    "nats": {
+      "image": "nats:2.11-alpine",
+      "command": [
+        "-c",
+        "/run/secrets/nats_config"
+      ],
+      "restart": "unless-stopped",
+      "secrets": [
+        "nats_config"
+      ],
+      "volumes": [
+        "nats_data:/data"
+      ],
+      "ports": [
+        "127.0.0.1:${DATAMESH_NATS_PORT:-4222}:4222"
+      ],
+      "user": "10001:10001",
+      "depends_on": {
+        "prepare": {
+          "condition": "service_completed_successfully"
+        }
+      }
+    },
+    "bootstrap": {
+      "image": "datamesh-local-app:0.9.9",
+      "user": "10001:10001",
+      "command": [
+        "bootstrap"
+      ],
+      "secrets": [
+        "pg_app",
+        "nats_token",
+        "pseudonym_salt"
+      ],
+      "volumes": [
+        "blob_data:/srv/datamesh/blobs"
+      ],
+      "depends_on": {
+        "postgres": {
+          "condition": "service_healthy"
+        },
+        "nats": {
+          "condition": "service_started"
+        },
+        "prepare": {
+          "condition": "service_completed_successfully"
+        }
+      },
+      "restart": "no"
+    },
+    "worker": {
+      "image": "datamesh-local-app:0.9.9",
+      "user": "10001:10001",
+      "command": [
+        "worker"
+      ],
+      "init": true,
+      "restart": "unless-stopped",
+      "secrets": [
+        "pg_app",
+        "nats_token",
+        "pseudonym_salt"
+      ],
+      "volumes": [
+        "blob_data:/srv/datamesh/blobs",
+        "../../references/private:/references/private:ro"
+      ],
+      "depends_on": {
+        "bootstrap": {
+          "condition": "service_completed_successfully"
+        }
+      },
+      "stop_grace_period": "90s",
+      "environment": {
+        "DATAMESH_WORKBOOK_PROFILES": "${DATAMESH_WORKBOOK_PROFILES:-}"
+      }
+    },
+    "smoke": {
+      "image": "datamesh-local-app:0.9.9",
+      "user": "10001:10001",
+      "command": [
+        "smoke"
+      ],
+      "profiles": [
+        "tools"
+      ],
+      "secrets": [
+        "pg_app",
+        "nats_token",
+        "pseudonym_salt"
+      ],
+      "volumes": [
+        "blob_data:/srv/datamesh/blobs"
+      ],
+      "depends_on": {
+        "bootstrap": {
+          "condition": "service_completed_successfully"
+        }
+      }
+    },
+    "publisher": {
+      "image": "datamesh-local-app:0.9.9",
+      "user": "10001:10001",
+      "command": [
+        "publish"
+      ],
+      "profiles": [
+        "tools"
+      ],
+      "secrets": [
+        "nats_token"
+      ],
+      "volumes": [
+        "blob_data:/srv/datamesh/blobs",
+        "../../local/intake:/intake:ro"
+      ],
+      "environment": {
+        "DATAMESH_INPUT_FILE": "${DATAMESH_INPUT_FILE:-}",
+        "DATAMESH_INPUT_FORMAT": "${DATAMESH_INPUT_FORMAT:-text}",
+        "DATAMESH_SOURCE_ID": "${DATAMESH_SOURCE_ID:-}",
+        "DATAMESH_MAPPING": "${DATAMESH_MAPPING:-}",
+        "DATAMESH_BINDING_FILE": "${DATAMESH_BINDING_FILE:-}"
+      },
+      "depends_on": {
+        "bootstrap": {
+          "condition": "service_completed_successfully"
+        }
+      }
+    },
+    "prepare": {
+      "image": "datamesh-local-app:0.9.9",
+      "build": {
+        "context": "../..",
+        "dockerfile": "deploy/local/Dockerfile"
+      },
+      "user": "0:0",
+      "command": [
+        "prepare"
+      ],
+      "volumes": [
+        "blob_data:/srv/datamesh/blobs",
+        "nats_data:/srv/datamesh/nats"
+      ],
+      "restart": "no"
+    }
+  },
+  "secrets": {
+    "pg_admin": {
+      "file": "../../local/compose-secrets/pg_admin"
+    },
+    "pg_app": {
+      "file": "../../local/compose-secrets/pg_app"
+    },
+    "nats_token": {
+      "file": "../../local/compose-secrets/nats_token"
+    },
+    "nats_config": {
+      "file": "../../local/compose-secrets/nats.conf"
+    },
+    "pseudonym_salt": {
+      "file": "../../local/compose-secrets/pseudonym_salt"
+    }
+  },
+  "volumes": {
+    "postgres_data": {},
+    "nats_data": {},
+    "blob_data": {}
+  }
+}
