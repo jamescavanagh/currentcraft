@@ -1,12 +1,11 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class ProfessionalServicesManufacturerVendor(ScaffoldRecord):
-    """Vendor subtype: manufacturer that also sells professional services."""
-
+class ProfessionalServicesManufacturerVendor(VersionedEntity):
+    """Manufacturer selling professional services. No overlap/exclusivity policy is imposed."""
     SOURCE_CLASS: ClassVar[str] = '(addition)'
-    NOTE: ClassVar[str] = 'Vendor subtype: manufacturer that also sells professional services.'
+    kind: Literal["professional_services_manufacturer_vendor"] = "professional_services_manufacturer_vendor"
+    party_id: PartyId

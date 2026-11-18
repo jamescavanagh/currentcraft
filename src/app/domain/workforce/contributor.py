@@ -1,12 +1,13 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import PartyId
+from app.domain.workforce.resource import Resource
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Contributor(ScaffoldRecord):
-    """Third-party labor resource. Shared resource base and permissions unresolved."""
-
+class Contributor(Resource):
+    """Third-party labor; provider is distinct from a booking platform."""
     SOURCE_CLASS: ClassVar[str] = 'Contributor'
-    NOTE: ClassVar[str] = 'Third-party labor resource. Shared resource base and permissions unresolved.'
+    kind: Literal["contributor"] = "contributor"
+    provider_party_id: Fact[PartyId] = Field(default_factory=unknown)

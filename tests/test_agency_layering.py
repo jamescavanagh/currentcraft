@@ -7,7 +7,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from tests.test_simulation_layering import HEAVY, imports, py_files  # noqa: E402
 
-APP = ("application/process", "application/plate", "application/messaging", "application/enrichment", "application/probe", "application/ingest", "application/persistence", "application/splice", "application/hfgt", "application/common")
+APP = ("application/enterprise", "application/process", "application/plate", "application/messaging", "application/enrichment", "application/probe", "application/ingest", "application/persistence", "application/splice", "application/hfgt", "application/common")
 
 
 class AgencyLayering(unittest.TestCase):

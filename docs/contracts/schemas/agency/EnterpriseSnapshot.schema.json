@@ -1,0 +1,3271 @@
+{
+  "$defs": {
+    "Agent": {
+      "additionalProperties": false,
+      "description": "AI resource; no implied human authority.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "agent",
+          "default": "agent",
+          "title": "Kind",
+          "type": "string"
+        },
+        "model_reference": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "party_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "Agent",
+      "type": "object"
+    },
+    "AssetInstance": {
+      "additionalProperties": false,
+      "description": "Existing physical unit; capture does not create or consume stock.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "firmware": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "installation": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "ip_address": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "kind": {
+          "const": "asset_instance",
+          "default": "asset_instance",
+          "title": "Kind",
+          "type": "string"
+        },
+        "mac_address": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "product_definition_id": {
+          "format": "uuid",
+          "title": "Product Definition Id",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "serial": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id",
+        "product_definition_id"
+      ],
+      "title": "AssetInstance",
+      "type": "object"
+    },
+    "AuthorityRef": {
+      "additionalProperties": false,
+      "description": "A decision right attached to an execution.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the right is documented.",
+          "title": "Evidence Ref"
+        },
+        "holder_role": {
+          "description": "Role holding the right.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Holder Role",
+          "type": "string"
+        },
+        "scope": {
+          "description": "What the right covers.",
+          "enum": [
+            "release",
+            "reject",
+            "return",
+            "hold",
+            "approve_design",
+            "transfer_custody",
+            "commit_spend",
+            "displace_allocation"
+          ],
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "holder_role",
+        "scope"
+      ],
+      "title": "AuthorityRef",
+      "type": "object"
+    },
+    "BOM": {
+      "additionalProperties": false,
+      "description": "BOM identity; stage changes never merge identities or create orders.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "bom",
+          "default": "bom",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "stage": {
+          "$ref": "#/$defs/Fact_Literal__rom____material_list____po___"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "BOM",
+      "type": "object"
+    },
+    "BOMLine": {
+      "additionalProperties": false,
+      "description": "A product quantity in one BOM; no serialized units are manufactured.",
+      "properties": {
+        "bom_id": {
+          "format": "uuid",
+          "title": "Bom Id",
+          "type": "string"
+        },
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "bom_line",
+          "default": "bom_line",
+          "title": "Kind",
+          "type": "string"
+        },
+        "product_definition_id": {
+          "format": "uuid",
+          "title": "Product Definition Id",
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/$defs/Fact_Quantity_"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "bom_id",
+        "product_definition_id"
+      ],
+      "title": "BOMLine",
+      "type": "object"
+    },
+    "CalendarBooking": {
+      "additionalProperties": false,
+      "description": "Captured time-bounded booking; never a live allocation or permission.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "calendar_booking",
+          "default": "calendar_booking",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "resource_id": {
+          "format": "uuid",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/TimeWindow"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id",
+        "resource_id",
+        "task_id",
+        "window"
+      ],
+      "title": "CalendarBooking",
+      "type": "object"
+    },
+    "CapabilityAssertion": {
+      "additionalProperties": false,
+      "description": "Evidenced capability binding for a specific process type, never permission.",
+      "properties": {
+        "binding": {
+          "$ref": "#/$defs/CapabilityBinding"
+        },
+        "process_code": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Process Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "process_code",
+        "binding"
+      ],
+      "title": "CapabilityAssertion",
+      "type": "object"
+    },
+    "CapabilityBinding": {
+      "additionalProperties": false,
+      "description": "A resource executing the process. Resources (people, teams, tools) appear only here.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the capability is evidenced; None means asserted, not evidenced.",
+          "title": "Evidence Ref"
+        },
+        "resource_id": {
+          "description": "Resource id; never an object id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "resource_role": {
+          "description": "Role, not a person's name, in shared artifacts.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Resource Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "resource_role"
+      ],
+      "title": "CapabilityBinding",
+      "type": "object"
+    },
+    "Client": {
+      "additionalProperties": false,
+      "description": "Client classification of a party; no inferred rights.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "client",
+          "default": "client",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id"
+      ],
+      "title": "Client",
+      "type": "object"
+    },
+    "Consultant": {
+      "additionalProperties": false,
+      "description": "Consulting engagement; approvals require explicit scoped human authority.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "consultant",
+          "default": "consultant",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "role": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id",
+        "project_id"
+      ],
+      "title": "Consultant",
+      "type": "object"
+    },
+    "Contributor": {
+      "additionalProperties": false,
+      "description": "Third-party labor; provider is distinct from a booking platform.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "contributor",
+          "default": "contributor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "party_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "provider_party_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "Contributor",
+      "type": "object"
+    },
+    "Document": {
+      "additionalProperties": false,
+      "description": "Versioned document identity; lifecycle policy is unresolved.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "document",
+          "default": "document",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_version": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "storage_locator": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "Document",
+      "type": "object"
+    },
+    "Employee": {
+      "additionalProperties": false,
+      "description": "Employee resource; never a subtype of third-party Contributor.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "employment_kind": {
+          "$ref": "#/$defs/Fact_Literal__full_time____part_time____temporary___"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "employee",
+          "default": "employee",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "party_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "Employee",
+      "type": "object"
+    },
+    "ExecutionLink": {
+      "additionalProperties": false,
+      "description": "Business context for the existing process contract; no duplicate process model.",
+      "properties": {
+        "execution": {
+          "$ref": "#/$defs/ProcessExecution"
+        },
+        "phase_id": {
+          "format": "uuid",
+          "title": "Phase Id",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "task_id": {
+          "format": "uuid",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "task_id",
+        "phase_id",
+        "execution"
+      ],
+      "title": "ExecutionLink",
+      "type": "object"
+    },
+    "ExternalReference": {
+      "additionalProperties": false,
+      "description": "Source namespace plus source key; neither becomes internal identity.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Key",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Namespace",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "key"
+      ],
+      "title": "ExternalReference",
+      "type": "object"
+    },
+    "Fact_Annotated_str__StringConstraints__": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    },
+    "Fact_Literal__full_time____part_time____temporary___": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "full_time",
+                "part_time",
+                "temporary"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Literal['full_time', 'part_time', 'temporary']]",
+      "type": "object"
+    },
+    "Fact_Literal__rom____material_list____po___": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "rom",
+                "material_list",
+                "po"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Literal['rom', 'material_list', 'po']]",
+      "type": "object"
+    },
+    "Fact_NewType_": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[NewType]",
+      "type": "object"
+    },
+    "Fact_Quantity_": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Quantity]",
+      "type": "object"
+    },
+    "Fact_TimeWindow_": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeWindow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[TimeWindow]",
+      "type": "object"
+    },
+    "Fact_bool_": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[bool]",
+      "type": "object"
+    },
+    "LaborPlatformVendor": {
+      "additionalProperties": false,
+      "description": "Platform; separate from the party providing booked labor. No overlap/exclusivity policy is imposed.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "labor_platform_vendor",
+          "default": "labor_platform_vendor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id"
+      ],
+      "title": "LaborPlatformVendor",
+      "type": "object"
+    },
+    "ManufacturerRep": {
+      "additionalProperties": false,
+      "description": "Contextual representation, not identity inheritance.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "manufacturer_rep",
+          "default": "manufacturer_rep",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manufacturer_party_id": {
+          "format": "uuid",
+          "title": "Manufacturer Party Id",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "representative_party_id": {
+          "format": "uuid",
+          "title": "Representative Party Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "representative_party_id",
+        "manufacturer_party_id",
+        "project_id"
+      ],
+      "title": "ManufacturerRep",
+      "type": "object"
+    },
+    "ObjectIncidence": {
+      "additionalProperties": false,
+      "description": "What one execution does to one object. Objects are things, never people.",
+      "properties": {
+        "destination_buffer": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "transfers only: buffer (place) the object arrives at. Set with origin_buffer or not at all.",
+          "title": "Destination Buffer"
+        },
+        "effect": {
+          "description": "produces=birth, consumes=death, revises/transfers/holds=state change, checks=gate, reads=no change.",
+          "enum": [
+            "produces",
+            "consumes",
+            "reads",
+            "revises",
+            "holds",
+            "checks",
+            "transfers"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "object_id": {
+          "description": "Persistent object id (one per asset; references to it are not new objects).",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Object Id",
+          "type": "string"
+        },
+        "object_kind": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Caller vocabulary, e.g. drawing, purchase_order, device.",
+          "title": "Object Kind"
+        },
+        "origin_buffer": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "transfers only: buffer (place) the object leaves. Optional; HFGT reports a gap when missing.",
+          "title": "Origin Buffer"
+        },
+        "state_after": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "State after the execution, where the effect changes state.",
+          "title": "State After"
+        },
+        "state_before": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,60}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Expected state before the execution, if asserted.",
+          "title": "State Before"
+        }
+      },
+      "required": [
+        "object_id",
+        "effect"
+      ],
+      "title": "ObjectIncidence",
+      "type": "object"
+    },
+    "Order": {
+      "additionalProperties": false,
+      "description": "Commercial order identity, separate from supporting documents.",
+      "properties": {
+        "counterparty_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "document_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Document Ids",
+          "type": "array"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "order",
+          "default": "order",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "Order",
+      "type": "object"
+    },
+    "Party": {
+      "additionalProperties": false,
+      "description": "Party identity; organization/person classification remains unspecified.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "party",
+          "default": "party",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "Party",
+      "type": "object"
+    },
+    "Phase": {
+      "additionalProperties": false,
+      "description": "Project lifecycle phase; not a simulator phase or execution stage.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "phase",
+          "default": "phase",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "Phase",
+      "type": "object"
+    },
+    "ProcessExecution": {
+      "additionalProperties": false,
+      "description": "The root record: one execution of a process type. Everything else is derived from executions.",
+      "properties": {
+        "at_buffer": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Buffer (place) where a transform, control or hold happens. Optional; HFGT reports a gap when missing.",
+          "title": "At Buffer"
+        },
+        "authority": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Decision right; required for release."
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "enum": [
+                "hold",
+                "release",
+                "reject",
+                "return"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Gate decision; control executions only.",
+          "title": "Decision"
+        },
+        "epistemic_status": {
+          "default": "computed",
+          "description": "computed = from records; simulated work can never release.",
+          "enum": [
+            "computed",
+            "simulated",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "executed_by": {
+          "default": [],
+          "description": "Who executed it. Empty means the executor is unknown.",
+          "items": {
+            "$ref": "#/$defs/CapabilityBinding"
+          },
+          "title": "Executed By",
+          "type": "array"
+        },
+        "execution_id": {
+          "description": "Instance id, e.g. '<project>:<process-code>[:<n>]'.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "incidence": {
+          "default": [],
+          "description": "Objects the execution acts on, one entry per object.",
+          "items": {
+            "$ref": "#/$defs/ObjectIncidence"
+          },
+          "title": "Incidence",
+          "type": "array"
+        },
+        "occurred_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Real timestamp, if recorded. Required before process claims.",
+          "title": "Occurred At"
+        },
+        "process": {
+          "$ref": "#/$defs/ProcessType",
+          "description": "The process type executed."
+        },
+        "schema_version": {
+          "const": "datamesh-process/v1",
+          "default": "datamesh-process/v1",
+          "description": "Contract version.",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Caller ordering within ties; None means unordered.",
+          "title": "Sequence"
+        },
+        "source_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Provenance of the record.",
+          "title": "Source Ref"
+        },
+        "stage": {
+          "description": "Caller stage code; the participation null never crosses stages.",
+          "pattern": "^[A-Za-z0-9._:-]{1,40}$",
+          "title": "Stage",
+          "type": "string"
+        },
+        "subsystem_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Subsystem the execution belongs to, if known.",
+          "title": "Subsystem Id"
+        },
+        "verification_evidence": {
+          "default": [],
+          "description": "Object ids the decision relied on; each must be read or checked here.",
+          "items": {
+            "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+            "type": "string"
+          },
+          "title": "Verification Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "execution_id",
+        "process",
+        "stage"
+      ],
+      "title": "ProcessExecution",
+      "type": "object"
+    },
+    "ProcessType": {
+      "additionalProperties": false,
+      "description": "A kind of process: what it does to objects, independent of any project instance.",
+      "properties": {
+        "approved": {
+          "default": false,
+          "description": "True only after a process SME signs off the classification; inferred classes stay False.",
+          "title": "Approved",
+          "type": "boolean"
+        },
+        "code": {
+          "description": "Caller vocabulary process code, e.g. 'design' or a catalogue number.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "function_classes": {
+          "description": "What the process does: transform, transport, hold, exchange, control.",
+          "items": {
+            "enum": [
+              "transform",
+              "transport",
+              "hold",
+              "exchange",
+              "control"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Function Classes",
+          "type": "array"
+        },
+        "name": {
+          "description": "Human-readable process name.",
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "function_classes"
+      ],
+      "title": "ProcessType",
+      "type": "object"
+    },
+    "ProductDefinition": {
+      "additionalProperties": false,
+      "description": "Catalog definition, with no physical serial identity.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "is_bulk": {
+          "$ref": "#/$defs/Fact_bool_"
+        },
+        "kind": {
+          "const": "product_definition",
+          "default": "product_definition",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manufacturer_party_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "model": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "ProductDefinition",
+      "type": "object"
+    },
+    "ProductOnlyVendor": {
+      "additionalProperties": false,
+      "description": "Product-only distributor or entity. No overlap/exclusivity policy is imposed.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "product_only_vendor",
+          "default": "product_only_vendor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id"
+      ],
+      "title": "ProductOnlyVendor",
+      "type": "object"
+    },
+    "ProfessionalServicesManufacturerVendor": {
+      "additionalProperties": false,
+      "description": "Manufacturer selling professional services. No overlap/exclusivity policy is imposed.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "professional_services_manufacturer_vendor",
+          "default": "professional_services_manufacturer_vendor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id"
+      ],
+      "title": "ProfessionalServicesManufacturerVendor",
+      "type": "object"
+    },
+    "Project": {
+      "additionalProperties": false,
+      "description": "Project identity, separate from its source business number.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "project",
+          "default": "project",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "Project",
+      "type": "object"
+    },
+    "QualityEvidence": {
+      "additionalProperties": false,
+      "description": "Source assertion and time provenance; never implicit human authority.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "quality_evidence",
+          "default": "quality_evidence",
+          "title": "Kind",
+          "type": "string"
+        },
+        "locator": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Locator",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Source",
+          "type": "string"
+        },
+        "source_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Sha256"
+        },
+        "source_sha256_missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "not supplied",
+          "title": "Source Sha256 Missing Reason"
+        },
+        "source_version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Source Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "valid_time": {
+          "$ref": "#/$defs/Fact_TimeWindow_"
+        }
+      },
+      "required": [
+        "entity_id",
+        "source",
+        "source_version",
+        "locator",
+        "status",
+        "recorded_at"
+      ],
+      "title": "QualityEvidence",
+      "type": "object"
+    },
+    "Quantity": {
+      "additionalProperties": false,
+      "description": "Finite nonnegative Decimal and explicit unit; zero remains zero.",
+      "properties": {
+        "amount": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Amount"
+        },
+        "unit": {
+          "$ref": "#/$defs/UnitRef"
+        }
+      },
+      "required": [
+        "amount",
+        "unit"
+      ],
+      "title": "Quantity",
+      "type": "object"
+    },
+    "RFI": {
+      "additionalProperties": false,
+      "description": "Question/response and contextual impact links; not approval.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "impact_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Impact Ids",
+          "type": "array"
+        },
+        "kind": {
+          "const": "rfi",
+          "default": "rfi",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "question": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "response": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "RFI",
+      "type": "object"
+    },
+    "ReferenceDictionary": {
+      "additionalProperties": false,
+      "description": "Versioned declarative data, with no class names or executable expressions.",
+      "properties": {
+        "dictionary_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Id",
+          "type": "string"
+        },
+        "payload_sha256": {
+          "description": "SHA-256 of canonical JSON units, stages, process_types.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Payload Sha256",
+          "type": "string"
+        },
+        "process_types": {
+          "items": {
+            "$ref": "#/$defs/ProcessType"
+          },
+          "title": "Process Types",
+          "type": "array"
+        },
+        "provenance": {
+          "$ref": "#/$defs/QualityEvidence"
+        },
+        "schema_version": {
+          "const": "enterprise-reference-v1",
+          "default": "enterprise-reference-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "stages": {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "title": "Stages",
+          "type": "array"
+        },
+        "synthetic": {
+          "title": "Synthetic",
+          "type": "boolean"
+        },
+        "units": {
+          "items": {
+            "$ref": "#/$defs/UnitRef"
+          },
+          "title": "Units",
+          "type": "array"
+        },
+        "valid_window": {
+          "$ref": "#/$defs/TimeWindow"
+        },
+        "version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dictionary_id",
+        "version",
+        "synthetic",
+        "valid_window",
+        "provenance",
+        "units",
+        "stages",
+        "process_types",
+        "payload_sha256"
+      ],
+      "title": "ReferenceDictionary",
+      "type": "object"
+    },
+    "Shipment": {
+      "additionalProperties": false,
+      "description": "Shipment header; lines reference this ID, no custody workflow inferred.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "shipment",
+          "default": "shipment",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "Shipment",
+      "type": "object"
+    },
+    "ShipmentLine": {
+      "additionalProperties": false,
+      "description": "One existing asset OR one product quantity. No custody mutation.",
+      "properties": {
+        "asset_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "shipment_line",
+          "default": "shipment_line",
+          "title": "Kind",
+          "type": "string"
+        },
+        "product_definition_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "quantity": {
+          "$ref": "#/$defs/Fact_Quantity_"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "shipment_id": {
+          "format": "uuid",
+          "title": "Shipment Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "shipment_id"
+      ],
+      "title": "ShipmentLine",
+      "type": "object"
+    },
+    "StageMapping": {
+      "additionalProperties": false,
+      "description": "Explicit project lifecycle phase to execution stage mapping.",
+      "properties": {
+        "phase_id": {
+          "format": "uuid",
+          "title": "Phase Id",
+          "type": "string"
+        },
+        "stage": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Stage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase_id",
+        "stage"
+      ],
+      "title": "StageMapping",
+      "type": "object"
+    },
+    "Stakeholder": {
+      "additionalProperties": false,
+      "description": "Contextual stakeholder link; no implicit approval authority.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "stakeholder",
+          "default": "stakeholder",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "role": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id",
+        "project_id"
+      ],
+      "title": "Stakeholder",
+      "type": "object"
+    },
+    "SubcontractorFreelancerVendor": {
+      "additionalProperties": false,
+      "description": "Subcontractor or freelancer vendor classification. No overlap/exclusivity policy is imposed.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "subcontractor_freelancer_vendor",
+          "default": "subcontractor_freelancer_vendor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id"
+      ],
+      "title": "SubcontractorFreelancerVendor",
+      "type": "object"
+    },
+    "Subsystem": {
+      "additionalProperties": false,
+      "description": "Project subsystem identity.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "subsystem",
+          "default": "subsystem",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "Subsystem",
+      "type": "object"
+    },
+    "Task": {
+      "additionalProperties": false,
+      "description": "Business task; not an external task or process execution.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "task",
+          "default": "task",
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "phase_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "subsystem_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "wbs_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "Task",
+      "type": "object"
+    },
+    "TimeWindow": {
+      "additionalProperties": false,
+      "description": "Half-open timezone-aware interval; seconds are not inferred from dates.",
+      "properties": {
+        "end": {
+          "format": "date-time",
+          "title": "End",
+          "type": "string"
+        },
+        "start": {
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "TimeWindow",
+      "type": "object"
+    },
+    "UnitRef": {
+      "additionalProperties": false,
+      "description": "Versioned reference to a unit in an explicitly selected dictionary.",
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Code",
+          "type": "string"
+        },
+        "dictionary_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Id",
+          "type": "string"
+        },
+        "dictionary_version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Version",
+          "type": "string"
+        },
+        "dimension": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dimension",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dictionary_id",
+        "dictionary_version",
+        "code",
+        "dimension"
+      ],
+      "title": "UnitRef",
+      "type": "object"
+    },
+    "Vendor": {
+      "additionalProperties": false,
+      "description": "Vendor classification of a party; no overlap policy imposed.",
+      "properties": {
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "vendor",
+          "default": "vendor",
+          "title": "Kind",
+          "type": "string"
+        },
+        "party_id": {
+          "format": "uuid",
+          "title": "Party Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "party_id"
+      ],
+      "title": "Vendor",
+      "type": "object"
+    },
+    "WBS": {
+      "additionalProperties": false,
+      "description": "Project work-breakdown identity; nesting is not inferred.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+        },
+        "definition_status": {
+          "const": "v1-proposal",
+          "default": "v1-proposal",
+          "title": "Definition Status",
+          "type": "string"
+        },
+        "entity_id": {
+          "description": "Required opaque internal identity.",
+          "format": "uuid",
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "external_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ExternalReference"
+          },
+          "title": "External Refs",
+          "type": "array"
+        },
+        "kind": {
+          "const": "wbs",
+          "default": "wbs",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "record_version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Record Version",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "enterprise-v1",
+          "default": "enterprise-v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "project_id"
+      ],
+      "title": "WBS",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Immutable capture; hydration validates every referenced record before storage.",
+  "properties": {
+    "capabilities": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/CapabilityAssertion"
+      },
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "captured_at": {
+      "format": "date-time",
+      "title": "Captured At",
+      "type": "string"
+    },
+    "executions": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExecutionLink"
+      },
+      "title": "Executions",
+      "type": "array"
+    },
+    "purpose": {
+      "enum": [
+        "synthetic_fixture",
+        "captured_records"
+      ],
+      "title": "Purpose",
+      "type": "string"
+    },
+    "records": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "agent": "#/$defs/Agent",
+            "asset_instance": "#/$defs/AssetInstance",
+            "bom": "#/$defs/BOM",
+            "bom_line": "#/$defs/BOMLine",
+            "calendar_booking": "#/$defs/CalendarBooking",
+            "client": "#/$defs/Client",
+            "consultant": "#/$defs/Consultant",
+            "contributor": "#/$defs/Contributor",
+            "document": "#/$defs/Document",
+            "employee": "#/$defs/Employee",
+            "labor_platform_vendor": "#/$defs/LaborPlatformVendor",
+            "manufacturer_rep": "#/$defs/ManufacturerRep",
+            "order": "#/$defs/Order",
+            "party": "#/$defs/Party",
+            "phase": "#/$defs/Phase",
+            "product_definition": "#/$defs/ProductDefinition",
+            "product_only_vendor": "#/$defs/ProductOnlyVendor",
+            "professional_services_manufacturer_vendor": "#/$defs/ProfessionalServicesManufacturerVendor",
+            "project": "#/$defs/Project",
+            "quality_evidence": "#/$defs/QualityEvidence",
+            "rfi": "#/$defs/RFI",
+            "shipment": "#/$defs/Shipment",
+            "shipment_line": "#/$defs/ShipmentLine",
+            "stakeholder": "#/$defs/Stakeholder",
+            "subcontractor_freelancer_vendor": "#/$defs/SubcontractorFreelancerVendor",
+            "subsystem": "#/$defs/Subsystem",
+            "task": "#/$defs/Task",
+            "vendor": "#/$defs/Vendor",
+            "wbs": "#/$defs/WBS"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Party"
+          },
+          {
+            "$ref": "#/$defs/Employee"
+          },
+          {
+            "$ref": "#/$defs/Contributor"
+          },
+          {
+            "$ref": "#/$defs/Agent"
+          },
+          {
+            "$ref": "#/$defs/Client"
+          },
+          {
+            "$ref": "#/$defs/Vendor"
+          },
+          {
+            "$ref": "#/$defs/ProductOnlyVendor"
+          },
+          {
+            "$ref": "#/$defs/ProfessionalServicesManufacturerVendor"
+          },
+          {
+            "$ref": "#/$defs/LaborPlatformVendor"
+          },
+          {
+            "$ref": "#/$defs/SubcontractorFreelancerVendor"
+          },
+          {
+            "$ref": "#/$defs/Stakeholder"
+          },
+          {
+            "$ref": "#/$defs/Consultant"
+          },
+          {
+            "$ref": "#/$defs/ManufacturerRep"
+          },
+          {
+            "$ref": "#/$defs/Project"
+          },
+          {
+            "$ref": "#/$defs/Phase"
+          },
+          {
+            "$ref": "#/$defs/WBS"
+          },
+          {
+            "$ref": "#/$defs/Subsystem"
+          },
+          {
+            "$ref": "#/$defs/Task"
+          },
+          {
+            "$ref": "#/$defs/ProductDefinition"
+          },
+          {
+            "$ref": "#/$defs/AssetInstance"
+          },
+          {
+            "$ref": "#/$defs/Document"
+          },
+          {
+            "$ref": "#/$defs/BOM"
+          },
+          {
+            "$ref": "#/$defs/BOMLine"
+          },
+          {
+            "$ref": "#/$defs/Shipment"
+          },
+          {
+            "$ref": "#/$defs/ShipmentLine"
+          },
+          {
+            "$ref": "#/$defs/CalendarBooking"
+          },
+          {
+            "$ref": "#/$defs/RFI"
+          },
+          {
+            "$ref": "#/$defs/Order"
+          },
+          {
+            "$ref": "#/$defs/QualityEvidence"
+          }
+        ]
+      },
+      "title": "Records",
+      "type": "array"
+    },
+    "reference_sha256": {
+      "description": "Selected full reference file SHA-256; infrastructure verifies bytes.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Reference Sha256",
+      "type": "string"
+    },
+    "references": {
+      "$ref": "#/$defs/ReferenceDictionary"
+    },
+    "schema_version": {
+      "const": "enterprise-v1",
+      "default": "enterprise-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "format": "uuid",
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "stage_mappings": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/StageMapping"
+      },
+      "title": "Stage Mappings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "snapshot_id",
+    "purpose",
+    "captured_at",
+    "references",
+    "reference_sha256",
+    "records"
+  ],
+  "title": "EnterpriseSnapshot",
+  "type": "object"
+}

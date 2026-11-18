@@ -1,12 +1,13 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import Text
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Project(ScaffoldRecord):
-    """Definition pending review."""
-
+class Project(VersionedEntity):
+    """Project identity, separate from its source business number."""
     SOURCE_CLASS: ClassVar[str] = 'Project'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["project"] = "project"
+    name: Fact[Text] = Field(default_factory=unknown)

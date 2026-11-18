@@ -1,12 +1,15 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import ProjectId, PartyId, DocumentId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Order(ScaffoldRecord):
-    """Commercial entity, separate from any document that represents it."""
-
+class Order(VersionedEntity):
+    """Commercial order identity, separate from supporting documents."""
     SOURCE_CLASS: ClassVar[str] = 'Order'
-    NOTE: ClassVar[str] = 'Commercial entity, separate from any document that represents it.'
+    kind: Literal["order"] = "order"
+    project_id: ProjectId
+    counterparty_id: Fact[PartyId] = Field(default_factory=unknown)
+    document_ids: tuple[DocumentId, ...] = ()

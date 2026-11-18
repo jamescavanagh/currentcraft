@@ -5,6 +5,8 @@ recursive-include scripts *.py *.sh
 recursive-include docs *.md *.json
 include references/README.md
 include references/public/manifest.example.json
+include references/public/enterprise.synthetic.v1.json
+include examples/domain_bootstrap.py
 prune references/private
 prune data
 prune ci-artifacts

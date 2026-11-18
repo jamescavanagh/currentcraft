@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "description": "Versioned reference to a unit in an explicitly selected dictionary.",
+  "properties": {
+    "code": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Code",
+      "type": "string"
+    },
+    "dictionary_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Dictionary Id",
+      "type": "string"
+    },
+    "dictionary_version": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Dictionary Version",
+      "type": "string"
+    },
+    "dimension": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Dimension",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dictionary_id",
+    "dictionary_version",
+    "code",
+    "dimension"
+  ],
+  "title": "UnitRef",
+  "type": "object"
+}

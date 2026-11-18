@@ -1,12 +1,15 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import Text, ProjectId, PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Consultant(ScaffoldRecord):
-    """Third-party approver engagement. Approval scope must be explicit per decision."""
-
+class Consultant(VersionedEntity):
+    """Consulting engagement; approvals require explicit scoped human authority."""
     SOURCE_CLASS: ClassVar[str] = 'Consultant'
-    NOTE: ClassVar[str] = 'Third-party approver engagement. Approval scope must be explicit per decision.'
+    kind: Literal["consultant"] = "consultant"
+    party_id: PartyId
+    project_id: ProjectId
+    role: Fact[Text] = Field(default_factory=unknown)

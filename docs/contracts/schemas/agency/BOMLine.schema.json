@@ -1,0 +1,208 @@
+{
+  "$defs": {
+    "ExternalReference": {
+      "additionalProperties": false,
+      "description": "Source namespace plus source key; neither becomes internal identity.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Key",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Namespace",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "key"
+      ],
+      "title": "ExternalReference",
+      "type": "object"
+    },
+    "Fact_Quantity_": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Quantity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Quantity]",
+      "type": "object"
+    },
+    "Quantity": {
+      "additionalProperties": false,
+      "description": "Finite nonnegative Decimal and explicit unit; zero remains zero.",
+      "properties": {
+        "amount": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Amount"
+        },
+        "unit": {
+          "$ref": "#/$defs/UnitRef"
+        }
+      },
+      "required": [
+        "amount",
+        "unit"
+      ],
+      "title": "Quantity",
+      "type": "object"
+    },
+    "UnitRef": {
+      "additionalProperties": false,
+      "description": "Versioned reference to a unit in an explicitly selected dictionary.",
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Code",
+          "type": "string"
+        },
+        "dictionary_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Id",
+          "type": "string"
+        },
+        "dictionary_version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Version",
+          "type": "string"
+        },
+        "dimension": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dimension",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dictionary_id",
+        "dictionary_version",
+        "code",
+        "dimension"
+      ],
+      "title": "UnitRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A product quantity in one BOM; no serialized units are manufactured.",
+  "properties": {
+    "bom_id": {
+      "format": "uuid",
+      "title": "Bom Id",
+      "type": "string"
+    },
+    "definition_status": {
+      "const": "v1-proposal",
+      "default": "v1-proposal",
+      "title": "Definition Status",
+      "type": "string"
+    },
+    "entity_id": {
+      "description": "Required opaque internal identity.",
+      "format": "uuid",
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "external_refs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExternalReference"
+      },
+      "title": "External Refs",
+      "type": "array"
+    },
+    "kind": {
+      "const": "bom_line",
+      "default": "bom_line",
+      "title": "Kind",
+      "type": "string"
+    },
+    "product_definition_id": {
+      "format": "uuid",
+      "title": "Product Definition Id",
+      "type": "string"
+    },
+    "quantity": {
+      "$ref": "#/$defs/Fact_Quantity_"
+    },
+    "record_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Record Version",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "enterprise-v1",
+      "default": "enterprise-v1",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_id",
+    "bom_id",
+    "product_definition_id"
+  ],
+  "title": "BOMLine",
+  "type": "object"
+}

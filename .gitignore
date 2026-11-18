@@ -6,6 +6,7 @@
 !/references/public/
 /references/public/**
 !/references/public/manifest.example.json
+!/references/public/enterprise.synthetic.v1.json
 # All enterprise-derived inputs, outputs and embeddings stay local.
 /data/
 /local/

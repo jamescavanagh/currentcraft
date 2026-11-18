@@ -1,0 +1,53 @@
+{
+  "dictionary_id": "synthetic.enterprise",
+  "payload_sha256": "1d251a8ff30a5d43dcfbdcdc630cc4e0e8715415ca4e00eb1a27a8f0c1a8941c",
+  "process_types": [
+    {
+      "approved": false,
+      "code": "synthetic.inspect",
+      "function_classes": [
+        "transform"
+      ],
+      "name": "Synthetic read-only observation"
+    }
+  ],
+  "provenance": {
+    "definition_status": "v1-proposal",
+    "entity_id": "00000000-0000-4000-8000-000000000001",
+    "evidence_ids": [],
+    "external_refs": [],
+    "kind": "quality_evidence",
+    "locator": "synthetic://enterprise-fixture/v1",
+    "record_version": 1,
+    "recorded_at": "2000-01-01T00:00:00Z",
+    "schema_version": "enterprise-v1",
+    "source": "synthetic.fixture",
+    "source_sha256": null,
+    "source_sha256_missing_reason": "not supplied",
+    "source_version": "1",
+    "status": "observed",
+    "valid_time": {
+      "evidence_ids": [],
+      "missing_reason": "not supplied",
+      "value": null
+    }
+  },
+  "schema_version": "enterprise-reference-v1",
+  "stages": [
+    "synthetic.capture"
+  ],
+  "synthetic": true,
+  "units": [
+    {
+      "code": "synthetic.each",
+      "dictionary_id": "synthetic.enterprise",
+      "dictionary_version": "1",
+      "dimension": "synthetic.count"
+    }
+  ],
+  "valid_window": {
+    "end": "2100-01-01T00:00:00Z",
+    "start": "2000-01-01T00:00:00Z"
+  },
+  "version": "1"
+}
