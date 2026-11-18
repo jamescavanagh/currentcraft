@@ -154,7 +154,7 @@ class JetStreamBroker:
         self._pending.clear()
 
 
-async def connect_jetstream(servers=("nats://127.0.0.1:4222",), *, credentials=None, tls=None) -> JetStreamBroker:
+async def connect_jetstream(servers=("nats://127.0.0.1:4222",), *, credentials=None,token=None, tls=None) -> JetStreamBroker:
     """Runtime connection only. Provision streams separately with administrator credentials.
     tls may be an ssl.SSLContext; credentials is a nats credentials file path, never an envelope field.
     """
@@ -167,5 +167,10 @@ async def connect_jetstream(servers=("nats://127.0.0.1:4222",), *, credentials=N
         options["user_credentials"] = credentials
     if tls:
         options["tls"] = tls
+    if token is not None:
+        options["token"] = token
+
     connection = await nats.connect(**options)
+
+
     return JetStreamBroker(connection, connection.jetstream())
