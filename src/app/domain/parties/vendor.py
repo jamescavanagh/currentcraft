@@ -1,12 +1,11 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Vendor(ScaffoldRecord):
-    """Vendor party. Four subtype meanings exist; overlap policy unresolved."""
-
+class Vendor(VersionedEntity):
+    """Vendor classification of a party; no overlap policy imposed."""
     SOURCE_CLASS: ClassVar[str] = 'Vendor'
-    NOTE: ClassVar[str] = 'Vendor party. Four subtype meanings exist; overlap policy unresolved.'
+    kind: Literal["vendor"] = "vendor"
+    party_id: PartyId

@@ -1,0 +1,68 @@
+{
+  "$defs": {
+    "UnitRef": {
+      "additionalProperties": false,
+      "description": "Versioned reference to a unit in an explicitly selected dictionary.",
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Code",
+          "type": "string"
+        },
+        "dictionary_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Id",
+          "type": "string"
+        },
+        "dictionary_version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Version",
+          "type": "string"
+        },
+        "dimension": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dimension",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dictionary_id",
+        "dictionary_version",
+        "code",
+        "dimension"
+      ],
+      "title": "UnitRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Finite nonnegative Decimal and explicit unit; zero remains zero.",
+  "properties": {
+    "amount": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        }
+      ],
+      "title": "Amount"
+    },
+    "unit": {
+      "$ref": "#/$defs/UnitRef"
+    }
+  },
+  "required": [
+    "amount",
+    "unit"
+  ],
+  "title": "Quantity",
+  "type": "object"
+}

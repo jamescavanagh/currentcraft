@@ -103,7 +103,7 @@ Produced by `GraphTensorPort`. Output of GraphTensorPort.build(): PyTorch Geomet
 | `frame_id` | `str` | yes | Frame identity, pinned to its labeling round (e.g. synthetic-example). |
 | `inflow` | `float` | yes | Inflow the features describe. |
 | `edge_rule` | `Literal['knn', 'coupling']` | yes | How edges were chosen. |
-| `node_ids` | `tuple[str{1,120}$')], ...]` | yes | Node order for x rows and edge indices. |
+| `node_ids` | `tuple[str{1,120}$', ascii_only=None)], ...]` | yes | Node order for x rows and edge indices. |
 | `node_feature_names` | `tuple[str, ...]` | no (`('x', 'y', 'strength', 'abs_strength', 'sign', 'role_resource', 'role_process', 'role_operand', 'role_unassigned', 'speed', 'divergence', 'nearest_saddle_distance', 'basin_share')`) | Column order of x (F names). |
 | `edge_feature_names` | `tuple[str, ...]` | no (`('coupling', 'abs_coupling', 'distance', 'same_sign')`) | Column order of edge_attr (D names). |
 | `x` | `TensorRef` | yes | Ref to node features. |

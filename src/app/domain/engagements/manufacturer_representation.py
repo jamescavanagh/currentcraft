@@ -1,12 +1,13 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import ProjectId, PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class ManufacturerRep(ScaffoldRecord):
-    """Representation relationship between a manufacturer and a representative party."""
-
+class ManufacturerRep(VersionedEntity):
+    """Contextual representation, not identity inheritance."""
     SOURCE_CLASS: ClassVar[str] = 'ManufacturerRep'
-    NOTE: ClassVar[str] = 'Representation relationship between a manufacturer and a representative party.'
+    kind: Literal["manufacturer_rep"] = "manufacturer_rep"
+    representative_party_id: PartyId
+    manufacturer_party_id: PartyId
+    project_id: ProjectId

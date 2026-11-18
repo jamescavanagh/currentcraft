@@ -1,0 +1,62 @@
+{
+  "$defs": {
+    "CapabilityBinding": {
+      "additionalProperties": false,
+      "description": "A resource executing the process. Resources (people, teams, tools) appear only here.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the capability is evidenced; None means asserted, not evidenced.",
+          "title": "Evidence Ref"
+        },
+        "resource_id": {
+          "description": "Resource id; never an object id.",
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "resource_role": {
+          "description": "Role, not a person's name, in shared artifacts.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Resource Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "resource_role"
+      ],
+      "title": "CapabilityBinding",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Evidenced capability binding for a specific process type, never permission.",
+  "properties": {
+    "binding": {
+      "$ref": "#/$defs/CapabilityBinding"
+    },
+    "process_code": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Process Code",
+      "type": "string"
+    }
+  },
+  "required": [
+    "process_code",
+    "binding"
+  ],
+  "title": "CapabilityAssertion",
+  "type": "object"
+}

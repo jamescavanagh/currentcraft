@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "description": "Explicit project lifecycle phase to execution stage mapping.",
+  "properties": {
+    "phase_id": {
+      "format": "uuid",
+      "title": "Phase Id",
+      "type": "string"
+    },
+    "stage": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "phase_id",
+    "stage"
+  ],
+  "title": "StageMapping",
+  "type": "object"
+}

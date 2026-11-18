@@ -1,12 +1,12 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.shared.facts import Fact, unknown
+from app.domain.workforce.resource import Resource
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Employee(ScaffoldRecord):
-    """Employee resource. Distinct from Contributor, not a subtype of it; permissions unresolved."""
-
+class Employee(Resource):
+    """Employee resource; never a subtype of third-party Contributor."""
     SOURCE_CLASS: ClassVar[str] = 'Employee'
-    NOTE: ClassVar[str] = 'Employee resource. Distinct from Contributor, not a subtype of it; permissions unresolved.'
+    kind: Literal["employee"] = "employee"
+    employment_kind: Fact[Literal["full_time", "part_time", "temporary"]] = Field(default_factory=unknown)

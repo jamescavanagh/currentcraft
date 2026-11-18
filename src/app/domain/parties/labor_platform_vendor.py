@@ -1,12 +1,11 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class LaborPlatformVendor(ScaffoldRecord):
-    """Vendor subtype: platform through which labor is booked. Not the provider booked through it."""
-
+class LaborPlatformVendor(VersionedEntity):
+    """Platform; separate from the party providing booked labor. No overlap/exclusivity policy is imposed."""
     SOURCE_CLASS: ClassVar[str] = '(addition)'
-    NOTE: ClassVar[str] = 'Vendor subtype: platform through which labor is booked. Not the provider booked through it.'
+    kind: Literal["labor_platform_vendor"] = "labor_platform_vendor"
+    party_id: PartyId

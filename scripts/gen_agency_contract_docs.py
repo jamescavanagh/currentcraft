@@ -16,6 +16,13 @@ from app.application import messaging as MS  # noqa: E402
 from app.application import plate as PL  # noqa: E402
 from app.application import probe as PB  # noqa: E402
 from app.application import ingest as IG  # noqa: E402
+from app.application import enterprise as ENT
+from app.application.enterprise.contracts import ENTITY_TYPES
+from app.domain.shared.identity import ExternalReference
+from app.domain.shared.facts import TimeWindow
+from app.domain.shared.quantities import UnitRef, Quantity, SourceMoney
+from app.domain.versioning import VersionedEntity
+from app.domain.workforce.resource import Resource
 from app.application import process as PR  # noqa: E402
 from app.application import persistence as PS  # noqa: E402
 from app.application import splice as SP  # noqa: E402
@@ -63,7 +70,9 @@ def _type(ann) -> str:
 
 _g._type = _type
 OUT = ROOT / "docs" / "contracts"
-SLICES = (("Process-first domain", "domain/PROCESS_FIRST.md", PR.SCHEMA_VERSION, PR.CONTRACTS, ()),
+SLICES = (("Enterprise capture proposals", "domain/V1_DOMAIN.md", ENT.SCHEMA_VERSION,
+           ENT.CONTRACTS + ENTITY_TYPES + (ExternalReference, TimeWindow, UnitRef, Quantity, SourceMoney, VersionedEntity, Resource), ()),
+          ("Process-first domain", "domain/PROCESS_FIRST.md", PR.SCHEMA_VERSION, PR.CONTRACTS, ()),
           ("Plate and spatial isosceles", "pipelines/PLATE_ISOSCELES.md", PL.SCHEMA_VERSION, PL.CONTRACTS, PL.TENSOR_CONTRACTS),
           ("Messaging", "architecture/MESSAGE_BROKER.md", MS.SCHEMA_VERSION, MS.CONTRACTS, ()),
           ("Embedding enrichment", "pipelines/EMBEDDING_ENRICHMENT.md", EN.SCHEMA_VERSION, EN.CONTRACTS, EN.TENSOR_CONTRACTS),

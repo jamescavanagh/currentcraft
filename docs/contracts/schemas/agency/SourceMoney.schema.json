@@ -1,0 +1,68 @@
+{
+  "$defs": {
+    "Fact_Annotated_str__StringConstraints__": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Source money text with available context. No parsing or formatting.",
+  "properties": {
+    "context": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    },
+    "currency": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    },
+    "text": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "SourceMoney",
+  "type": "object"
+}

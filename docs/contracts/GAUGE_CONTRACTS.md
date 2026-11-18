@@ -49,7 +49,7 @@ Produced by `GaugeReductionPort`. Output of GaugeReductionPort.reduce(): operand
 | `embeddings_sha256` | `str` | yes | SHA-256 of the embeddings tensor that was reduced. |
 | `director_mode` | `Literal['principal_axis', 'supply_demand']` | yes | Director used. |
 | `charge_quantum` | `Literal[0.5, 1.0]` | yes | 0.5 for axis directors, 1.0 for vector directors. |
-| `node_ids` | `tuple[str{1,120}$')], ...]` | yes | Row order of every node tensor. |
+| `node_ids` | `tuple[str{1,120}$', ascii_only=None)], ...]` | yes | Row order of every node tensor. |
 | `node_feature_names` | `tuple[str, ...]` | no (`('planarity', 'anisotropy', 'log_density_ratio', 'supersaturated', 'link_coherence', 'coherence_vs_global', 'net_holonomy', 'defect_load', 'z2_defects', 'degree')`) | Column order of node_gauges. |
 | `n_valid` | `int` | yes | Nodes with node_mask True. |
 | `n_links` | `int` | yes | E: kept links. |
@@ -119,7 +119,7 @@ Produced by `GeodesicProbePort`. Multiscale transported readings and local pertu
 | `result_kind` | `Literal['embedding_geometry']` | no (`'embedding_geometry'`) | Research readout, never an operational forecast or recovered semantic truth. |
 | `request_digest` | `str` | yes | Digest of complete probe request. |
 | `embeddings_sha256` | `str` | yes | Input embedding digest. |
-| `focal_ids` | `tuple[str{1,120}$')], ...]` | yes | P: focal row order. |
+| `focal_ids` | `tuple[str{1,120}$', ascii_only=None)], ...]` | yes | P: focal row order. |
 | `radii` | `tuple[float)], ...]` | yes | S: radii used. |
 | `epsilon` | `tuple[float)], ...]` | yes | H: local perturbation amplitudes. |
 | `feature_names` | `tuple[str, ...]` | no (`('transport_alignment', 'transport_coherence', 'transport_phase_abs', 'mean_path_length', 'curvature_load', 'defect_load')`) | Last axis of descriptor and response_rms. |
@@ -143,7 +143,7 @@ One operand/resource/process record whose reduced embedding row is measured.
 | `id` | `str` | yes | Stable node id; rows of the embeddings tensor follow request.nodes order. |
 | `role` | `NodeRole (resource / process / operand / unassigned)` | no (`'unassigned'`) | Resource/Process/Operand role (simulation NodeRole). |
 | `flow` | `FlowSide (supply / demand / neutral)` | no (`'neutral'`) | Supply/demand side; drives the proposed supply_demand director. |
-| `stage` | `Optional[str{1,80}$')]]` | no | Process stage the record belongs to, if known. |
+| `stage` | `Optional[str{1,80}$', ascii_only=None)]]` | no | Process stage the record belongs to, if known. |
 | `label` | `Optional[str]` | no | Human label, e.g. record text. |
 | `source_ref` | `Optional[str]` | no | Provenance: record id/version or citation. |
 
@@ -180,7 +180,7 @@ A closed cycle of node ids (last connects back to first) whose winding is measur
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | `str` | yes | Loop id. |
-| `node_ids` | `tuple[str{1,120}$')], ...]` | yes | Cycle in order; consecutive nodes must be linked. |
+| `node_ids` | `tuple[str{1,120}$', ascii_only=None)], ...]` | yes | Cycle in order; consecutive nodes must be linked. |
 
 ### `GaugeRequest`
 
@@ -291,7 +291,7 @@ Read node interactions over shortest graph paths; perturb a focal node's own emb
 | --- | --- | --- | --- |
 | `schema_version` | `Literal['datamesh-geodesic/v1']` | no (`'datamesh-geodesic/v1'`) | Version of this additive probe contract. |
 | `source` | `GaugeRequest` | yes | Existing gauge request, including embedding refs and provenance. |
-| `focal_ids` | `tuple[str{1,120}$')], ...]` | yes | Focal operands to probe, explicit rather than auto-selected on labels. |
+| `focal_ids` | `tuple[str{1,120}$', ascii_only=None)], ...]` | yes | Focal operands to probe, explicit rather than auto-selected on labels. |
 | `radii` | `tuple[float)], ...]` | no (`(1.5, 3.0, 5.0)`) | Geodesic ball radii in units of median nearest-neighbour distance; cumulative balls, excluding focal node. |
 | `epsilon` | `tuple[float)], ...]` | no (`(0.01, 0.05)`) | Embedding displacement as fraction of focal mean kNN distance. Each local tangent axis is tested with both signs. |
 | `minimum_neighbors` | `int` | no (`3`) | Minimum reachable neighbours for a valid ball descriptor. |

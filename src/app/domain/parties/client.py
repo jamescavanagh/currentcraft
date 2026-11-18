@@ -1,12 +1,11 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Client(ScaffoldRecord):
-    """Client party; may hold scope outside the delivering organization."""
-
+class Client(VersionedEntity):
+    """Client classification of a party; no inferred rights."""
     SOURCE_CLASS: ClassVar[str] = 'Client'
-    NOTE: ClassVar[str] = 'Client party; may hold scope outside the delivering organization.'
+    kind: Literal["client"] = "client"
+    party_id: PartyId
