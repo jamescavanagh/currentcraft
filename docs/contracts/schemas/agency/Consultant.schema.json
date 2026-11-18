@@ -26,6 +26,44 @@
     },
     "Fact_Annotated_str__StringConstraints__": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
       "properties": {
         "evidence_ids": {
           "default": [],
@@ -133,6 +171,9 @@
       "default": "enterprise-v1",
       "title": "Schema Version",
       "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
     }
   },
   "required": [

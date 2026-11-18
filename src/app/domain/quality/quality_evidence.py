@@ -1,7 +1,7 @@
 """Canonical domain evidence record. Design: docs/domain/V1_DOMAIN.md."""
 from datetime import datetime
 from typing import ClassVar, Literal
-from pydantic import Field, model_validator
+from pydantic import Field, model_validator, ConfigDict
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, TimeWindow, unknown
 from app.domain.shared.identity import Text
@@ -10,6 +10,11 @@ from app.domain.shared.identity import Text
 class QualityEvidence(VersionedEntity):
     """Source assertion and time provenance; never implicit human authority."""
     SOURCE_CLASS: ClassVar[str] = 'QualityEvidence'
+    model_config = ConfigDict(frozen=True, extra="forbid", validate_default=True,
+        json_schema_extra={"allOf": [{"if": {"properties": {"source_sha256": {"type": "null"}},
+            "required": ["source_sha256"]}, "then": {"required": ["source_sha256_missing_reason"],
+            "properties": {"source_sha256_missing_reason": {"type": "string", "minLength": 1}}},
+            "else": {"properties": {"source_sha256_missing_reason": {"type": "null"}}}}]})
     kind: Literal["quality_evidence"] = "quality_evidence"
     source: Text
     source_version: Text

@@ -1,5 +1,7 @@
 # V1 enterprise slice
 
+P0–P3 extensions, synthetic acceptance examples and unresolved decisions are recorded in [P0_P3_CAPTURE.md](P0_P3_CAPTURE.md); the 84-row phase inventory is [PHASE_TRACEABILITY.json](PHASE_TRACEABILITY.json). These capture additions do not change the unapproved operational policies below.
+
 Status: implementation proposal for review, not an accepted operating policy.
 Patch base: `2a6dbfd64745f78a727a3af76c1157de2d869857` (0.9.9).
 

@@ -4,6 +4,7 @@ from pydantic import Field
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, unknown
 from app.domain.shared.identity import Text, ProjectId
+from uuid import UUID
 
 
 class Subsystem(VersionedEntity):
@@ -12,3 +13,4 @@ class Subsystem(VersionedEntity):
     kind: Literal["subsystem"] = "subsystem"
     project_id: ProjectId
     name: Fact[Text] = Field(default_factory=unknown)
+    system_id: Fact[UUID] = Field(default_factory=unknown)

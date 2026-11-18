@@ -26,6 +26,44 @@
     },
     "Fact_Annotated_str__StringConstraints__": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
       "properties": {
         "evidence_ids": {
           "default": [],
@@ -69,6 +107,89 @@
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
+    },
+    "Fact_NewType_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[NewType]",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -111,6 +232,12 @@
       "default": "wbs",
       "title": "Kind",
       "type": "string"
+    },
+    "parent_wbs_id": {
+      "$ref": "#/$defs/Fact_NewType_"
+    },
+    "phase_id": {
+      "$ref": "#/$defs/Fact_NewType_"
     },
     "project_id": {
       "format": "uuid",

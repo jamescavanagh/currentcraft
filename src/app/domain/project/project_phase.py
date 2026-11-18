@@ -4,6 +4,7 @@ from pydantic import Field
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, unknown
 from app.domain.shared.identity import Text, ProjectId
+from app.domain.shared.facts import TimeWindow
 
 
 class Phase(VersionedEntity):
@@ -12,3 +13,5 @@ class Phase(VersionedEntity):
     kind: Literal["phase"] = "phase"
     project_id: ProjectId
     name: Fact[Text] = Field(default_factory=unknown)
+    baseline_window: Fact[TimeWindow] = Field(default_factory=unknown)
+    actual_window: Fact[TimeWindow] = Field(default_factory=unknown)

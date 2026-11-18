@@ -1,12 +1,12 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""Organization classification of an existing party; no hard-coded company."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Organization(ScaffoldRecord):
-    """Definition pending review."""
+class Organization(VersionedEntity):
+    """A party classified as an organization; classification grants no rights."""
 
     SOURCE_CLASS: ClassVar[str] = 'Organization'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["organization"] = "organization"
+    party_id: PartyId

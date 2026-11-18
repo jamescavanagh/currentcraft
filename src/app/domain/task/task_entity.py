@@ -4,6 +4,9 @@ from pydantic import Field
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, unknown
 from app.domain.shared.identity import Text, ProjectId, PhaseId, SubsystemId, WBSId
+from app.domain.shared.facts import TimeWindow
+from app.domain.shared.quantities import Quantity
+from uuid import UUID
 
 
 class Task(VersionedEntity):
@@ -15,3 +18,7 @@ class Task(VersionedEntity):
     subsystem_id: Fact[SubsystemId] = Field(default_factory=unknown)
     phase_id: Fact[PhaseId] = Field(default_factory=unknown)
     wbs_id: Fact[WBSId] = Field(default_factory=unknown)
+    location_id: Fact[UUID] = Field(default_factory=unknown)
+    baseline_window: Fact[TimeWindow] = Field(default_factory=unknown)
+    actual_window: Fact[TimeWindow] = Field(default_factory=unknown)
+    estimated_effort: Fact[Quantity] = Field(default_factory=unknown)

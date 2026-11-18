@@ -1,12 +1,15 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""Project location capture; design: docs/domain/P0_P3_CAPTURE.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import ProjectId, Text
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Location(ScaffoldRecord):
-    """Definition pending review."""
+class Location(VersionedEntity):
+    """Explicit project-scoped location; no inferred physical hierarchy."""
 
     SOURCE_CLASS: ClassVar[str] = 'Location'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["location"] = "location"
+    project_id: ProjectId
+    source_label: Fact[Text] = Field(default_factory=unknown)

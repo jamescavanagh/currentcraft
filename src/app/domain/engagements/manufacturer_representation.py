@@ -2,6 +2,9 @@
 from typing import ClassVar, Literal
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.identity import ProjectId, PartyId
+from app.domain.shared.facts import Fact, unknown, TimeWindow
+from pydantic import Field
+from app.domain.shared.identity import Text
 
 
 class ManufacturerRep(VersionedEntity):
@@ -11,3 +14,6 @@ class ManufacturerRep(VersionedEntity):
     representative_party_id: PartyId
     manufacturer_party_id: PartyId
     project_id: ProjectId
+    territory: Fact[Text] = Field(default_factory=unknown)
+    agreement_window: Fact[TimeWindow] = Field(default_factory=unknown)
+    contact: Fact[Text] = Field(default_factory=unknown)

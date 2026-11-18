@@ -13,3 +13,4 @@ class Consultant(VersionedEntity):
     party_id: PartyId
     project_id: ProjectId
     role: Fact[Text] = Field(default_factory=unknown)
+    scope: Fact[Text] = Field(default_factory=unknown)

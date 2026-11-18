@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "ExternalReference": {
+      "additionalProperties": false,
+      "description": "Source namespace plus source key; neither becomes internal identity.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Key",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Namespace",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "key"
+      ],
+      "title": "ExternalReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A maker party; representation remains a separate contextual record.",
+  "properties": {
+    "definition_status": {
+      "const": "v1-proposal",
+      "default": "v1-proposal",
+      "title": "Definition Status",
+      "type": "string"
+    },
+    "entity_id": {
+      "description": "Required opaque internal identity.",
+      "format": "uuid",
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "external_refs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExternalReference"
+      },
+      "title": "External Refs",
+      "type": "array"
+    },
+    "kind": {
+      "const": "manufacturer",
+      "default": "manufacturer",
+      "title": "Kind",
+      "type": "string"
+    },
+    "party_id": {
+      "format": "uuid",
+      "title": "Party Id",
+      "type": "string"
+    },
+    "record_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Record Version",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "enterprise-v1",
+      "default": "enterprise-v1",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_id",
+    "party_id"
+  ],
+  "title": "Manufacturer",
+  "type": "object"
+}

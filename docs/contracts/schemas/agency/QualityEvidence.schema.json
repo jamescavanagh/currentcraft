@@ -26,6 +26,44 @@
     },
     "Fact_TimeWindow_": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
       "properties": {
         "evidence_ids": {
           "default": [],
@@ -91,6 +129,38 @@
     }
   },
   "additionalProperties": false,
+  "allOf": [
+    {
+      "else": {
+        "properties": {
+          "source_sha256_missing_reason": {
+            "type": "null"
+          }
+        }
+      },
+      "if": {
+        "properties": {
+          "source_sha256": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "source_sha256"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source_sha256_missing_reason": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_sha256_missing_reason"
+        ]
+      }
+    }
+  ],
   "description": "Source assertion and time provenance; never implicit human authority.",
   "properties": {
     "definition_status": {

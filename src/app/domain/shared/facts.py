@@ -9,7 +9,12 @@ T = TypeVar("T")
 
 class Fact(BaseModel, Generic[T]):
     """A typed source assertion; missing does not mean zero, false or empty."""
-    model_config = ConfigDict(frozen=True, extra="forbid", validate_default=True)
+    model_config = ConfigDict(frozen=True, extra="forbid", validate_default=True,
+        json_schema_extra={"allOf": [{"if": {"properties": {"value": {"type": "null"}},
+            "required": ["value"]}, "then": {"required": ["missing_reason"],
+            "properties": {"missing_reason": {"type": "string", "minLength": 1}}},
+            "else": {"required": ["evidence_ids"],
+            "properties": {"evidence_ids": {"minItems": 1}, "missing_reason": {"type": "null"}}}}]})
     value: T | None
     missing_reason: Text | None = None
     evidence_ids: tuple[EvidenceId, ...] = ()

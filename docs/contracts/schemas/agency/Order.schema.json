@@ -24,8 +24,218 @@
       "title": "ExternalReference",
       "type": "object"
     },
+    "Fact_Annotated_str__StringConstraints__": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    },
+    "Fact_Literal__sales_order____purchase_order____change_order____other___": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "sales_order",
+                "purchase_order",
+                "change_order",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Literal['sales_order', 'purchase_order', 'change_order', 'other']]",
+      "type": "object"
+    },
     "Fact_NewType_": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
       "properties": {
         "evidence_ids": {
           "default": [],
@@ -68,11 +278,97 @@
       ],
       "title": "Fact[NewType]",
       "type": "object"
+    },
+    "Fact_UUID_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[UUID]",
+      "type": "object"
     }
   },
   "additionalProperties": false,
   "description": "Commercial order identity, separate from supporting documents.",
   "properties": {
+    "contract_id": {
+      "$ref": "#/$defs/Fact_UUID_"
+    },
     "counterparty_id": {
       "$ref": "#/$defs/Fact_NewType_"
     },
@@ -120,6 +416,9 @@
       "title": "Kind",
       "type": "string"
     },
+    "order_type": {
+      "$ref": "#/$defs/Fact_Literal__sales_order____purchase_order____change_order____other___"
+    },
     "project_id": {
       "format": "uuid",
       "title": "Project Id",
@@ -136,6 +435,9 @@
       "default": "enterprise-v1",
       "title": "Schema Version",
       "type": "string"
+    },
+    "source_order_identifier": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
     }
   },
   "required": [

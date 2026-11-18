@@ -31,6 +31,8 @@ from app.domain.engagements.stakeholder_relationship import Stakeholder
 from app.domain.engagements.consulting_engagement import Consultant
 from app.domain.engagements.manufacturer_representation import ManufacturerRep
 from app.domain.logistics.shipment import ShipmentLine
+from app.domain.document.revision import Revision
+from app.domain.reference.reference_value import ReferenceValue
 
 
 def fact(value):
@@ -175,3 +177,22 @@ class ValueContracts(unittest.TestCase):
         for raw in ({"entity_id": uuid4(), "record_version": 0}, {"entity_id": uuid4(), "extra_field": True}):
             with self.assertRaises(ValidationError):
                 Project(**raw)
+
+    def test_revision_and_reference_self_supersession_rejected(self):
+        identity = uuid4()
+        with self.assertRaises(ValidationError):
+            Revision(entity_id=identity, project_id=uuid4(), document_id=uuid4(),
+                     supersedes_id=fact(identity))
+        with self.assertRaises(ValidationError):
+            ReferenceValue(entity_id=identity, reference_set_id=uuid4(),
+                           code=fact("synthetic.code"), superseded_by_id=fact(identity))
+
+    def test_schema_and_python_reject_missingness(self):
+        from jsonschema import Draft202012Validator
+        validator = Draft202012Validator(Fact[int].model_json_schema())
+        for value in ({"value": None}, {"value": 1, "evidence_ids": []},
+                      {"value": 1, "missing_reason": "unknown", "evidence_ids": [str(uuid4())]}):
+            with self.subTest(value=value):
+                self.assertFalse(validator.is_valid(value))
+                with self.assertRaises(ValidationError):
+                    Fact[int].model_validate(value)

@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "ExternalReference": {
+      "additionalProperties": false,
+      "description": "Source namespace plus source key; neither becomes internal identity.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Key",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Namespace",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "key"
+      ],
+      "title": "ExternalReference",
+      "type": "object"
+    },
+    "Fact_Annotated_str__StringConstraints__": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "missing_reason": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "evidence_ids"
+            ]
+          },
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "then": {
+            "properties": {
+              "missing_reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "missing_reason"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Review request or finding, distinct from an authorized decision.",
+  "properties": {
+    "definition_status": {
+      "const": "v1-proposal",
+      "default": "v1-proposal",
+      "title": "Definition Status",
+      "type": "string"
+    },
+    "entity_id": {
+      "description": "Required opaque internal identity.",
+      "format": "uuid",
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "external_refs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExternalReference"
+      },
+      "title": "External Refs",
+      "type": "array"
+    },
+    "finding": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    },
+    "kind": {
+      "const": "review_item",
+      "default": "review_item",
+      "title": "Kind",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "record_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Record Version",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "enterprise-v1",
+      "default": "enterprise-v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task_id": {
+      "format": "uuid",
+      "title": "Task Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_id",
+    "project_id",
+    "task_id"
+  ],
+  "title": "ReviewItem",
+  "type": "object"
+}

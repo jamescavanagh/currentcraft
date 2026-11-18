@@ -1,12 +1,16 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""Task-linked review capture; no implied release or approval authority."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import ProjectId, TaskId, Text
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class ReviewItem(ScaffoldRecord):
-    """Definition pending review."""
+class ReviewItem(VersionedEntity):
+    """Review request or finding, distinct from an authorized decision."""
 
     SOURCE_CLASS: ClassVar[str] = 'ReviewItem'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["review_item"] = "review_item"
+    project_id: ProjectId
+    task_id: TaskId
+    finding: Fact[Text] = Field(default_factory=unknown)

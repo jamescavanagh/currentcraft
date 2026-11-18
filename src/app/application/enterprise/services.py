@@ -13,7 +13,8 @@ from app.domain.shared.quantities import Quantity
 from app.domain.workforce.resource import Resource
 from .contracts import (EnterpriseSnapshot, ReferenceDictionary, Project, Phase, WBS,
     Subsystem, Task, ProductDefinition, AssetInstance, Document, BOM, Shipment,
-    ShipmentLine, QualityEvidence, Party)
+    ShipmentLine, QualityEvidence, Party, Contract, Revision, System, Location,
+    ReferenceSet, ReferenceValue, WorkItem, ReviewItem, Client)
 
 
 class ReferenceError(ValueError):
@@ -75,7 +76,11 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
     # Direct links, including optional Fact-valued links, have explicit endpoint types.
     endpoints = {"project_id": Project, "party_id": Party, "provider_party_id": Party,
         "manufacturer_party_id": Party, "representative_party_id": Party,
-        "counterparty_id": Party, "product_definition_id": ProductDefinition,
+        "counterparty_id": Party, "client_id": Client,
+        "product_definition_id": ProductDefinition, "reference_set_id": ReferenceSet,
+        "superseded_by_id": ReferenceValue, "contract_id": Contract,
+        "document_id": Document, "supersedes_id": Revision,
+        "system_id": System, "parent_wbs_id": WBS, "location_id": Location,
         "subsystem_id": Subsystem, "phase_id": Phase, "wbs_id": WBS,
         "bom_id": BOM, "shipment_id": Shipment, "asset_id": AssetInstance,
         "resource_id": Resource, "task_id": Task}
@@ -98,6 +103,19 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
             document = resolve(did, Document)
             if document.project_id != record.project_id:
                 raise ReferenceError("cross-project order/document link")
+        for did in getattr(record, "scope_document_ids", ()):
+            document = resolve(did, Document)
+            if document.project_id != record.project_id:
+                raise ReferenceError("cross-project contract/document link")
+        if isinstance(record, ReferenceSet):
+            if (record.dictionary_id, record.dictionary_version) != (dictionary.dictionary_id, dictionary.version):
+                raise ReferenceError("reference set does not match selected dictionary/version")
+        if isinstance(record, ReferenceValue) and record.superseded_by_id.value is not None:
+            if resolve(record.superseded_by_id.value, ReferenceValue).reference_set_id != record.reference_set_id:
+                raise ReferenceError("reference supersession crosses reference sets")
+        if isinstance(record, Revision) and record.supersedes_id.value is not None:
+            if resolve(record.supersedes_id.value, Revision).document_id != record.document_id:
+                raise ReferenceError("revision supersession crosses documents")
         for iid in getattr(record, "impact_ids", ()):
             target = resolve(iid)
             if hasattr(target, "project_id") and target.project_id != record.project_id:
@@ -109,6 +127,25 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
         if isinstance(record, ShipmentLine) and record.asset_id.value is not None:
             if resolve(record.asset_id.value, AssetInstance).project_id != resolve(record.shipment_id, Shipment).project_id:
                 raise ReferenceError("shipment asset belongs to another project")
+
+    values = [(r.reference_set_id, r.code.value) for r in snapshot.records
+              if isinstance(r, ReferenceValue) and r.code.value is not None]
+    if len(values) != len(set(values)):
+        raise ReferenceError("duplicate reference code in one set")
+
+    for cls, field in ((Revision, "supersedes_id"), (WBS, "parent_wbs_id"),
+                       (ReferenceValue, "superseded_by_id")):
+        for record in snapshot.records:
+            if not isinstance(record, cls):
+                continue
+            visited = set()
+            current = record
+            while current is not None:
+                if current.entity_id in visited:
+                    raise ReferenceError(f"cycle in {cls.__name__} relationships")
+                visited.add(current.entity_id)
+                parent = getattr(current, field).value
+                current = resolve(parent, cls) if parent is not None else None
 
     mappings = {}
     for mapping in snapshot.stage_mappings:
