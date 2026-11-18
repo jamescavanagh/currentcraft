@@ -15,10 +15,15 @@ classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Pytho
 pdf = ["pypdf>=4,<7"]
 postgres = ["psycopg[binary]>=3.2,<4"]
 nats = ["nats-py[nkeys]>=2.9,<3"]
+api = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+    "python-multipart>=0.0.18,<1",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["app", "app.domain*", "app.application", "app.application.gauge*", "app.application.simulation*", "app.application.process*", "app.application.plate*", "app.application.messaging*", "app.application.enrichment*", "app.application.probe*", "app.application.ingest*", "app.application.persistence*", "app.infrastructure", "app.infrastructure.gauge*", "app.infrastructure.tensors*", "app.infrastructure.plate*", "app.infrastructure.messaging*", "app.infrastructure.enrichment*", "app.infrastructure.probe*", "app.infrastructure.ingest*", "app.infrastructure.persistence*", "app.application.common*","app.application.hfgt*","app.infrastructure.hfgt*",]
+include = ["app", "app.domain*", "app.application", "app.application.gauge*", "app.application.simulation*", "app.application.process*", "app.application.plate*", "app.application.messaging*", "app.application.enrichment*", "app.application.probe*", "app.application.ingest*", "app.application.persistence*", "app.infrastructure", "app.infrastructure.gauge*", "app.infrastructure.tensors*", "app.infrastructure.plate*", "app.infrastructure.messaging*", "app.infrastructure.enrichment*", "app.infrastructure.probe*", "app.infrastructure.ingest*", "app.infrastructure.persistence*", "app.application.common*","app.application.hfgt*","app.infrastructure.hfgt*","app.interfaces*"]
 namespaces = false
 
 [tool.setuptools]

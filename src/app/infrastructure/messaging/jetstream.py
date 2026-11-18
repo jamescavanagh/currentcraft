@@ -154,10 +154,20 @@ class JetStreamBroker:
         self._pending.clear()
 
 
-async def connect_jetstream(servers=("nats://127.0.0.1:4222",), *, credentials=None, tls=None) -> JetStreamBroker:
+async def connect_jetstream(
+    servers=("nats://127.0.0.1:4222",),
+    *,
+    credentials=None,
+    tls=None,
+    token=None,
+) -> JetStreamBroker:
     """Runtime connection only. Provision streams separately with administrator credentials.
     tls may be an ssl.SSLContext; credentials is a nats credentials file path, never an envelope field.
     """
+    if token is not None and credentials is not None:
+        raise ValueError(
+            "Cannot configure both token and credentials-file authentication simultaneously."
+        )
     try:
         import nats
     except ImportError as exc:
@@ -167,5 +177,8 @@ async def connect_jetstream(servers=("nats://127.0.0.1:4222",), *, credentials=N
         options["user_credentials"] = credentials
     if tls:
         options["tls"] = tls
+    if token is not None:
+        options["token"] = token
+
     connection = await nats.connect(**options)
     return JetStreamBroker(connection, connection.jetstream())
