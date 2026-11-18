@@ -14,7 +14,7 @@ class VersionedEntity(ScaffoldRecord):
     NOTE: ClassVar[str] = "Implemented capture; semantics require review. See V1_DOMAIN.md."
     entity_id: UUID = Field(description="Required opaque internal identity.")
     definition_status: Literal["v1-proposal"] = "v1-proposal"
-    schema_version: Literal["enterprise-v1"] = "enterprise-v1"
+    schema_version: Literal["enterprise-v1.1"] = "enterprise-v1.1"
     record_version: int = Field(default=1, ge=1, strict=True)
     external_refs: tuple[ExternalReference, ...] = ()
     evidence_ids: tuple[EvidenceId, ...] = ()

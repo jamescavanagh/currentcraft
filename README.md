@@ -11,13 +11,15 @@ Currentcraft is an open-source cyber-physical data mesh and event-driven state t
 
 Currentcraft enforces strict dependency boundaries across four layers (verified via AST layering tests in `tests/test_http_layering.py`):
 
-* **`src/app/domain/`** — Pure domain entities, immutable versioning contracts, and topological invariants. Zero external framework, driver, or numerical library imports.
+* **`src/app/domain/`** — Pure domain entities, immutable versioning contracts, and topological invariants. Pydantic v2 is approved for deterministic validation and typed contracts. HTTP frameworks, drivers, I/O and numerical runtime imports remain outside domain.
 * **`src/app/application/`** — Use-case orchestration across `ingest`, `persistence`, `messaging`, `enrichment`, `probe`, `plate`, `splice`, `process`, `gauge`, `simulation`, and `hfgt`.
 * **`src/app/infrastructure/`** — Outbound adapters for PostgreSQL (`psycopg`), NATS JetStream (`nats-py`), tensor/manifold operations, and runtime execution.
 * **`src/app/interfaces/http/`** — Inbound FastAPI HTTP shell (`app.py`, `wiring.py`, `settings.py`, `security.py`, `errors.py`, `schemas.py`, `routes/`). Only `app.interfaces.http.wiring` may import from `app.infrastructure`.
 
 Key documentation and contracts:
 * [Documentation Index](docs/README.md)
+* [Approved Pydantic domain boundary](docs/architecture/DOMAIN_BOUNDARY.md)
+* [Enterprise V1.1 review corrections](docs/domain/V1_REVIEW_CORRECTIONS.md)
 * [HTTP API Architecture (`0.9.9` Shell)](docs/architecture/HTTP_API.md)
 * [Generated OpenAPI Contract](docs/contracts/OPENAPI.json)
 * [Security Policy](SECURITY.md) & [Data Policy](DATA_POLICY.md)

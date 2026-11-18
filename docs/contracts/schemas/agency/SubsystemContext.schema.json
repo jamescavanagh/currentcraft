@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "description": "Subsystem within an explicitly asserted project, checked at the application boundary.",
+  "properties": {
+    "kind": {
+      "const": "subsystem",
+      "default": "subsystem",
+      "title": "Kind",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "subsystem_id": {
+      "format": "uuid",
+      "title": "Subsystem Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id",
+    "subsystem_id"
+  ],
+  "title": "SubsystemContext",
+  "type": "object"
+}

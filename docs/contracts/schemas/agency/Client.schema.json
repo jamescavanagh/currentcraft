@@ -75,8 +75,8 @@
       "type": "integer"
     },
     "schema_version": {
-      "const": "enterprise-v1",
-      "default": "enterprise-v1",
+      "const": "enterprise-v1.1",
+      "default": "enterprise-v1.1",
       "title": "Schema Version",
       "type": "string"
     }

@@ -55,8 +55,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -135,8 +135,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -251,8 +251,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -326,8 +326,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -396,8 +396,8 @@
           "type": "string"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -531,8 +531,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -548,6 +548,33 @@
       "additionalProperties": false,
       "description": "Consulting engagement; approvals require explicit scoped human authority.",
       "properties": {
+        "approval_claim_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Approval Claim Ids",
+          "type": "array"
+        },
+        "context": {
+          "discriminator": {
+            "mapping": {
+              "project": "#/$defs/ProjectContext",
+              "subsystem": "#/$defs/SubsystemContext"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ProjectContext"
+            },
+            {
+              "$ref": "#/$defs/SubsystemContext"
+            }
+          ],
+          "title": "Context"
+        },
         "definition_status": {
           "const": "v1-proposal",
           "default": "v1-proposal",
@@ -588,11 +615,6 @@
           "title": "Party Id",
           "type": "string"
         },
-        "project_id": {
-          "format": "uuid",
-          "title": "Project Id",
-          "type": "string"
-        },
         "record_version": {
           "default": 1,
           "minimum": 1,
@@ -603,8 +625,8 @@
           "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -612,9 +634,118 @@
       "required": [
         "entity_id",
         "party_id",
-        "project_id"
+        "context"
       ],
       "title": "Consultant",
+      "type": "object"
+    },
+    "ConsultantApprovalClaim": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "authority": {
+                  "properties": {
+                    "evidence_ref": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "authority_evidence_missing_reason": {
+                  "pattern": "\\S",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "properties": {
+                "authority": {
+                  "properties": {
+                    "evidence_ref": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "evidence_ref"
+                  ]
+                },
+                "authority_evidence_missing_reason": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "authority_evidence_missing_reason"
+              ]
+            }
+          ]
+        }
+      ],
+      "description": "Captured claim, always unverified; canonical AuthorityRef is not a verified grant.",
+      "properties": {
+        "authority": {
+          "$ref": "#/$defs/AuthorityRef"
+        },
+        "authority_evidence_missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "not supplied",
+          "title": "Authority Evidence Missing Reason"
+        },
+        "claim_id": {
+          "format": "uuid",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "context": {
+          "discriminator": {
+            "mapping": {
+              "project": "#/$defs/ProjectContext",
+              "subsystem": "#/$defs/SubsystemContext"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ProjectContext"
+            },
+            {
+              "$ref": "#/$defs/SubsystemContext"
+            }
+          ],
+          "title": "Context"
+        },
+        "engagement_id": {
+          "format": "uuid",
+          "title": "Engagement Id",
+          "type": "string"
+        },
+        "executor_id": {
+          "$ref": "#/$defs/Fact_NewType_"
+        },
+        "verification": {
+          "const": "unverified_claim",
+          "default": "unverified_claim",
+          "title": "Verification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim_id",
+        "engagement_id",
+        "context",
+        "authority"
+      ],
+      "title": "ConsultantApprovalClaim",
       "type": "object"
     },
     "Contributor": {
@@ -672,8 +803,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -682,6 +813,48 @@
         "entity_id"
       ],
       "title": "Contributor",
+      "type": "object"
+    },
+    "DateBounds": {
+      "additionalProperties": false,
+      "description": "Proposed agreement-date encoding; either bound can be explicitly unknown.",
+      "properties": {
+        "ends_on": {
+          "$ref": "#/$defs/Fact_date_"
+        },
+        "starts_on": {
+          "$ref": "#/$defs/Fact_date_"
+        }
+      },
+      "title": "DateBounds",
+      "type": "object"
+    },
+    "Derivation": {
+      "additionalProperties": false,
+      "description": "Explicit input-to-conclusion assertion; method locator is data, not executable code.",
+      "properties": {
+        "input_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Input Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "method_ref": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Method Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method_ref",
+        "input_evidence_ids"
+      ],
+      "title": "Derivation",
       "type": "object"
     },
     "Document": {
@@ -738,8 +911,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -812,8 +985,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -882,7 +1055,68 @@
     },
     "Fact_Annotated_str__StringConstraints__": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -890,7 +1124,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -921,14 +1156,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
     },
     "Fact_Literal__full_time____part_time____temporary___": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -936,7 +1233,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -970,14 +1268,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Literal['full_time', 'part_time', 'temporary']]",
       "type": "object"
     },
-    "Fact_Literal__rom____material_list____po___": {
+    "Fact_Literal__individual____firm___": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -985,7 +1345,119 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "individual",
+                "firm"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[Literal['individual', 'firm']]",
+      "type": "object"
+    },
+    "Fact_Literal__rom____material_list____po___": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -1019,14 +1491,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Literal['rom', 'material_list', 'po']]",
       "type": "object"
     },
     "Fact_NewType_": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -1034,7 +1568,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -1064,14 +1599,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[NewType]",
       "type": "object"
     },
     "Fact_Quantity_": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -1079,7 +1676,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -1107,14 +1705,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Quantity]",
       "type": "object"
     },
     "Fact_TimeWindow_": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -1122,7 +1782,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -1150,14 +1811,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[TimeWindow]",
       "type": "object"
     },
     "Fact_bool_": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -1165,7 +1888,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -1194,9 +1918,229 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[bool]",
+      "type": "object"
+    },
+    "Fact_date_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[date]",
+      "type": "object"
+    },
+    "Fact_tuple_NewType__________": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[tuple[NewType, ...]]",
       "type": "object"
     },
     "LaborPlatformVendor": {
@@ -1250,8 +2194,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -1267,6 +2211,12 @@
       "additionalProperties": false,
       "description": "Contextual representation, not identity inheritance.",
       "properties": {
+        "agreement_dates": {
+          "$ref": "#/$defs/DateBounds"
+        },
+        "contact_party_ids": {
+          "$ref": "#/$defs/Fact_tuple_NewType__________"
+        },
         "definition_status": {
           "const": "v1-proposal",
           "default": "v1-proposal",
@@ -1308,9 +2258,7 @@
           "type": "string"
         },
         "project_id": {
-          "format": "uuid",
-          "title": "Project Id",
-          "type": "string"
+          "$ref": "#/$defs/Fact_NewType_"
         },
         "record_version": {
           "default": 1,
@@ -1324,17 +2272,19 @@
           "type": "string"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
+        },
+        "territory": {
+          "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
         }
       },
       "required": [
         "entity_id",
         "representative_party_id",
-        "manufacturer_party_id",
-        "project_id"
+        "manufacturer_party_id"
       ],
       "title": "ManufacturerRep",
       "type": "object"
@@ -1504,8 +2454,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -1559,6 +2509,9 @@
         "name": {
           "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
         },
+        "party_form": {
+          "$ref": "#/$defs/Fact_Literal__individual____firm___"
+        },
         "record_version": {
           "default": 1,
           "minimum": 1,
@@ -1566,8 +2519,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -1632,8 +2585,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -1927,8 +2880,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -1990,8 +2943,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2054,8 +3007,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2116,8 +3069,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2128,8 +3081,93 @@
       "title": "Project",
       "type": "object"
     },
+    "ProjectContext": {
+      "additionalProperties": false,
+      "description": "Project-scoped relationship context; no authority implied.",
+      "properties": {
+        "kind": {
+          "const": "project",
+          "default": "project",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id"
+      ],
+      "title": "ProjectContext",
+      "type": "object"
+    },
     "QualityEvidence": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "source_sha256": {
+                  "type": "null"
+                },
+                "source_sha256_missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "properties": {
+                "source_sha256": {
+                  "type": "string"
+                },
+                "source_sha256_missing_reason": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "source_sha256",
+                "source_sha256_missing_reason"
+              ]
+            }
+          ]
+        },
+        {
+          "else": {
+            "properties": {
+              "derivation": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "status": {
+                "const": "inferred"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "derivation": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "derivation"
+            ]
+          }
+        }
+      ],
       "description": "Source assertion and time provenance; never implicit human authority.",
       "properties": {
         "definition_status": {
@@ -2137,6 +3175,17 @@
           "default": "v1-proposal",
           "title": "Definition Status",
           "type": "string"
+        },
+        "derivation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Derivation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "entity_id": {
           "description": "Required opaque internal identity.",
@@ -2185,8 +3234,8 @@
           "type": "string"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -2258,17 +3307,14 @@
       "description": "Finite nonnegative Decimal and explicit unit; zero remains zero.",
       "properties": {
         "amount": {
-          "anyOf": [
-            {
-              "minimum": 0.0,
-              "type": "number"
-            },
-            {
-              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-              "type": "string"
-            }
-          ],
-          "title": "Amount"
+          "description": "Wire format: exact finite nonnegative decimal string. Python also accepts Decimal/int; JSON numbers are rejected.",
+          "minLength": 1,
+          "not": {
+            "pattern": "\\s"
+          },
+          "pattern": "^(?:(?:\\+?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)|-(?:0+(?:\\.0*)?|\\.0+))(?:[eE][+-]?[0-9]+)?)$",
+          "title": "Amount",
+          "type": "string"
         },
         "unit": {
           "$ref": "#/$defs/UnitRef"
@@ -2347,8 +3393,8 @@
           "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2387,8 +3433,8 @@
           "$ref": "#/$defs/QualityEvidence"
         },
         "schema_version": {
-          "const": "enterprise-reference-v1",
-          "default": "enterprise-reference-v1",
+          "const": "enterprise-reference-v1.1",
+          "default": "enterprise-reference-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -2434,6 +3480,61 @@
         "payload_sha256"
       ],
       "title": "ReferenceDictionary",
+      "type": "object"
+    },
+    "ReferenceSelection": {
+      "additionalProperties": false,
+      "description": "Verification receipt, trusted only when independently supplied by configured composition.\n\nIncoming JSON containing these fields is not proof of verification. Capture\ncompares a separately supplied loader result; restore reports recorded provenance.",
+      "properties": {
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "dictionary_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Id",
+          "type": "string"
+        },
+        "dictionary_sha256": {
+          "description": "Canonical digest of the entire validated dictionary model.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dictionary Sha256",
+          "type": "string"
+        },
+        "dictionary_version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Dictionary Version",
+          "type": "string"
+        },
+        "file_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "File Sha256",
+          "type": "string"
+        },
+        "method": {
+          "const": "raw-sha256-and-semantic/v1",
+          "default": "raw-sha256-and-semantic/v1",
+          "title": "Method",
+          "type": "string"
+        },
+        "payload_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Payload Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dictionary_id",
+        "dictionary_version",
+        "file_sha256",
+        "payload_sha256",
+        "dictionary_sha256",
+        "as_of"
+      ],
+      "title": "ReferenceSelection",
       "type": "object"
     },
     "Shipment": {
@@ -2487,8 +3588,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2502,6 +3603,99 @@
     },
     "ShipmentLine": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "asset_id": {
+                  "properties": {
+                    "value": {
+                      "not": {
+                        "type": "null"
+                      }
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "product_definition_id": {
+                  "properties": {
+                    "value": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "quantity": {
+                  "properties": {
+                    "value": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "asset_id"
+              ]
+            },
+            {
+              "properties": {
+                "asset_id": {
+                  "properties": {
+                    "value": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "product_definition_id": {
+                  "properties": {
+                    "value": {
+                      "not": {
+                        "type": "null"
+                      }
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                },
+                "quantity": {
+                  "properties": {
+                    "value": {
+                      "not": {
+                        "type": "null"
+                      }
+                    }
+                  },
+                  "required": [
+                    "value"
+                  ],
+                  "type": "object"
+                }
+              },
+              "required": [
+                "product_definition_id",
+                "quantity"
+              ]
+            }
+          ]
+        }
+      ],
       "description": "One existing asset OR one product quantity. No custody mutation.",
       "properties": {
         "asset_id": {
@@ -2555,8 +3749,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -2600,6 +3794,24 @@
       "additionalProperties": false,
       "description": "Contextual stakeholder link; no implicit approval authority.",
       "properties": {
+        "context": {
+          "discriminator": {
+            "mapping": {
+              "project": "#/$defs/ProjectContext",
+              "subsystem": "#/$defs/SubsystemContext"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ProjectContext"
+            },
+            {
+              "$ref": "#/$defs/SubsystemContext"
+            }
+          ],
+          "title": "Context"
+        },
         "definition_status": {
           "const": "v1-proposal",
           "default": "v1-proposal",
@@ -2640,11 +3852,6 @@
           "title": "Party Id",
           "type": "string"
         },
-        "project_id": {
-          "format": "uuid",
-          "title": "Project Id",
-          "type": "string"
-        },
         "record_version": {
           "default": 1,
           "minimum": 1,
@@ -2655,8 +3862,8 @@
           "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2664,7 +3871,7 @@
       "required": [
         "entity_id",
         "party_id",
-        "project_id"
+        "context"
       ],
       "title": "Stakeholder",
       "type": "object"
@@ -2720,8 +3927,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2787,8 +3994,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -2798,6 +4005,34 @@
         "project_id"
       ],
       "title": "Subsystem",
+      "type": "object"
+    },
+    "SubsystemContext": {
+      "additionalProperties": false,
+      "description": "Subsystem within an explicitly asserted project, checked at the application boundary.",
+      "properties": {
+        "kind": {
+          "const": "subsystem",
+          "default": "subsystem",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "subsystem_id": {
+          "format": "uuid",
+          "title": "Subsystem Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "subsystem_id"
+      ],
+      "title": "SubsystemContext",
       "type": "object"
     },
     "Task": {
@@ -2857,8 +4092,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -2987,8 +4222,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -3054,8 +4289,8 @@
           "type": "integer"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         }
@@ -3069,8 +4304,16 @@
     }
   },
   "additionalProperties": false,
-  "description": "Immutable capture; hydration validates every referenced record before storage.",
+  "description": "Structural capture contract; storage additionally requires independent reference selection.",
   "properties": {
+    "approval_claims": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ConsultantApprovalClaim"
+      },
+      "title": "Approval Claims",
+      "type": "array"
+    },
     "capabilities": {
       "default": [],
       "items": {
@@ -3235,12 +4478,24 @@
       "title": "Reference Sha256",
       "type": "string"
     },
+    "reference_verification": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ReferenceSelection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Recorded receipt, not independent verification of incoming payload bytes."
+    },
     "references": {
       "$ref": "#/$defs/ReferenceDictionary"
     },
     "schema_version": {
-      "const": "enterprise-v1",
-      "default": "enterprise-v1",
+      "const": "enterprise-v1.1",
+      "default": "enterprise-v1.1",
       "title": "Schema Version",
       "type": "string"
     },

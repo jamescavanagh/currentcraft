@@ -2,14 +2,15 @@
 import json
 from pathlib import Path
 from app.application.enterprise.services import capture_snapshot, restore_snapshot, request_transition
-from app.infrastructure.enterprise.wiring import build_fixture
+from app.infrastructure.enterprise.wiring import build_fixture_with_selection
 from app.infrastructure.persistence.memory import MemoryStore
 
 
 def main():
-    snapshot = build_fixture(Path(__file__).resolve().parents[1] / "references")
+    inputs = build_fixture_with_selection(Path(__file__).resolve().parents[1] / "references")
+    snapshot = inputs.snapshot
     store = MemoryStore()
-    saved = capture_snapshot(store, snapshot)
+    saved = capture_snapshot(store, snapshot, selection=inputs.selection)
     restored = restore_snapshot(store, snapshot.snapshot_id)
     if restored != snapshot:
         raise RuntimeError("snapshot round-trip differs")

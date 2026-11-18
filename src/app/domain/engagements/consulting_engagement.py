@@ -1,9 +1,11 @@
 """V1 capture proposal. Sources, invariants and open decisions: docs/domain/V1_DOMAIN.md."""
 from typing import ClassVar, Literal
+from uuid import UUID
 from pydantic import Field
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, unknown
-from app.domain.shared.identity import Text, ProjectId, PartyId
+from app.domain.shared.identity import Text, PartyId
+from app.domain.shared.contexts import Context
 
 
 class Consultant(VersionedEntity):
@@ -11,5 +13,6 @@ class Consultant(VersionedEntity):
     SOURCE_CLASS: ClassVar[str] = 'Consultant'
     kind: Literal["consultant"] = "consultant"
     party_id: PartyId
-    project_id: ProjectId
+    context: Context
     role: Fact[Text] = Field(default_factory=unknown)
+    approval_claim_ids: tuple[UUID, ...] = ()

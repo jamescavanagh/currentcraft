@@ -1,6 +1,6 @@
 # Reference boundary
 
-PUBLIC: this README, public/manifest.example.json and public/enterprise.synthetic.v1.json only. The enterprise dictionary is explicitly synthetic, versioned and hash-pinned; it contains no business dictionary values. The template has no real records or external identifiers.
+PUBLIC: this README, public/manifest.example.json and public/enterprise.synthetic.v1.json (historical) and public/enterprise.synthetic.v1.1.json (current) only. The enterprise dictionary is explicitly synthetic, versioned and hash-pinned; it contains no business dictionary values. The template has no real records or external identifiers.
 
 PRIVATE LOCAL: references/private/ is reserved for enterprise dictionaries, source documents, identity mappings, frozen projections/centering vectors fitted on enterprise data, fitted model artifacts and private manifests. Create it locally only. Raw records, embeddings and outputs may disclose data even without names; treat them as private by default. Use data/private/ for bulky local datasets if needed (all data/ is ignored).
 
@@ -11,3 +11,5 @@ BUNDLES: `scripts/export_public.py --with-private` adds references/private/ to a
 .gitignore is not encryption, access control, history scrubbing, or a complete DLP system. It does not remove files already tracked. scripts/check_release.py checks the actual Git index for forbidden tracked paths when run inside Git; it also checks the filesystem and obvious disclosure patterns. scripts/export_public.py exports only a fixed allowlist and refuses symlinks/private paths. Manually review the resulting archive. Files from older package ZIPs must not be copied wholesale into a public repository.
 
 For tracked private data: stop publication, remove it from the index, investigate repository history and rotate exposed credentials if necessary. Deleting a file from the latest commit does not remove old copies.
+
+Current enterprise capture uses a loader-issued independent ReferenceSelection. A hash or serialized receipt in incoming data is not proof of verification. Historical restore uses recorded provenance without reopening the reference file. See docs/domain/V1_REVIEW_CORRECTIONS.md.
