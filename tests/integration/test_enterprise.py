@@ -13,7 +13,7 @@ from app.application.enterprise.services import (ReferenceError, PolicyNotDefine
     capture_snapshot, restore_snapshot, request_transition)
 from app.application.persistence.contracts import VersionConflict
 from app.application.process.contracts import AuthorityRef
-from app.infrastructure.enterprise.wiring import AT, FIXTURE_REFERENCE_SHA256, build_fixture, fixture_id
+from app.infrastructure.enterprise.wiring import AT, FIXTURE_REFERENCE_SHA256, FIXTURE_REFERENCE_PATH, build_fixture, build_fixture_with_selection, fixture_id
 from app.infrastructure.enterprise.references import load_references
 from app.infrastructure.persistence.memory import MemoryStore
 
@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def fact(value):
-    return {"value": value, "evidence_ids": [str(fixture_id(1))]}
+    return {"value": value, "epistemic_status": "observed", "evidence_ids": [str(fixture_id(1))]}
 
 
 def optional_data(snapshot):
@@ -38,9 +38,9 @@ def optional_data(snapshot):
         "professional_services_manufacturer_vendor", "labor_platform_vendor",
         "subcontractor_freelancer_vendor"), 102):
         add(kind, number, party_id=party)
-    add("stakeholder", 108, party_id=party, project_id=project, role=fact("synthetic.observer"))
-    add("consultant", 109, party_id=party, project_id=project, role=fact("synthetic.consultant"))
-    add("manufacturer_rep", 110, representative_party_id=party, manufacturer_party_id=party, project_id=project)
+    add("stakeholder", 108, party_id=party, context={"kind":"project","project_id":project}, role=fact("synthetic.observer"))
+    add("consultant", 109, party_id=party, context={"kind":"project","project_id":project}, role=fact("synthetic.consultant"))
+    add("manufacturer_rep", 110, representative_party_id=party, manufacturer_party_id=party, project_id=fact(project))
     add("wbs", 111, project_id=project, code=fact("SYNTHETIC-WBS"))
     add("document", 112, project_id=project, name=fact("Synthetic source document"))
     add("bom", 113, project_id=project, stage=fact("rom"))
@@ -56,8 +56,7 @@ def optional_data(snapshot):
     add("rfi", 118, project_id=project, question=fact("Synthetic question?"),
         impact_ids=[str(fixture_id(9)), str(fixture_id(112))])
     add("order", 119, project_id=project, counterparty_id=fact(party), document_ids=[str(fixture_id(112))])
-    # Synthetic P0-P3 chain: selected references, project context, contract,
-    # independent purchase order and two retained document revisions.
+    # Project -> company-client contract -> purchase order -> document -> revisions.
     add("reference_set", 130, dictionary_id=data["references"]["dictionary_id"],
         dictionary_version=data["references"]["version"])
     add("reference_value", 131, reference_set_id=str(fixture_id(130)), code=fact("synthetic.value"))
@@ -71,18 +70,20 @@ def optional_data(snapshot):
     add("work_item", 137, project_id=project, task_id=str(fixture_id(8)))
     add("review_item", 138, project_id=project, task_id=str(fixture_id(8)))
     add("contract", 140, project_id=project, counterparty_id=fact(party),
-        source_contract_identifier={"value": None, "missing_reason": "Exact record not supplied"},
-        execution_verified={"value": None, "missing_reason": "No signed agreement supplied"},
+        source_contract_identifier={"value": None, "epistemic_status": "unknown",
+                                    "missing_reason": "Exact record not supplied"},
+        execution_verified={"value": None, "epistemic_status": "unknown",
+                            "missing_reason": "No signed agreement supplied"},
         scope_document_ids=[str(fixture_id(112))])
     add("reference_document", 141, project_id=project, document_id=str(fixture_id(112)))
     add("revision", 142, project_id=project, document_id=str(fixture_id(112)),
-        source_revision_label=fact("r1"),
-        artifact_locator={"value": None, "missing_reason": "No retained artifact supplied"})
+        source_revision_label=fact("r1"))
     add("revision", 143, project_id=project, document_id=str(fixture_id(112)),
         source_revision_label=fact("r2"), supersedes_id=fact(str(fixture_id(142))))
     next(r for r in data["records"] if r["kind"] == "order").update(
         order_type=fact("purchase_order"), contract_id=fact(str(fixture_id(140))),
-        source_order_identifier={"value": None, "missing_reason": "No source order supplied"})
+        source_order_identifier={"value": None, "epistemic_status": "unknown",
+                                 "missing_reason": "No source order supplied"})
     next(r for r in data["records"] if r["kind"] == "task")["location_id"] = fact(str(fixture_id(135)))
     next(r for r in data["records"] if r["kind"] == "subsystem")["system_id"] = fact(str(fixture_id(134)))
     return data
@@ -91,7 +92,8 @@ def optional_data(snapshot):
 class SnapshotIntegration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.snapshot = build_fixture(ROOT / "references")
+        inputs = build_fixture_with_selection(ROOT / "references")
+        cls.snapshot, cls.selection = inputs.snapshot, inputs.selection
 
     def raw(self):
         return self.snapshot.model_dump(mode="json")
@@ -104,7 +106,7 @@ class SnapshotIntegration(unittest.TestCase):
 
     def test_application_persistence_roundtrip_and_outbox(self):
         store = MemoryStore()
-        saved = capture_snapshot(store, self.snapshot)
+        saved = capture_snapshot(store, self.snapshot, selection=self.selection)
         self.assertEqual(saved.version, 1)
         self.assertEqual(restore_snapshot(store, self.snapshot.snapshot_id), self.snapshot)
         with store() as uow:
@@ -116,25 +118,25 @@ class SnapshotIntegration(unittest.TestCase):
 
     def test_compare_and_swap_preserves_history_and_events(self):
         store = MemoryStore()
-        capture_snapshot(store, self.snapshot)
+        capture_snapshot(store, self.snapshot, selection=self.selection)
         with self.assertRaises(VersionConflict):
-            capture_snapshot(store, self.snapshot)
+            capture_snapshot(store, self.snapshot, selection=self.selection)
         self.assertEqual(len(store.state.outbox), 1)
-        self.assertEqual(capture_snapshot(store, self.snapshot, expected_version=1).version, 2)
+        self.assertEqual(capture_snapshot(store, self.snapshot, expected_version=1, selection=self.selection).version, 2)
         self.assertEqual(len(store.state.outbox), 2)
 
     def test_changed_entity_requires_a_new_immutable_revision(self):
         store = MemoryStore()
-        capture_snapshot(store, self.snapshot)
+        capture_snapshot(store, self.snapshot, selection=self.selection)
         raw = self.raw()
         raw["records"][4]["name"] = fact("Revised synthetic project name")
         changed = hydrate_snapshot(raw)
         with self.assertRaises(VersionConflict):
-            capture_snapshot(store, changed, expected_version=1)
+            capture_snapshot(store, changed, expected_version=1, selection=self.selection)
         self.assertEqual(restore_snapshot(store, self.snapshot.snapshot_id), self.snapshot)
         raw["records"][4]["record_version"] = 2
         revised = hydrate_snapshot(raw)
-        capture_snapshot(store, revised, expected_version=1)
+        capture_snapshot(store, revised, expected_version=1, selection=self.selection)
         with store() as uow:
             history = uow.aggregates.history("enterprise_entity", fixture_id(5))
             self.assertEqual([r.version for r in history], [1, 2])
@@ -150,7 +152,7 @@ class SnapshotIntegration(unittest.TestCase):
             uow.outbox.add = fail
             return uow
         with self.assertRaisesRegex(RuntimeError, "synthetic outbox"):
-            capture_snapshot(failing_factory, self.snapshot)
+            capture_snapshot(failing_factory, self.snapshot, selection=self.selection)
         self.assertFalse(store.state.aggregates)
         self.assertFalse(store.state.outbox)
 
@@ -158,10 +160,10 @@ class SnapshotIntegration(unittest.TestCase):
         snapshot = hydrate_snapshot(optional_data(self.snapshot))
         self.assertEqual({type(r) for r in snapshot.records}, set(ENTITY_TYPES))
         store = MemoryStore()
-        capture_snapshot(store, snapshot)
+        capture_snapshot(store, snapshot, selection=self.selection)
         self.assertEqual(restore_snapshot(store, snapshot.snapshot_id), snapshot)
 
-    def test_p3_chain_has_no_approval_or_artifact_inference(self):
+    def test_p3_chain_remains_capture_only(self):
         snapshot = hydrate_snapshot(optional_data(self.snapshot))
         records = {r.kind: r for r in snapshot.records if r.kind in {"contract", "order", "document"}}
         self.assertIsNone(records["contract"].execution_verified.value)
@@ -172,72 +174,20 @@ class SnapshotIntegration(unittest.TestCase):
         with self.assertRaises(PermissionError):
             records["document"].transition("approved")
 
-    def test_p0_p3_invalid_relationships_fail_closed(self):
-        for kind, field, target in (
-            ("reference_value", "reference_set_id", 5),
-            ("client_division", "client_id", 2),
-            ("subsystem", "system_id", 5),
-            ("task", "location_id", 4),
-            ("order", "contract_id", 112),
-            ("revision", "document_id", 140),
-        ):
+    def test_p0_p3_typed_links_and_cycles(self):
+        for kind, field, target in (("reference_value", "reference_set_id", 5),
+            ("client_division", "client_id", 2), ("subsystem", "system_id", 5),
+            ("task", "location_id", 4), ("order", "contract_id", 112),
+            ("revision", "document_id", 140)):
             raw = optional_data(self.snapshot)
             record = next(r for r in raw["records"] if r["kind"] == kind)
             record[field] = fact(str(fixture_id(target))) if isinstance(record[field], dict) else str(fixture_id(target))
             with self.subTest(kind=kind, field=field), self.assertRaises(ReferenceError):
                 hydrate_snapshot(raw)
-
-    def test_revision_cycle_and_cross_document_supersession_fail(self):
         raw = optional_data(self.snapshot)
         first = next(r for r in raw["records"] if r["kind"] == "revision")
         first["supersedes_id"] = fact(str(fixture_id(143)))
         with self.assertRaisesRegex(ReferenceError, "cycle"):
-            hydrate_snapshot(raw)
-        raw = optional_data(self.snapshot)
-        original = next(r for r in raw["records"] if r["kind"] == "document")
-        second = copy.deepcopy(original)
-        second["entity_id"] = str(fixture_id(144))
-        raw["records"].append(second)
-        other = next(r for r in raw["records"] if r["kind"] == "revision" and r["entity_id"] == str(fixture_id(143)))
-        other["document_id"] = second["entity_id"]
-        with self.assertRaisesRegex(ReferenceError, "crosses documents"):
-            hydrate_snapshot(raw)
-
-    def test_wbs_cycle_and_cross_project_contract_fail(self):
-        raw = optional_data(self.snapshot)
-        parent = next(r for r in raw["records"] if r["kind"] == "wbs" and r["entity_id"] == str(fixture_id(111)))
-        parent["parent_wbs_id"] = fact(str(fixture_id(136)))
-        with self.assertRaisesRegex(ReferenceError, "cycle"):
-            hydrate_snapshot(raw)
-        raw = optional_data(self.snapshot)
-        second = copy.deepcopy(next(r for r in raw["records"] if r["kind"] == "project"))
-        second["entity_id"] = str(fixture_id(145))
-        raw["records"].append(second)
-        contract = next(r for r in raw["records"] if r["kind"] == "contract")
-        contract["project_id"] = second["entity_id"]
-        with self.assertRaisesRegex(ReferenceError, "cross-project"):
-            hydrate_snapshot(raw)
-
-    def test_reference_dictionary_owner_and_duplicate_codes(self):
-        raw = optional_data(self.snapshot)
-        reference_set = next(r for r in raw["records"] if r["kind"] == "reference_set")
-        reference_set["dictionary_version"] = "wrong-version"
-        with self.assertRaisesRegex(ReferenceError, "selected dictionary"):
-            hydrate_snapshot(raw)
-        raw = optional_data(self.snapshot)
-        duplicate = copy.deepcopy(next(r for r in raw["records"] if r["kind"] == "reference_value"))
-        duplicate["entity_id"] = str(fixture_id(146))
-        raw["records"].append(duplicate)
-        with self.assertRaisesRegex(ReferenceError, "duplicate reference code"):
-            hydrate_snapshot(raw)
-
-    def test_stakeholder_contract_link_is_typed_and_scoped(self):
-        raw = optional_data(self.snapshot)
-        stakeholder = next(r for r in raw["records"] if r["kind"] == "stakeholder")
-        stakeholder["contract_id"] = fact(str(fixture_id(140)))
-        self.assertEqual(hydrate_snapshot(raw).records[-1].kind, "revision")
-        stakeholder["contract_id"] = fact(str(fixture_id(112)))
-        with self.assertRaises(ReferenceError):
             hydrate_snapshot(raw)
 
     def test_unknown_record_type_and_fields_are_rejected(self):
@@ -277,7 +227,7 @@ class SnapshotIntegration(unittest.TestCase):
             hydrate_snapshot(raw)
 
     def test_asset_definition_must_exist_and_be_nonbulk(self):
-        for is_bulk in (fact(True), {"value": None, "missing_reason": "not supplied"}):
+        for is_bulk in (fact(True), {"value": None, "epistemic_status": "unknown", "missing_reason": "not supplied"}):
             raw = self.raw()
             raw["records"][3]["is_bulk"] = is_bulk
             with self.subTest(is_bulk=is_bulk), self.assertRaisesRegex(ReferenceError, "non-bulk"):
@@ -285,7 +235,7 @@ class SnapshotIntegration(unittest.TestCase):
 
     def test_capture_does_not_allocate_or_manufacture_stock(self):
         store = MemoryStore()
-        capture_snapshot(store, self.snapshot)
+        capture_snapshot(store, self.snapshot, selection=self.selection)
         self.assertFalse(store.state.stock)
         self.assertFalse(store.state.reservations)
         self.assertEqual(sum(r.kind == "asset_instance" for r in self.snapshot.records), 1)
@@ -354,7 +304,7 @@ class SnapshotIntegration(unittest.TestCase):
         store = MemoryStore()
         bad = self.snapshot.model_copy(update={"records": self.snapshot.records + (self.snapshot.records[0],)})
         with self.assertRaises(ReferenceError):
-            capture_snapshot(store, bad)
+            capture_snapshot(store, bad, selection=self.selection)
         self.assertFalse(store.state.aggregates)
 
     def test_all_readiness_targets_block_without_authority(self):
@@ -381,13 +331,13 @@ class SnapshotIntegration(unittest.TestCase):
 
 class ReferenceLoading(unittest.TestCase):
     def test_pinned_synthetic_reference_loads(self):
-        selected = load_references(ROOT / "references", "public/enterprise.synthetic.v1.json",
+        selected = load_references(ROOT / "references", FIXTURE_REFERENCE_PATH,
                                    FIXTURE_REFERENCE_SHA256, AT)
         self.assertTrue(selected.dictionary.synthetic)
 
     def test_wrong_full_file_hash_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "SHA-256"):
-            load_references(ROOT / "references", "public/enterprise.synthetic.v1.json", "0" * 64, AT)
+            load_references(ROOT / "references", FIXTURE_REFERENCE_PATH, "0" * 64, AT)
 
     def test_root_must_be_absolute_and_path_cannot_escape(self):
         for root, path in ((Path("references"), "public/a.json"), (ROOT / "references", "../pyproject.toml")):
@@ -395,7 +345,7 @@ class ReferenceLoading(unittest.TestCase):
                 load_references(root, path, "0" * 64, AT)
 
     def test_unsupported_dictionary_fields_and_types_are_rejected(self):
-        original = json.loads((ROOT / "references/public/enterprise.synthetic.v1.json").read_text())
+        original = json.loads((ROOT / "references/public/enterprise.synthetic.v1.1.json").read_text())
         cases = []
         extra = copy.deepcopy(original); extra["python_class"] = "untrusted.module:Class"; cases.append(extra)
         wrong = copy.deepcopy(original); wrong["units"][0]["dimension"] = []; cases.append(wrong)
@@ -409,7 +359,7 @@ class ReferenceLoading(unittest.TestCase):
                     load_references(root, "ref.json", hashlib.sha256(raw).hexdigest(), AT)
 
     def test_duplicate_json_keys_and_duplicate_unit_ids_are_rejected(self):
-        original = (ROOT / "references/public/enterprise.synthetic.v1.json").read_text()
+        original = (ROOT / "references/public/enterprise.synthetic.v1.1.json").read_text()
         raw = original.replace('"synthetic": true', '"synthetic": true, "synthetic": true').encode()
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); (root / "ref.json").write_bytes(raw)

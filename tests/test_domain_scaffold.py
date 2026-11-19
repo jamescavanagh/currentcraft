@@ -44,6 +44,19 @@ class DomainScaffold(unittest.TestCase):
             self.assertFalse({m for m in mods if m and m.split('.')[0] in forbidden}, f.name)
             self.assertFalse({m for m in mods if m and m.startswith(('app.infrastructure', 'app.application', 'app.interfaces'))}, f.name)
 
+    def test_confirmed_pydantic_direction_and_deterministic_construction(self):
+        from pydantic import BaseModel
+        from app.domain.engagements.manufacturer_representation import ManufacturerRep
+        from app.domain.shared.facts import Fact
+        self.assertTrue(issubclass(ManufacturerRep, BaseModel))
+        self.assertTrue(issubclass(Fact, BaseModel))
+        for f in DOMAIN.rglob('*.py'):
+            for node in ast.walk(ast.parse(f.read_text())):
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                    self.assertNotIn(node.func.id, {'open', 'eval', 'exec', '__import__'}, f.name)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                    self.assertNotIn(node.func.attr, {'now', 'today', 'utcnow'}, f.name)
+
     def test_doc_example(self):
         self.assertEqual(doctest.testfile(str(ROOT / 'docs/domain/DOMAIN_SCAFFOLD.md'), module_relative=False).failed, 0)
 

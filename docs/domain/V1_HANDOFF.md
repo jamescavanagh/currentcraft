@@ -1,113 +1,111 @@
-# Developer handoff: enterprise V1 capture proposal
+# V1.1 correction handoff
 
-Patch base: `2a6dbfd64745f78a727a3af76c1157de2d869857` on main.
-All 483 baseline text blobs were checked against GitHub's blob SHAs: zero
-mismatches. The implementation was first delivered as a review patch against
-that base. Publication and hosted CI status are recorded in the associated pull
-request; the results below describe observed local validation. No deployment or
-acceptance-task updates are performed by this change.
+Starting remote SHA: `391013bb195f0906da7dbb3dc05714d1d9dd2b36`. The entire starting source tree was
+verified as `f5eab9a9f9f44d1a915bb801fa7aa759b97a3c65`, including file mode.
+This is the correction to the merged first V1 capture slice. The associated
+review PR supplies the final commit SHA; the machine-readable
+[V1_REVIEW_VERIFICATION.json](V1_REVIEW_VERIFICATION.json) pins the verified source
+and generated artifacts by SHA-256. That inventory excludes this narrative and
+itself to avoid self-referential hashes.
 
-## Result and scope
+## Result and review order
 
-Pydantic v2 is retained in the domain at James's explicit direction. Its speed
-has not been benchmarked here. The implementation extends existing canonical
-modules rather than adding parallel Project/Employee/product/process models.
-29 concrete record types can hydrate through a statically allowlisted,
-discriminated application contract. Definitions remain `v1-proposal`, not
-accepted operating rules. Resource and version bases add capture behavior;
-remaining historical scaffolds retain their previous two-field contracts.
+Pydantic stays in domain, explicitly superseding the obsolete prohibition.
+Read [V1_DOMAIN.md](V1_DOMAIN.md), [V1_REVIEW_CORRECTIONS.md](V1_REVIEW_CORRECTIONS.md)
+and [IMPLEMENTATION_MAP.md](IMPLEMENTATION_MAP.md) first. They separate confirmed
+D04/D05/D08 meanings from proposed encodings and still-blocked policy.
 
-The one-command synthetic fixture builds nine records, one process execution,
-explicit stage mapping and evidenced capability binding. It saves entity
-revisions, a snapshot and one simulated domain.stored outbox event atomically
-using existing repository/UoW contracts and MemoryStore, then reloads them.
-No stock is reserved, no broker message is dispatched, and no live allocations
-or physical units are created. Modified entity content requires a new immutable
-record revision; optimistic conflicts roll back the entire transaction.
+ManufacturerRep now captures territory, independently unknown/known agreement
+bounds, typed contact parties and optional project scope. Stakeholder and
+Consultant use exactly one typed project/subsystem context. Consultant approval
+claims explicitly link the existing AuthorityRef, scope, evidence and executor;
+claims are always unverified and never grant authority. Party form can capture
+individual or firm without inventing qualification/delegation rules.
 
-Optional commercial, booking, shipment, BOM and contextual-role branches are
-exercised separately. People/resources never become process operands.
+Fact status is explicit. Known observations require observed source assertion
+support. Inferred conclusions have a separate evidence assertion and derivation
+that may consume observed inputs; unknown-only support is insufficient. This
+support discipline is a proposed encoding, not an approved inference algorithm
+or truth policy. The existing future-evidence check is retained and tested.
 
-Documents and readiness transitions fail closed because approval policies are
-not supplied. A role/scope/evidence label does not become a grant, and an AI
-resource cannot be supplied as a human decision executor. No positive operating
-transition has been approved or tested as an approved business rule.
+Capture now requires an independent loader-issued ReferenceSelection; a hash or
+receipt inside incoming data is not proof of verification. Capture compares the
+full-file hash, semantic hash, full dictionary/model hash, identity, version and
+as-of/window. Restore validates recorded provenance without re-reading the
+original file or claiming fresh verification. Re-capture still needs independent
+selection. The trust assumption is trusted composition/repository, not defense
+against hostile code inside the same process or forged database history.
 
-## Review order and changed-file map
+Local JSON Schema conditions now cover Fact, ShipmentLine and evidence pairing.
+Quantity's JSON wire form is an exact finite nonnegative decimal string; Python
+additionally accepts Decimal/int convenience input. JSON numbers, floats, bools,
+negative and non-finite values are rejected as documented. The validation matrix
+states which checks require Pydantic, application references or operating policy.
 
-Read V1_DOMAIN.md and IMPLEMENTATION_MAP.md first. The latter maps actual paths
-to every proposed work-order concept. The patch/snippet bundle includes an exact
-changed-file manifest with hashes. Its full-file snippets distinguish new files
-from replacements; generated schemas/docs are reproduced through the existing
-generators instead of a second generation system.
+## Schema and API migration
 
-Key changes: existing canonical entity modules; shared identity/fact/unit values;
-enterprise application contracts and use cases; explicit-root hash-pinned
-reference loader and composition; one synthetic reference file and fixture;
-domain/integration tests; existing schema/docs generators; package/release/CI
-allowlists. Numerical runtime source is unchanged.
+Payload contracts advance to enterprise-v1.1; package release metadata remains
+0.9.9. Fact statuses and typed contexts are required schema changes. Import paths
+remain canonical. Legacy v1 data must be mapped from source, with real evidence;
+it is not automatically relabeled observed or freshly verified. No production
+data migration is performed. The old synthetic reference file is retained, and
+the fixture uses the new pinned v1.1 reference asset.
 
-The API extra was already present on this base. No obsolete API-extra repair was
-applied. Outside-checkout installation did reveal omitted existing splice
-packages; those package patterns are now included. CI installs the API extra
-and test dependencies, because the test suite imports HTTP modules. Pydantic
-2.13.4 is pinned for CI/schema generation in requirements-ci.txt; the package's
-runtime dependency range is retained. Two pre-existing generated-doc failures
-under that version were corrected by running the existing generators. The
-resulting Decimal schema updates are also generated output, not numerical
-runtime changes.
+Use build_fixture_with_selection for capture, or pass the independent selection
+from load_references to capture_snapshot. build_fixture remains a structural
+fixture helper. Wire payloads use hydrate_snapshot_json; Python hydration is a
+separate convenience entry point. Operational release still has no success path.
 
-## Apply and run in VS Code
+## Fresh observed verification
 
-Inspect local changes first. The patch is not intended to overwrite unrelated
-work. From the repository root, use your own path to the extracted patch:
+All commands below were executed for this correction. Counts from the earlier
+handoff are not reused as fresh evidence.
 
-```powershell
-git rev-parse HEAD
-git status --short
-git apply --check "C:\path\to\currentcraft-v1.patch"
-git apply "C:\path\to\currentcraft-v1.patch"
-python -m pip install -e ".[api]" -r requirements-ci.txt
-python examples/domain_bootstrap.py
-python -m unittest tests.domain.test_enterprise tests.integration.test_enterprise -v
-```
+Environment: Linux x86_64; CPython 3.12.14; Pydantic 2.13.4,
+NumPy 2.3.5, jsonschema 4.26.0, FastAPI 0.141.1, HTTPX 0.28.1,
+Uvicorn 0.52.1, setuptools 84.2.1.
 
-For manual edits, use VSCode-Snippets.md: each section identifies an exact path
-and provides that file's complete replacement or new content. Keep the full-file
-patch as the authoritative change set, including generated output. Re-run the
-existing generators if you change contracts.
+| Command / check | Exit | Observed result |
+| --- | --- | --- |
+| Starting tree: bash scripts/ci_public.sh | 0 | 474 tests, 428 passed, 46 skipped; fresh baseline execution |
+| Correction: bash scripts/ci_public.sh | 0 | 509 tests, 463 passed, 46 skipped, no failures/errors; release, layering and drift gates passed |
+| python -m unittest tests.domain.test_enterprise tests.domain.test_schema_parity tests.integration.test_enterprise tests.integration.test_review_corrections -v | 0 | 84 tests passed, no skips |
+| New parity/review modules alone | 0 | 34 tests passed; one additional approved-boundary test is included in the full suite |
+| python scripts/gen_agency_contract_docs.py | 0 | 159 generated files; generator source otherwise preserved |
+| python scripts/gen_agency_contract_docs.py --check | 0 | full current generated output matches |
+| git diff --check | 0 | clean |
+| python -m pip wheel --no-deps --no-build-isolation --wheel-dir /tmp/currentcraft-review-wheel-final . | 0 | wheel built |
+| python -m pip install --no-deps --upgrade --target /tmp/currentcraft-review-installed-final /tmp/currentcraft-review-wheel-final/datamesh_agency_toolkit-0.9.9-py3-none-any.whl | 0 | wheel installed |
+| From /tmp/currentcraft-review-runtime, PYTHONPATH=/tmp/currentcraft-review-installed-final: import every source module name | 0 | 252 of 252 imported; app resolved from installed target |
+| Same outside-checkout environment: examples/domain_bootstrap.py with separately copied current public reference asset | 0 | nine records, one execution, atomic capture/restore and blocked release |
 
-The repository's complete gate is `bash scripts/ci_public.sh` (Git Bash/WSL on
-Windows). Equivalent PowerShell commands are:
+The 46 skips are 26 optional DuckDB stand-in checks, 17 PostgreSQL checks lacking
+a local configured driver/DSN, one NATS check lacking a disposable local server,
+and two private-input checks. They are not reported as passes. A development
+run caught a default executor Fact remaining an unvalidated dict; enabling
+validated defaults on the claim model fixed it. Final runs have no errors.
 
-```powershell
-python scripts/check_release.py
-python scripts/gen_contract_docs.py --check
-python scripts/gen_gauge_contract_docs.py --check
-python scripts/gen_agency_contract_docs.py --check
-python scripts/gen_domain_scaffold_docs.py --check
-python scripts/gen_persistence_docs.py --check
-python -m unittest discover -s tests -t . -v
-```
+Wheel SHA-256: `9ca0e9fc067bc6cfdc99b4f708a51d25e07202a3cecdd4b2e612e173c9fefa01`.
 
-If generated output is stale after changing a contract, run its same generator
-without --check, review the diff, and run the checks again.
+The installed fixture uses an independently copied
+references/public/enterprise.synthetic.v1.1.json under the temporary runtime root.
+Reference assets are explicit configuration, not assumed to exist in the wheel
+or read by domain models. The existing manifest includes the new source asset.
+No check depends on importing app from the source checkout working directory.
 
-## Observed local validation
+## Full schema inspection
 
-Environment: Linux x86_64, CPython 3.12.14, Pydantic 2.13.4, NumPy 2.3.5,
-FastAPI 0.141.1, HTTPX 0.28.1 and Uvicorn 0.52.1.
+The complete local EnterpriseSnapshot schema was read and parsed: 118185 bytes,
+58 definitions. It matches model_json_schema, passes
+Draft202012Validator.check_schema, and every internal $ref resolves. It validates
+the current synthetic wire fixture. The parity suite also demonstrates a dangling
+record reference passing structural schema/model validation but failing the
+application boundary, and known date-order reversal requiring model validation.
+No page-text extraction or truncated schema retrieval is used as evidence.
 
-| Check / exact command | Observed result |
-| --- | --- |
-| Baseline: `python -m unittest discover -s tests -t .` | 424 tests, two existing generated Markdown drift failures, 46 skips |
-| New: `python -m unittest tests.domain.test_enterprise tests.integration.test_enterprise -v` | 50 tests, all passed, no skips |
-| Full: `bash scripts/ci_public.sh` | 474 tests, 428 passed, zero failures/errors, 46 skips; all generated-doc, release and layering gates passed |
-| `git diff --check` | passed |
-| `python -m pip install --no-deps --no-build-isolation --upgrade --target /tmp/currentcraft-installed .` | wheel built and installed |
-| From /tmp, with `PYTHONPATH=/tmp/currentcraft-installed`: import all 251 source module names | 251 imported, zero errors, including enterprise, HTTP and previously omitted splice packages |
-| From /tmp with the installed wheel: build_fixture(explicit_reference_root), capture_snapshot, restore_snapshot | equality round-trip passed; nine canonical entities plus snapshot persisted |
-| `PYTHONPATH=src python examples/domain_bootstrap.py` during development; installed fixture also checked outside checkout | deterministic output below |
+Schema SHA-256: `0771e9e8c1cdb3c18d5390677bd211f8502364206e9966d3a288bdc85f7c417c`.
+
+## Fixture result
 
 ```json
 {
@@ -122,40 +120,49 @@ FastAPI 0.141.1, HTTPX 0.28.1 and Uvicorn 0.52.1.
 }
 ```
 
-The 46 skips comprise 26 DuckDB stand-in tests (optional dependency absent),
-17 PostgreSQL tests (driver/DSN absent), one NATS test (no disposable server),
-and two private-data checks (private inputs not supplied). They are not claimed
-as passes. No private source files were requested or copied into public output.
+## Runtime status kept separate
 
-## HTTP, services and readiness status
+- Local tests, deterministic fixture, in-memory persistence, package build,
+  outside-checkout imports and copied-reference fixture: passed as above.
+- HTTP shell with injected offline dependencies: /healthz 200, /readyz 503,
+  /v1/auth/check 401 without token. ASGI lifespan was exercised through TestClient.
+- Default HTTP startup: blocked with observed error
+  `Required configuration variable DATAMESH_API_TOKEN_FILE is not set.`
+- Local real PostgreSQL/NATS integration: unverified; prerequisites absent.
+- Hosted CI for starting merge 391013b: observed successful run 44224942631.
+  Correction-head hosted status belongs to the associated PR and is separate
+  from this local proof. Python 3.11 was not run locally.
+- Deployment or persistent hosted service: not attempted. No enterprise HTTP
+  endpoint, production allocation or positive authorization is introduced.
 
-The existing HTTP shell has health/readiness/auth routes; this patch adds no
-enterprise HTTP endpoint. Using the installed wheel and FastAPI TestClient with
-explicitly injected offline dependency callbacks produced /healthz 200,
-/readyz 503 and /v1/auth/check 401 without a token. Those are shell tests,
-not real database/broker integration. Default startup was also attempted through
-the ASGI lifespan and failed with the observed configuration error:
-`Required configuration variable DATAMESH_API_TOKEN_FILE is not set.`
+## Reproduce in VS Code
 
-After configuring the documented token files, database DSN and NATS server,
-the existing startup command is:
+From the corrected repository root, using your selected Python environment:
 
 ```powershell
-python -m pip install -e ".[api,postgres,nats]"
-python -m uvicorn app.interfaces.http.app:create_app --factory --host 127.0.0.1 --port 8000
+python -m pip install -e ".[api]" -r requirements-ci.txt
+python examples/domain_bootstrap.py
+python -m unittest tests.domain.test_enterprise tests.domain.test_schema_parity tests.integration.test_enterprise tests.integration.test_review_corrections -v
+python scripts/check_release.py
+python scripts/gen_contract_docs.py --check
+python scripts/gen_gauge_contract_docs.py --check
+python scripts/gen_agency_contract_docs.py --check
+python scripts/gen_domain_scaffold_docs.py --check
+python scripts/gen_persistence_docs.py --check
+python -m unittest discover -s tests -t . -v
 ```
 
-Consult docs/architecture/HTTP_API.md for the existing service setup. No real
-PostgreSQL/NATS integration, hosted CI run, deployment, persistent server or
-production readiness was observed or claimed here. The suite was run on Python
-3.12 only; the hosted Python 3.11 matrix remains unobserved.
+Git Bash/WSL can run the equivalent full gate: bash scripts/ci_public.sh. To run
+the existing HTTP shell, first configure its token files, database and broker as
+specified in docs/architecture/HTTP_API.md, install the additional postgres/nats
+extras, then use the existing Uvicorn factory command. It was not established as
+a persistent running service by this work.
 
-## Decisions still required
+## Remaining gaps
 
-The governing task contents remain unavailable. The V1_DOMAIN.md ledger records
-this acceptance blocker plus unresolved authority/permissions, readiness and
-document lifecycle, drawing inheritance, vendor overlap, structural nesting,
-custody/holding, commercial vocabulary and business dictionaries/field owners.
-Review those decisions before introducing a success path for operational work.
-Synthetic fixtures, local tests and analytical contracts are not process
-validation or semantic acceptance. No existing review task is marked complete.
+D04 contract/decision branches are explicitly blocked because canonical Contract
+and GateDecision remain undefined scaffolds. D05 captures claims but cannot
+verify a real grant: holder identity, delegation, validity/revocation and readiness
+policy remain undefined. Drawing inheritance, vendor overlap, custody and broader
+private semantic sources remain open. The requirement-to-test map is in
+V1_REVIEW_CORRECTIONS.md. No review/acceptance task is marked complete.

@@ -2,11 +2,12 @@
 from datetime import datetime
 from typing import Annotated, Literal, Union, get_args
 from uuid import UUID
-from pydantic import Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 from app.application.common.contracts import _Frozen
-from app.application.process.contracts import ProcessExecution, ProcessType, CapabilityBinding
-from app.domain.shared.identity import Text, ProjectId, PhaseId, TaskId
-from app.domain.shared.facts import TimeWindow
+from app.application.process.contracts import ProcessExecution, ProcessType, CapabilityBinding, AuthorityRef
+from app.domain.shared.identity import Text, ProjectId, PhaseId, TaskId, ResourceId
+from app.domain.shared.facts import Fact, TimeWindow, unknown
+from app.domain.shared.contexts import Context
 from app.domain.shared.quantities import UnitRef
 from app.domain.quality.quality_evidence import QualityEvidence
 from app.domain.parties.party import Party
@@ -49,7 +50,7 @@ from app.domain.parties.manufacturer import Manufacturer
 from app.domain.reference.reference_set import ReferenceSet
 from app.domain.reference.reference_value import ReferenceValue
 
-SCHEMA_VERSION = "enterprise-v1"
+SCHEMA_VERSION = "enterprise-v1.1"
 # Compile-time allowlist: reference files cannot import, select or execute Python.
 Entity = Annotated[Union[
     Party, Employee, Contributor, Agent, Client, Vendor, ProductOnlyVendor,
@@ -64,7 +65,7 @@ ENTITY_TYPES = get_args(get_args(Entity)[0])
 
 class ReferenceDictionary(_Frozen):
     """Versioned declarative data, with no class names or executable expressions."""
-    schema_version: Literal["enterprise-reference-v1"] = "enterprise-reference-v1"
+    schema_version: Literal["enterprise-reference-v1.1"] = "enterprise-reference-v1.1"
     dictionary_id: Text
     version: Text
     synthetic: bool = Field(strict=True)
@@ -109,18 +110,72 @@ class ExecutionLink(_Frozen):
     execution: ProcessExecution
 
 
+class ReferenceSelection(_Frozen):
+    """Verification receipt, trusted only when independently supplied by configured composition.
+
+    Incoming JSON containing these fields is not proof of verification. Capture
+    compares a separately supplied loader result; restore reports recorded provenance.
+    """
+    dictionary_id: Text
+    dictionary_version: Text
+    file_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    payload_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    dictionary_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", description="Canonical digest of the entire validated dictionary model.")
+    as_of: datetime
+    method: Literal["raw-sha256-and-semantic/v1"] = "raw-sha256-and-semantic/v1"
+
+    @model_validator(mode="after")
+    def aware_selection(self):
+        if self.as_of.tzinfo is None or self.as_of.utcoffset() is None:
+            raise ValueError("selection time must be timezone-aware")
+        return self
+
+
+class ConsultantApprovalClaim(_Frozen):
+    """Captured claim, always unverified; canonical AuthorityRef is not a verified grant."""
+    model_config = ConfigDict(frozen=True, extra="forbid", validate_default=True)
+    claim_id: UUID
+    engagement_id: UUID
+    context: Context
+    authority: AuthorityRef
+    executor_id: Fact[ResourceId] = Field(default_factory=unknown)
+    authority_evidence_missing_reason: Text | None = "not supplied"
+    verification: Literal["unverified_claim"] = "unverified_claim"
+
+    @model_validator(mode="after")
+    def explicit_missing_evidence(self):
+        if (self.authority.evidence_ref is None) != (self.authority_evidence_missing_reason is not None):
+            raise ValueError("authority evidence is supplied or has an explicit missing reason")
+        return self
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        schema = handler.resolve_ref_schema(handler(core_schema))
+        schema.setdefault("allOf", []).append({"oneOf": [
+            {"properties": {"authority": {"properties": {"evidence_ref": {"type": "null"}}},
+                "authority_evidence_missing_reason": {"type": "string", "pattern": r"\S"}}},
+            {"required": ["authority_evidence_missing_reason"], "properties": {
+                "authority": {"required": ["evidence_ref"], "properties": {"evidence_ref": {"type": "string"}}},
+                "authority_evidence_missing_reason": {"type": "null"}}}
+        ]})
+        return schema
+
+
 class EnterpriseSnapshot(_Frozen):
-    """Immutable capture; hydration validates every referenced record before storage."""
-    schema_version: Literal["enterprise-v1"] = SCHEMA_VERSION
+    """Structural capture contract; storage additionally requires independent reference selection."""
+    schema_version: Literal["enterprise-v1.1"] = SCHEMA_VERSION
     snapshot_id: UUID
     purpose: Literal["synthetic_fixture", "captured_records"]
     captured_at: datetime
     references: ReferenceDictionary
     reference_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", description="Selected full reference file SHA-256; infrastructure verifies bytes.")
+    reference_verification: ReferenceSelection | None = Field(default=None,
+        description="Recorded receipt, not independent verification of incoming payload bytes.")
     records: tuple[Entity, ...]
     stage_mappings: tuple[StageMapping, ...] = ()
     capabilities: tuple[CapabilityAssertion, ...] = ()
     executions: tuple[ExecutionLink, ...] = ()
+    approval_claims: tuple[ConsultantApprovalClaim, ...] = ()
 
     @model_validator(mode="after")
     def aware_capture(self):
@@ -129,4 +184,5 @@ class EnterpriseSnapshot(_Frozen):
         return self
 
 
-CONTRACTS = (ReferenceDictionary, StageMapping, CapabilityAssertion, ExecutionLink, EnterpriseSnapshot)
+CONTRACTS = (ReferenceDictionary, StageMapping, CapabilityAssertion, ExecutionLink,
+             ReferenceSelection, ConsultantApprovalClaim, EnterpriseSnapshot)

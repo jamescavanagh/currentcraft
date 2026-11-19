@@ -30,3 +30,17 @@ class ShipmentLine(VersionedEntity):
         if not ((asset and not product and not quantity) or (not asset and product and quantity)):
             raise ValueError("line needs exactly an existing asset or a product with quantity")
         return self
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        schema = handler.resolve_ref_schema(handler(core_schema))
+        def fact_state(known):
+            return {"type": "object", "required": ["value"],
+                    "properties": {"value": {"not": {"type": "null"}} if known else {"type": "null"}}}
+        schema.setdefault("allOf", []).append({"oneOf": [
+            {"required": ["asset_id"], "properties": {"asset_id": fact_state(True),
+                "product_definition_id": fact_state(False), "quantity": fact_state(False)}},
+            {"required": ["product_definition_id", "quantity"], "properties": {
+                "asset_id": fact_state(False), "product_definition_id": fact_state(True), "quantity": fact_state(True)}}
+        ]})
+        return schema

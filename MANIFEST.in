@@ -17,3 +17,5 @@ prune .venv
 global-exclude *.pyc *.pyo *.env *.pem *.key
 include .gitignore requirements-ci.txt
 include .github/workflows/public-ci.yml
+
+include references/public/enterprise.synthetic.v1.1.json

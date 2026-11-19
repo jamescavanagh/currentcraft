@@ -1,5 +1,19 @@
 {
   "$defs": {
+    "DateBounds": {
+      "additionalProperties": false,
+      "description": "Proposed agreement-date encoding; either bound can be explicitly unknown.",
+      "properties": {
+        "ends_on": {
+          "$ref": "#/$defs/Fact_date_"
+        },
+        "starts_on": {
+          "$ref": "#/$defs/Fact_date_"
+        }
+      },
+      "title": "DateBounds",
+      "type": "object"
+    },
     "ExternalReference": {
       "additionalProperties": false,
       "description": "Source namespace plus source key; neither becomes internal identity.",
@@ -28,43 +42,66 @@
       "additionalProperties": false,
       "allOf": [
         {
-          "else": {
-            "properties": {
-              "evidence_ids": {
-                "minItems": 1
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
               },
-              "missing_reason": {
-                "type": "null"
-              }
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
             },
-            "required": [
-              "evidence_ids"
-            ]
-          },
-          "if": {
-            "properties": {
-              "value": {
-                "type": "null"
-              }
-            },
-            "required": [
-              "value"
-            ]
-          },
-          "then": {
-            "properties": {
-              "missing_reason": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "missing_reason"
-            ]
-          }
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
         }
       ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -72,7 +109,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -103,52 +141,76 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
     },
-    "Fact_TimeWindow_": {
+    "Fact_NewType_": {
       "additionalProperties": false,
       "allOf": [
         {
-          "else": {
-            "properties": {
-              "evidence_ids": {
-                "minItems": 1
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
               },
-              "missing_reason": {
-                "type": "null"
-              }
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
             },
-            "required": [
-              "evidence_ids"
-            ]
-          },
-          "if": {
-            "properties": {
-              "value": {
-                "type": "null"
-              }
-            },
-            "required": [
-              "value"
-            ]
-          },
-          "then": {
-            "properties": {
-              "missing_reason": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "missing_reason"
-            ]
-          }
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
         }
       ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -156,7 +218,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -175,51 +238,251 @@
         "value": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TimeWindow"
+              "format": "uuid",
+              "type": "string"
             },
             {
               "type": "null"
             }
-          ]
+          ],
+          "title": "Value"
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
-      "title": "Fact[TimeWindow]",
+      "title": "Fact[NewType]",
       "type": "object"
     },
-    "TimeWindow": {
+    "Fact_date_": {
       "additionalProperties": false,
-      "description": "Half-open timezone-aware interval; seconds are not inferred from dates.",
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
-        "end": {
-          "format": "date-time",
-          "title": "End",
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
           "type": "string"
         },
-        "start": {
-          "format": "date-time",
-          "title": "Start",
-          "type": "string"
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
         }
       },
       "required": [
-        "start",
-        "end"
+        "value",
+        "epistemic_status"
       ],
-      "title": "TimeWindow",
+      "title": "Fact[date]",
+      "type": "object"
+    },
+    "Fact_tuple_NewType__________": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "items": {
+                "format": "uuid",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[tuple[NewType, ...]]",
       "type": "object"
     }
   },
   "additionalProperties": false,
   "description": "Contextual representation, not identity inheritance.",
   "properties": {
-    "agreement_window": {
-      "$ref": "#/$defs/Fact_TimeWindow_"
+    "agreement_dates": {
+      "$ref": "#/$defs/DateBounds"
     },
-    "contact": {
-      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    "contact_party_ids": {
+      "$ref": "#/$defs/Fact_tuple_NewType__________"
     },
     "definition_status": {
       "const": "v1-proposal",
@@ -262,9 +525,7 @@
       "type": "string"
     },
     "project_id": {
-      "format": "uuid",
-      "title": "Project Id",
-      "type": "string"
+      "$ref": "#/$defs/Fact_NewType_"
     },
     "record_version": {
       "default": 1,
@@ -278,8 +539,8 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "enterprise-v1",
-      "default": "enterprise-v1",
+      "const": "enterprise-v1.1",
+      "default": "enterprise-v1.1",
       "title": "Schema Version",
       "type": "string"
     },
@@ -290,8 +551,7 @@
   "required": [
     "entity_id",
     "representative_party_id",
-    "manufacturer_party_id",
-    "project_id"
+    "manufacturer_party_id"
   ],
   "title": "ManufacturerRep",
   "type": "object"

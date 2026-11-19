@@ -28,43 +28,66 @@
       "additionalProperties": false,
       "allOf": [
         {
-          "else": {
-            "properties": {
-              "evidence_ids": {
-                "minItems": 1
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
               },
-              "missing_reason": {
-                "type": "null"
-              }
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
             },
-            "required": [
-              "evidence_ids"
-            ]
-          },
-          "if": {
-            "properties": {
-              "value": {
-                "type": "null"
-              }
-            },
-            "required": [
-              "value"
-            ]
-          },
-          "then": {
-            "properties": {
-              "missing_reason": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "missing_reason"
-            ]
-          }
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
         }
       ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -72,7 +95,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -102,7 +126,8 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[UUID]",
       "type": "object"
@@ -111,43 +136,66 @@
       "additionalProperties": false,
       "allOf": [
         {
-          "else": {
-            "properties": {
-              "evidence_ids": {
-                "minItems": 1
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
               },
-              "missing_reason": {
-                "type": "null"
-              }
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
             },
-            "required": [
-              "evidence_ids"
-            ]
-          },
-          "if": {
-            "properties": {
-              "value": {
-                "type": "null"
-              }
-            },
-            "required": [
-              "value"
-            ]
-          },
-          "then": {
-            "properties": {
-              "missing_reason": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "missing_reason"
-            ]
-          }
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
         }
       ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -155,7 +203,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -186,7 +235,8 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
@@ -195,43 +245,66 @@
       "additionalProperties": false,
       "allOf": [
         {
-          "else": {
-            "properties": {
-              "evidence_ids": {
-                "minItems": 1
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
               },
-              "missing_reason": {
-                "type": "null"
-              }
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
             },
-            "required": [
-              "evidence_ids"
-            ]
-          },
-          "if": {
-            "properties": {
-              "value": {
-                "type": "null"
-              }
-            },
-            "required": [
-              "value"
-            ]
-          },
-          "then": {
-            "properties": {
-              "missing_reason": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "missing_reason"
-            ]
-          }
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
         }
       ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -239,7 +312,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -269,7 +343,8 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
@@ -336,8 +411,8 @@
       "type": "integer"
     },
     "schema_version": {
-      "const": "enterprise-v1",
-      "default": "enterprise-v1",
+      "const": "enterprise-v1.1",
+      "default": "enterprise-v1.1",
       "title": "Schema Version",
       "type": "string"
     },

@@ -1,5 +1,33 @@
 {
   "$defs": {
+    "Derivation": {
+      "additionalProperties": false,
+      "description": "Explicit input-to-conclusion assertion; method locator is data, not executable code.",
+      "properties": {
+        "input_evidence_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Input Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "method_ref": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Method Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "method_ref",
+        "input_evidence_ids"
+      ],
+      "title": "Derivation",
+      "type": "object"
+    },
     "ExternalReference": {
       "additionalProperties": false,
       "description": "Source namespace plus source key; neither becomes internal identity.",
@@ -28,43 +56,66 @@
       "additionalProperties": false,
       "allOf": [
         {
-          "else": {
-            "properties": {
-              "evidence_ids": {
-                "minItems": 1
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
               },
-              "missing_reason": {
-                "type": "null"
-              }
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
             },
-            "required": [
-              "evidence_ids"
-            ]
-          },
-          "if": {
-            "properties": {
-              "value": {
-                "type": "null"
-              }
-            },
-            "required": [
-              "value"
-            ]
-          },
-          "then": {
-            "properties": {
-              "missing_reason": {
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "missing_reason"
-            ]
-          }
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
         }
       ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -72,7 +123,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -100,7 +152,8 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[TimeWindow]",
       "type": "object"
@@ -157,32 +210,63 @@
       "additionalProperties": false,
       "allOf": [
         {
+          "oneOf": [
+            {
+              "properties": {
+                "source_sha256": {
+                  "type": "null"
+                },
+                "source_sha256_missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "properties": {
+                "source_sha256": {
+                  "type": "string"
+                },
+                "source_sha256_missing_reason": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "source_sha256",
+                "source_sha256_missing_reason"
+              ]
+            }
+          ]
+        },
+        {
           "else": {
             "properties": {
-              "source_sha256_missing_reason": {
+              "derivation": {
                 "type": "null"
               }
             }
           },
           "if": {
             "properties": {
-              "source_sha256": {
-                "type": "null"
+              "status": {
+                "const": "inferred"
               }
             },
             "required": [
-              "source_sha256"
+              "status"
             ]
           },
           "then": {
             "properties": {
-              "source_sha256_missing_reason": {
-                "minLength": 1,
-                "type": "string"
+              "derivation": {
+                "not": {
+                  "type": "null"
+                }
               }
             },
             "required": [
-              "source_sha256_missing_reason"
+              "derivation"
             ]
           }
         }
@@ -194,6 +278,17 @@
           "default": "v1-proposal",
           "title": "Definition Status",
           "type": "string"
+        },
+        "derivation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Derivation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "entity_id": {
           "description": "Required opaque internal identity.",
@@ -242,8 +337,8 @@
           "type": "string"
         },
         "schema_version": {
-          "const": "enterprise-v1",
-          "default": "enterprise-v1",
+          "const": "enterprise-v1.1",
+          "default": "enterprise-v1.1",
           "title": "Schema Version",
           "type": "string"
         },
@@ -397,8 +492,8 @@
       "$ref": "#/$defs/QualityEvidence"
     },
     "schema_version": {
-      "const": "enterprise-reference-v1",
-      "default": "enterprise-reference-v1",
+      "const": "enterprise-reference-v1.1",
+      "default": "enterprise-reference-v1.1",
       "title": "Schema Version",
       "type": "string"
     },

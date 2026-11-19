@@ -1,0 +1,677 @@
+{
+  "schema_version": "phase-traceability-v1",
+  "rows": [
+    {
+      "phase_row": "P0-01",
+      "prototype_concept": "VersionedEntity",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/versioning.py",
+      "evidence": "src/app/domain/versioning.py",
+      "limitation": "Versioned immutable capture base; operating semantics remain unapproved"
+    },
+    {
+      "phase_row": "P0-02",
+      "prototype_concept": "ReferenceSet",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/reference/reference_set.py",
+      "evidence": "src/app/domain/reference/reference_set.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P0-03",
+      "prototype_concept": "ReferenceValue",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/reference/reference_value.py",
+      "evidence": "src/app/domain/reference/reference_value.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P0-04",
+      "prototype_concept": "QualityEvidence",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/quality/quality_evidence.py",
+      "evidence": "src/app/domain/quality/quality_evidence.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-01",
+      "prototype_concept": "Organization",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/parties/organization.py",
+      "evidence": "src/app/domain/parties/organization.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-02",
+      "prototype_concept": "(private organization identity)",
+      "status": "mapped",
+      "canonical_mapping": "Organization",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "company identity is a configured organization instance; private crosswalk excluded"
+    },
+    {
+      "phase_row": "P1-03",
+      "prototype_concept": "Employee",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/employee/employee_entity.py",
+      "evidence": "src/app/domain/employee/employee_entity.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-04",
+      "prototype_concept": "Contributor",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/workforce/contributor.py",
+      "evidence": "src/app/domain/workforce/contributor.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-05",
+      "prototype_concept": "Client",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/parties/client.py",
+      "evidence": "src/app/domain/parties/client.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-06",
+      "prototype_concept": "ClientDivision",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/parties/client_division.py",
+      "evidence": "src/app/domain/parties/client_division.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-07",
+      "prototype_concept": "Stakeholder",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/engagements/stakeholder_relationship.py",
+      "evidence": "src/app/domain/engagements/stakeholder_relationship.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-08",
+      "prototype_concept": "Subcontractor",
+      "status": "mapped",
+      "canonical_mapping": "Vendor / Contributor",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "provider party and executing resource remain separate"
+    },
+    {
+      "phase_row": "P1-09",
+      "prototype_concept": "Consultant",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/engagements/consulting_engagement.py",
+      "evidence": "src/app/domain/engagements/consulting_engagement.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-10",
+      "prototype_concept": "Manufacturer",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/parties/manufacturer.py",
+      "evidence": "src/app/domain/parties/manufacturer.py",
+      "limitation": "Party classification; no inferred representation or approval authority"
+    },
+    {
+      "phase_row": "P1-11",
+      "prototype_concept": "ManufacturerRep",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/engagements/manufacturer_representation.py",
+      "evidence": "src/app/domain/engagements/manufacturer_representation.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P1-12",
+      "prototype_concept": "Vendor",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/parties/vendor.py",
+      "evidence": "src/app/domain/parties/vendor.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-01",
+      "prototype_concept": "Project",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/project/project_entity.py",
+      "evidence": "src/app/domain/project/project_entity.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-02",
+      "prototype_concept": "System",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/project/system.py",
+      "evidence": "src/app/domain/project/system.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-03",
+      "prototype_concept": "Subsystem",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/project/subsystem.py",
+      "evidence": "src/app/domain/project/subsystem.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-04",
+      "prototype_concept": "Phase",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/project/project_phase.py",
+      "evidence": "src/app/domain/project/project_phase.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-05",
+      "prototype_concept": "WBS",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/project/wbs.py",
+      "evidence": "src/app/domain/project/wbs.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-06",
+      "prototype_concept": "Task",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/task/task_entity.py",
+      "evidence": "src/app/domain/task/task_entity.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-07",
+      "prototype_concept": "Location",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/geography/location.py",
+      "evidence": "src/app/domain/geography/location.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-08",
+      "prototype_concept": "WorkItem",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/task/work_item.py",
+      "evidence": "src/app/domain/task/work_item.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P2-09",
+      "prototype_concept": "ReviewItem",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/task/review_item.py",
+      "evidence": "src/app/domain/task/review_item.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P3-01",
+      "prototype_concept": "Document",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/document/document.py",
+      "evidence": "src/app/domain/document/document.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P3-02",
+      "prototype_concept": "Drawing",
+      "status": "deferred",
+      "canonical_mapping": "src/app/domain/document/drawing.py",
+      "evidence": "src/app/domain/document/drawing.py",
+      "limitation": "Unreviewed scaffold; semantic mapping/authority unresolved"
+    },
+    {
+      "phase_row": "P3-03",
+      "prototype_concept": "PRJDocument",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P3-04",
+      "prototype_concept": "Revision",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/document/revision.py",
+      "evidence": "src/app/domain/document/revision.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P3-05",
+      "prototype_concept": "ReferenceDocument",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/document/reference_document.py",
+      "evidence": "src/app/domain/document/reference_document.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P3-06",
+      "prototype_concept": "Contract",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/commercial/contract.py",
+      "evidence": "src/app/domain/commercial/contract.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P3-07",
+      "prototype_concept": "Order",
+      "status": "implemented",
+      "canonical_mapping": "src/app/domain/commercial/commercial_order.py",
+      "evidence": "src/app/domain/commercial/commercial_order.py",
+      "limitation": "Capture contract and snapshot check; operating policy remains unapproved"
+    },
+    {
+      "phase_row": "P4-01",
+      "prototype_concept": "WorkflowDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-02",
+      "prototype_concept": "LifecycleState",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-03",
+      "prototype_concept": "TransitionDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-04",
+      "prototype_concept": "WorkflowInstance",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-05",
+      "prototype_concept": "StateTransition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-06",
+      "prototype_concept": "QualityGateDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-07",
+      "prototype_concept": "GateCriterionDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-08",
+      "prototype_concept": "GateApprovalRequirement",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-09",
+      "prototype_concept": "QualityGateInstance",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-10",
+      "prototype_concept": "GateCriterionResult",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-11",
+      "prototype_concept": "GateDecision",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-12",
+      "prototype_concept": "Nonconformity",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-13",
+      "prototype_concept": "CorrectiveAction",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-14",
+      "prototype_concept": "VerificationActivity",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-15",
+      "prototype_concept": "Approval",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-16",
+      "prototype_concept": "MilestoneSignOff",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P4-17",
+      "prototype_concept": "Milestone",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-01",
+      "prototype_concept": "AdministrativeArea",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-02",
+      "prototype_concept": "StandardsOrganization",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-03",
+      "prototype_concept": "Standard",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-04",
+      "prototype_concept": "StandardEdition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-05",
+      "prototype_concept": "StandardClause",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-06",
+      "prototype_concept": "CredentialDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-07",
+      "prototype_concept": "CredentialAssignment",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-08",
+      "prototype_concept": "RegulatoryAuthority",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-09",
+      "prototype_concept": "RegulatoryJurisdiction",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-10",
+      "prototype_concept": "Specification",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-11",
+      "prototype_concept": "SpecificationCategory",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-12",
+      "prototype_concept": "SpecificationReference",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-13",
+      "prototype_concept": "ComplianceProject",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P5-14",
+      "prototype_concept": "Submittal",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-01",
+      "prototype_concept": "CostCode",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-02",
+      "prototype_concept": "TimeCard",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-03",
+      "prototype_concept": "Product",
+      "status": "mapped",
+      "canonical_mapping": "ProductDefinition / AssetInstance",
+      "evidence": "docs/domain/V1_DOMAIN.md",
+      "limitation": "superseded prototype split"
+    },
+    {
+      "phase_row": "P6-04",
+      "prototype_concept": "Equipment",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-05",
+      "prototype_concept": "IntegrationMaterial",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-06",
+      "prototype_concept": "EngineeringComputer",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-07",
+      "prototype_concept": "ComputerDeployment",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-08",
+      "prototype_concept": "Tool",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-09",
+      "prototype_concept": "RentalTool",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P6-10",
+      "prototype_concept": "CapitalTool",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-01",
+      "prototype_concept": "Report",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-02",
+      "prototype_concept": "DataProduct",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-03",
+      "prototype_concept": "ReportDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-04",
+      "prototype_concept": "DataLineage",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-05",
+      "prototype_concept": "LineageNode",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-06",
+      "prototype_concept": "DistributionEvent",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-07",
+      "prototype_concept": "MetricDefinition",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-08",
+      "prototype_concept": "MetricObservation",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-09",
+      "prototype_concept": "BoundedContext",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-10",
+      "prototype_concept": "ApplicationService",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    },
+    {
+      "phase_row": "P7-11",
+      "prototype_concept": "DomainIntegrationContract",
+      "status": "deferred",
+      "canonical_mapping": "",
+      "evidence": "docs/domain/P0_P3_CAPTURE.md",
+      "limitation": "Beyond P0-P3 delivery or unresolved semantic decision"
+    }
+  ]
+}

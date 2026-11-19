@@ -11,10 +11,12 @@ from app.application.process.contracts import AuthorityRef
 from app.domain.shared.facts import Fact
 from app.domain.shared.quantities import Quantity
 from app.domain.workforce.resource import Resource
+from app.domain.shared.contexts import SubsystemContext
 from .contracts import (EnterpriseSnapshot, ReferenceDictionary, Project, Phase, WBS,
     Subsystem, Task, ProductDefinition, AssetInstance, Document, BOM, Shipment,
-    ShipmentLine, QualityEvidence, Party, Contract, Revision, System, Location,
-    ReferenceSet, ReferenceValue, WorkItem, ReviewItem, Client)
+    ShipmentLine, QualityEvidence, Party, Consultant, ManufacturerRep, Stakeholder,
+    ReferenceSelection, Contract, Revision, System, Location, ReferenceSet,
+    ReferenceValue, Client)
 
 
 class ReferenceError(ValueError):
@@ -29,6 +31,30 @@ def payload_digest(dictionary: ReferenceDictionary) -> str:
     """Canonical semantic digest; whole-file byte digest is checked by the loader."""
     data = dictionary.model_dump(mode="json", include={"units", "stages", "process_types"})
     return hashlib.sha256(json.dumps(data, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def dictionary_digest(dictionary: ReferenceDictionary) -> str:
+    """Bind metadata/provenance as well as semantic entries to the selected model."""
+    data = dictionary.model_dump(mode="json")
+    return hashlib.sha256(json.dumps(data, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def validate_reference_selection(snapshot: EnterpriseSnapshot, selection: ReferenceSelection) -> None:
+    """Compare an independently trusted selection, not a hash supplied inside incoming JSON."""
+    if not isinstance(selection, ReferenceSelection):
+        raise ReferenceError("capture requires an independent verified reference selection")
+    selection = ReferenceSelection.model_validate_json(selection.model_dump_json())
+    dictionary = snapshot.references
+    expected = (dictionary.dictionary_id, dictionary.version, snapshot.reference_sha256,
+                payload_digest(dictionary), dictionary_digest(dictionary), snapshot.captured_at)
+    actual = (selection.dictionary_id, selection.dictionary_version, selection.file_sha256,
+              selection.payload_sha256, selection.dictionary_sha256, selection.as_of)
+    if expected != actual:
+        raise ReferenceError("verified reference selection/hash/version/time does not match snapshot")
+    if not dictionary.valid_window.start <= selection.as_of < dictionary.valid_window.end:
+        raise ReferenceError("verified selection outside dictionary validity window")
+    if snapshot.reference_verification is not None and snapshot.reference_verification != selection:
+        raise ReferenceError("incoming verification receipt differs from independent selection")
 
 
 def _walk(value):
@@ -57,6 +83,42 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
             raise ReferenceError(f"dangling or mistyped {cls.__name__} reference: {identity}")
         return record
 
+    def project_of(record):
+        value = getattr(record, "project_id", None)
+        if isinstance(value, Fact):
+            return value.value
+        context = getattr(record, "context", None)
+        return context.project_id if context is not None else value
+
+    def check_context(context):
+        resolve(context.project_id, Project)
+        if isinstance(context, SubsystemContext):
+            if resolve(context.subsystem_id, Subsystem).project_id != context.project_id:
+                raise ReferenceError("context subsystem does not belong to declared project")
+        return context.project_id
+
+    support_cache = {}
+    def observed_support(eid, active=frozenset()):
+        evidence = resolve(eid, QualityEvidence)
+        eid = evidence.entity_id
+        if eid in active:
+            raise ReferenceError("cyclic evidence derivation")
+        if eid in support_cache:
+            return support_cache[eid]
+        if evidence.status == "observed":
+            result = True
+        elif evidence.status == "unknown":
+            result = False
+        else:
+            supports = [observed_support(i, active | {eid}) for i in evidence.derivation.input_evidence_ids]
+            result = any(supports)
+        support_cache[eid] = result
+        return result
+
+    for record in snapshot.records:
+        if isinstance(record, QualityEvidence) and record.derivation is not None:
+            observed_support(record.entity_id)  # Resolve every input and detect cycles, even if unused.
+
     dictionary = snapshot.references
     if payload_digest(dictionary) != dictionary.payload_sha256:
         raise ReferenceError("reference payload hash mismatch")
@@ -70,6 +132,13 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
         if isinstance(value, Fact):
             for eid in value.evidence_ids:
                 resolve(eid, QualityEvidence)
+            if value.value is not None:
+                sources = [resolve(eid, QualityEvidence) for eid in value.evidence_ids]
+                if value.epistemic_status == "observed" and not any(e.status == "observed" for e in sources):
+                    raise ReferenceError("observed fact lacks observed source assertion support")
+                if value.epistemic_status == "inferred" and not any(
+                    e.status == "inferred" and observed_support(e.entity_id) for e in sources):
+                    raise ReferenceError("inferred fact needs an explicit supported inferred assertion")
         if isinstance(value, Quantity) and value.unit not in dictionary.units:
             raise ReferenceError("quantity uses a unit outside selected dictionary/version")
 
@@ -89,6 +158,11 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
             resolve(eid, QualityEvidence)
         if isinstance(record, QualityEvidence) and record.recorded_at > snapshot.captured_at:
             raise ReferenceError("evidence was recorded after snapshot capture")
+        if isinstance(record, (Stakeholder, Consultant)):
+            check_context(record.context)
+        if isinstance(record, ManufacturerRep):
+            for contact in record.contact_party_ids.value or ():
+                resolve(contact, Party)
         for field, cls in endpoints.items():
             if field not in type(record).model_fields:
                 continue
@@ -96,8 +170,8 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
             value = value.value if isinstance(value, Fact) else value
             if value is not None:
                 target = resolve(value, cls)
-                if hasattr(record, "project_id") and hasattr(target, "project_id"):
-                    if record.project_id != target.project_id:
+                if project_of(record) is not None and project_of(target) is not None:
+                    if project_of(record) != project_of(target):
                         raise ReferenceError("cross-project structural link")
         for did in getattr(record, "document_ids", ()):
             document = resolve(did, Document)
@@ -118,7 +192,7 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
                 raise ReferenceError("revision supersession crosses documents")
         for iid in getattr(record, "impact_ids", ()):
             target = resolve(iid)
-            if hasattr(target, "project_id") and target.project_id != record.project_id:
+            if project_of(target) is not None and project_of(target) != project_of(record):
                 raise ReferenceError("cross-project contextual impact")
         if isinstance(record, AssetInstance):
             product = resolve(record.product_definition_id, ProductDefinition)
@@ -147,6 +221,29 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
                 parent = getattr(current, field).value
                 current = resolve(parent, cls) if parent is not None else None
 
+    claims = {c.claim_id: c for c in snapshot.approval_claims}
+    if len(claims) != len(snapshot.approval_claims) or set(claims) & (set(records) | {snapshot.snapshot_id}):
+        raise ReferenceError("duplicate or colliding approval claim ID")
+    for record in snapshot.records:
+        if isinstance(record, Consultant):
+            if len(set(record.approval_claim_ids)) != len(record.approval_claim_ids):
+                raise ReferenceError("duplicate engagement approval claim reference")
+            for cid in record.approval_claim_ids:
+                if cid not in claims or claims[cid].engagement_id != record.entity_id:
+                    raise ReferenceError("dangling or mistyped engagement claim reference")
+    for claim in snapshot.approval_claims:
+        engagement = resolve(claim.engagement_id, Consultant)
+        if claim.claim_id not in engagement.approval_claim_ids:
+            raise ReferenceError("approval claim missing reciprocal engagement link")
+        if check_context(claim.context) != engagement.context.project_id:
+            raise ReferenceError("approval claim crosses engagement project context")
+        if isinstance(engagement.context, SubsystemContext) and claim.context != engagement.context:
+            raise ReferenceError("approval claim exceeds subsystem engagement context")
+        if claim.executor_id.value is not None:
+            resolve(claim.executor_id.value, Resource)
+        if claim.authority.evidence_ref is not None:
+            resolve(claim.authority.evidence_ref, QualityEvidence)
+
     mappings = {}
     for mapping in snapshot.stage_mappings:
         resolve(mapping.phase_id, Phase)
@@ -172,7 +269,7 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
             ex_id = UUID(ex.execution_id)
         except ValueError as exc:
             raise ReferenceError("execution requires an opaque UUID") from exc
-        if ex_id in seen or ex_id in records or ex_id == snapshot.snapshot_id:
+        if ex_id in seen or ex_id in records or ex_id in claims or ex_id == snapshot.snapshot_id:
             raise ReferenceError("duplicate or colliding execution ID")
         seen.add(ex_id)
         task = resolve(link.task_id, Task)
@@ -228,8 +325,15 @@ def validate_snapshot(snapshot: EnterpriseSnapshot) -> None:
 
 
 def hydrate_snapshot(data: dict) -> EnterpriseSnapshot:
-    """Only discriminated, statically allowlisted entity types can hydrate."""
+    """Structural/cross-record hydration; this does not verify original file bytes."""
     snapshot = EnterpriseSnapshot.model_validate(data)
+    validate_snapshot(snapshot)
+    return snapshot
+
+
+def hydrate_snapshot_json(data: str | bytes) -> EnterpriseSnapshot:
+    """Wire entry point preserves JSON-specific quantity validation before checking links."""
+    snapshot = EnterpriseSnapshot.model_validate_json(data)
     validate_snapshot(snapshot)
     return snapshot
 
@@ -260,10 +364,36 @@ def request_transition(snapshot: EnterpriseSnapshot, execution_id: str, target: 
     raise PolicyNotDefined("transition blocked: approved authority/readiness policy is not defined")
 
 
+def request_consultant_transition(snapshot: EnterpriseSnapshot, claim_id: UUID,
+                                  execution_id: str, target: str) -> None:
+    """Consultant claims remain claims; no success path or inferred delegation policy."""
+    validate_snapshot(snapshot)
+    claim = next((c for c in snapshot.approval_claims if c.claim_id == claim_id), None)
+    if claim is None:
+        raise ReferenceError("unknown consultant approval claim")
+    link = next((x for x in snapshot.executions if x.execution.execution_id == execution_id), None)
+    if link is None or link.project_id != claim.context.project_id:
+        raise ReferenceError("approval claim/execution context mismatch")
+    if isinstance(claim.context, SubsystemContext):
+        if link.execution.subsystem_id != str(claim.context.subsystem_id):
+            raise ReferenceError("approval claim/execution subsystem mismatch")
+    if claim.authority.evidence_ref is None or claim.executor_id.value is None:
+        raise PermissionError("consultant claim lacks authority evidence or executor; no grant established")
+    request_transition(snapshot, execution_id, target, claim.authority, claim.executor_id.value)
+
+
 def capture_snapshot(factory: UnitOfWorkFactory, snapshot: EnterpriseSnapshot,
-                     expected_version: int | None = None) -> VersionedRecord:
+                     expected_version: int | None = None, *,
+                     selection: ReferenceSelection | None = None) -> VersionedRecord:
     """Atomic existing aggregate/outbox flow; constructors never persist/dispatch."""
     snapshot = hydrate_snapshot(snapshot.model_dump(mode="json"))
+    if selection is None:
+        raise ReferenceError("capture requires an independent verified reference selection")
+    if not isinstance(selection, ReferenceSelection):
+        raise ReferenceError("capture requires an independent verified reference selection")
+    selection = ReferenceSelection.model_validate_json(selection.model_dump_json())
+    validate_reference_selection(snapshot, selection)
+    snapshot = snapshot.model_copy(update={"reference_verification": selection})
     version = (expected_version or 0) + 1
     record = VersionedRecord(aggregate_type="enterprise_snapshot", aggregate_id=snapshot.snapshot_id,
         version=version, schema_version=snapshot.schema_version, payload=snapshot.model_dump(mode="json"),
@@ -296,6 +426,13 @@ def capture_snapshot(factory: UnitOfWorkFactory, snapshot: EnterpriseSnapshot,
 
 
 def restore_snapshot(factory: UnitOfWorkFactory, identity: UUID) -> EnterpriseSnapshot | None:
+    """Restore recorded verification provenance; never claim fresh file-byte verification."""
     with factory() as uow:
         record = uow.aggregates.get("enterprise_snapshot", identity)
-    return None if record is None else hydrate_snapshot(record.payload)
+    if record is None:
+        return None
+    snapshot = hydrate_snapshot(record.payload)
+    if snapshot.reference_verification is None:
+        raise ReferenceError("historical capture lacks a verification receipt; explicit migration required")
+    validate_reference_selection(snapshot, snapshot.reference_verification)
+    return snapshot

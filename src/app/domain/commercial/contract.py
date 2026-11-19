@@ -7,7 +7,7 @@ from app.domain.shared.identity import ProjectId, PartyId, DocumentId, Text
 
 
 class Contract(VersionedEntity):
-    """Agreement identity and supporting scope records; no execution inference."""
+    """Company-client agreement capture; counterparty classification is not verified here."""
 
     SOURCE_CLASS: ClassVar[str] = 'Contract'
     kind: Literal["contract"] = "contract"
