@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "description": "Explicit input-to-conclusion assertion; method locator is data, not executable code.",
+  "properties": {
+    "input_evidence_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Input Evidence Ids",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "method_ref": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Method Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "method_ref",
+    "input_evidence_ids"
+  ],
+  "title": "Derivation",
+  "type": "object"
+}

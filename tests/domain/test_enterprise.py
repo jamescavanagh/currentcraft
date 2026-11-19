@@ -34,7 +34,7 @@ from app.domain.logistics.shipment import ShipmentLine
 
 
 def fact(value):
-    return {"value": value, "evidence_ids": (uuid4(),)}
+    return {"value": value, "epistemic_status": "observed", "evidence_ids": (uuid4(),)}
 
 
 class ValueContracts(unittest.TestCase):
@@ -60,7 +60,7 @@ class ValueContracts(unittest.TestCase):
                     {"value": 0, "missing_reason": "not known", "evidence_ids": [uuid4()]}):
             with self.subTest(raw=raw), self.assertRaises(ValidationError):
                 Fact[int].model_validate(raw)
-        self.assertIsNone(Fact[int](value=None, missing_reason="not recorded").value)
+        self.assertIsNone(Fact[int](value=None, epistemic_status="unknown", missing_reason="not recorded").value)
 
     def test_valid_zero_and_false_are_not_missing(self):
         self.assertEqual(Fact[int](**fact(0)).value, 0)
@@ -111,7 +111,8 @@ class ValueContracts(unittest.TestCase):
         interval = TimeWindow(start="1999-01-01T00:00:00Z", end="2000-01-01T00:00:00Z")
         evidence = QualityEvidence(entity_id=eid, source="synthetic", source_version="v2", locator="source://p4",
             status="inferred", recorded_at="2000-02-01T00:00:00Z",
-            valid_time={"value": interval, "evidence_ids": [eid]})
+            derivation={"method_ref":"synthetic://method/v1", "input_evidence_ids":[uuid4()]},
+            valid_time={"value": interval, "epistemic_status": "inferred", "evidence_ids": [eid]})
         restored = QualityEvidence.model_validate_json(evidence.model_dump_json())
         self.assertEqual(restored, evidence)
         self.assertNotEqual(restored.recorded_at, restored.valid_time.value.start)

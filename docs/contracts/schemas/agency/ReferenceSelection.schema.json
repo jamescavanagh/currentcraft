@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "description": "Verification receipt, trusted only when independently supplied by configured composition.\n\nIncoming JSON containing these fields is not proof of verification. Capture\ncompares a separately supplied loader result; restore reports recorded provenance.",
+  "properties": {
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    },
+    "dictionary_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Dictionary Id",
+      "type": "string"
+    },
+    "dictionary_sha256": {
+      "description": "Canonical digest of the entire validated dictionary model.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dictionary Sha256",
+      "type": "string"
+    },
+    "dictionary_version": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Dictionary Version",
+      "type": "string"
+    },
+    "file_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "File Sha256",
+      "type": "string"
+    },
+    "method": {
+      "const": "raw-sha256-and-semantic/v1",
+      "default": "raw-sha256-and-semantic/v1",
+      "title": "Method",
+      "type": "string"
+    },
+    "payload_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Payload Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dictionary_id",
+    "dictionary_version",
+    "file_sha256",
+    "payload_sha256",
+    "dictionary_sha256",
+    "as_of"
+  ],
+  "title": "ReferenceSelection",
+  "type": "object"
+}

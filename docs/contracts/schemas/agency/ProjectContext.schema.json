@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "description": "Project-scoped relationship context; no authority implied.",
+  "properties": {
+    "kind": {
+      "const": "project",
+      "default": "project",
+      "title": "Kind",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id"
+  ],
+  "title": "ProjectContext",
+  "type": "object"
+}

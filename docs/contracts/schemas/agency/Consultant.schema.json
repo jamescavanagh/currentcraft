@@ -26,7 +26,68 @@
     },
     "Fact_Annotated_str__StringConstraints__": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
       "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
         "evidence_ids": {
           "default": [],
           "items": {
@@ -34,7 +95,8 @@
             "type": "string"
           },
           "title": "Evidence Ids",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "missing_reason": {
           "anyOf": [
@@ -65,15 +127,93 @@
         }
       },
       "required": [
-        "value"
+        "value",
+        "epistemic_status"
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    },
+    "ProjectContext": {
+      "additionalProperties": false,
+      "description": "Project-scoped relationship context; no authority implied.",
+      "properties": {
+        "kind": {
+          "const": "project",
+          "default": "project",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id"
+      ],
+      "title": "ProjectContext",
+      "type": "object"
+    },
+    "SubsystemContext": {
+      "additionalProperties": false,
+      "description": "Subsystem within an explicitly asserted project, checked at the application boundary.",
+      "properties": {
+        "kind": {
+          "const": "subsystem",
+          "default": "subsystem",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "subsystem_id": {
+          "format": "uuid",
+          "title": "Subsystem Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "subsystem_id"
+      ],
+      "title": "SubsystemContext",
       "type": "object"
     }
   },
   "additionalProperties": false,
   "description": "Consulting engagement; approvals require explicit scoped human authority.",
   "properties": {
+    "approval_claim_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Approval Claim Ids",
+      "type": "array"
+    },
+    "context": {
+      "discriminator": {
+        "mapping": {
+          "project": "#/$defs/ProjectContext",
+          "subsystem": "#/$defs/SubsystemContext"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ProjectContext"
+        },
+        {
+          "$ref": "#/$defs/SubsystemContext"
+        }
+      ],
+      "title": "Context"
+    },
     "definition_status": {
       "const": "v1-proposal",
       "default": "v1-proposal",
@@ -114,11 +254,6 @@
       "title": "Party Id",
       "type": "string"
     },
-    "project_id": {
-      "format": "uuid",
-      "title": "Project Id",
-      "type": "string"
-    },
     "record_version": {
       "default": 1,
       "minimum": 1,
@@ -129,8 +264,8 @@
       "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
     },
     "schema_version": {
-      "const": "enterprise-v1",
-      "default": "enterprise-v1",
+      "const": "enterprise-v1.1",
+      "default": "enterprise-v1.1",
       "title": "Schema Version",
       "type": "string"
     }
@@ -138,7 +273,7 @@
   "required": [
     "entity_id",
     "party_id",
-    "project_id"
+    "context"
   ],
   "title": "Consultant",
   "type": "object"

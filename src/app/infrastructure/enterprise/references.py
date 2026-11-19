@@ -4,14 +4,15 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from app.application.enterprise.contracts import ReferenceDictionary
-from app.application.enterprise.services import payload_digest
+from app.application.enterprise.contracts import ReferenceDictionary, ReferenceSelection
+from app.application.enterprise.services import payload_digest, dictionary_digest
 
 
 @dataclass(frozen=True)
 class LoadedReferences:
     dictionary: ReferenceDictionary
     sha256: str
+    selection: ReferenceSelection
 
 
 def _closed_object(pairs):
@@ -43,12 +44,15 @@ def load_references(root: Path, relative_path: str, expected_sha256: str,
         raise ValueError("reference file SHA-256 mismatch")
     def invalid_constant(value):
         raise ValueError(f"invalid JSON number: {value}")
-    data = json.loads(raw, object_pairs_hook=_closed_object, parse_constant=invalid_constant)
-    dictionary = ReferenceDictionary.model_validate(data)
+    json.loads(raw, object_pairs_hook=_closed_object, parse_constant=invalid_constant)
+    dictionary = ReferenceDictionary.model_validate_json(raw)
     if payload_digest(dictionary) != dictionary.payload_sha256:
         raise ValueError("reference payload SHA-256 mismatch")
     if as_of.tzinfo is None or as_of.utcoffset() is None:
         raise ValueError("reference selection time must be timezone-aware")
     if not dictionary.valid_window.start <= as_of < dictionary.valid_window.end:
         raise ValueError("reference file outside validity window")
-    return LoadedReferences(dictionary, digest)
+    selection = ReferenceSelection(dictionary_id=dictionary.dictionary_id,
+        dictionary_version=dictionary.version, file_sha256=digest,
+        payload_sha256=dictionary.payload_sha256, dictionary_sha256=dictionary_digest(dictionary), as_of=as_of)
+    return LoadedReferences(dictionary, digest, selection)

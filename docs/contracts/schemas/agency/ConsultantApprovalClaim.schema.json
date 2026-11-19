@@ -1,0 +1,317 @@
+{
+  "$defs": {
+    "AuthorityRef": {
+      "additionalProperties": false,
+      "description": "A decision right attached to an execution.",
+      "properties": {
+        "evidence_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where the right is documented.",
+          "title": "Evidence Ref"
+        },
+        "holder_role": {
+          "description": "Role holding the right.",
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Holder Role",
+          "type": "string"
+        },
+        "scope": {
+          "description": "What the right covers.",
+          "enum": [
+            "release",
+            "reject",
+            "return",
+            "hold",
+            "approve_design",
+            "transfer_custody",
+            "commit_spend",
+            "displace_allocation"
+          ],
+          "title": "Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "holder_role",
+        "scope"
+      ],
+      "title": "AuthorityRef",
+      "type": "object"
+    },
+    "Fact_NewType_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[NewType]",
+      "type": "object"
+    },
+    "ProjectContext": {
+      "additionalProperties": false,
+      "description": "Project-scoped relationship context; no authority implied.",
+      "properties": {
+        "kind": {
+          "const": "project",
+          "default": "project",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id"
+      ],
+      "title": "ProjectContext",
+      "type": "object"
+    },
+    "SubsystemContext": {
+      "additionalProperties": false,
+      "description": "Subsystem within an explicitly asserted project, checked at the application boundary.",
+      "properties": {
+        "kind": {
+          "const": "subsystem",
+          "default": "subsystem",
+          "title": "Kind",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "subsystem_id": {
+          "format": "uuid",
+          "title": "Subsystem Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "subsystem_id"
+      ],
+      "title": "SubsystemContext",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "authority": {
+              "properties": {
+                "evidence_ref": {
+                  "type": "null"
+                }
+              }
+            },
+            "authority_evidence_missing_reason": {
+              "pattern": "\\S",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "authority": {
+              "properties": {
+                "evidence_ref": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "evidence_ref"
+              ]
+            },
+            "authority_evidence_missing_reason": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "authority_evidence_missing_reason"
+          ]
+        }
+      ]
+    }
+  ],
+  "description": "Captured claim, always unverified; canonical AuthorityRef is not a verified grant.",
+  "properties": {
+    "authority": {
+      "$ref": "#/$defs/AuthorityRef"
+    },
+    "authority_evidence_missing_reason": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "not supplied",
+      "title": "Authority Evidence Missing Reason"
+    },
+    "claim_id": {
+      "format": "uuid",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "context": {
+      "discriminator": {
+        "mapping": {
+          "project": "#/$defs/ProjectContext",
+          "subsystem": "#/$defs/SubsystemContext"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ProjectContext"
+        },
+        {
+          "$ref": "#/$defs/SubsystemContext"
+        }
+      ],
+      "title": "Context"
+    },
+    "engagement_id": {
+      "format": "uuid",
+      "title": "Engagement Id",
+      "type": "string"
+    },
+    "executor_id": {
+      "$ref": "#/$defs/Fact_NewType_"
+    },
+    "verification": {
+      "const": "unverified_claim",
+      "default": "unverified_claim",
+      "title": "Verification",
+      "type": "string"
+    }
+  },
+  "required": [
+    "claim_id",
+    "engagement_id",
+    "context",
+    "authority"
+  ],
+  "title": "ConsultantApprovalClaim",
+  "type": "object"
+}
