@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 from app.application.p4.contracts import (AppliedTransition, Association, CommittedExecutionRef,
     CommittedGateDecisionRef, CriterionAssessment,
-    ExtractionManifest, GenerationRequest, MeasureDefinition, MeasureInput, PublicSourceRecord,
+    DeliveryAcknowledgment, ExtractionManifest, GenerationRequest, MeasureDefinition, MeasureInput, PublicSourceRecord,
     ReportCalendar, WorkflowIIdentity, VersionRef, aggregate_measure, replay_transitions, resume_action)
 
 FIXTURE = json.loads((ROOT / 'tests/fixtures/p4/workflow_i.synthetic.json').read_text())
@@ -30,6 +30,10 @@ class P4DesignContracts(unittest.TestCase):
         self.assertEqual(calendar.assigned_source_time(date(2026, 7, 18)).isoformat(), '2026-07-18T09:00:00-07:00')
         self.assertEqual(GenerationRequest.model_validate(FIXTURE['request']).schema_version, 'workflow-i-request/v1')
         self.assertTrue(ExtractionManifest.model_validate(FIXTURE['source_manifest']).complete)
+        calendar.check_request(GenerationRequest.model_validate(FIXTURE['request']))
+        with self.assertRaisesRegex(ValueError, 'cutoff'):
+            calendar.check_request(changed(GenerationRequest.model_validate(FIXTURE['request']),
+                                           cutoff_exclusive=datetime.fromisoformat('2026-11-19T07:00:00-08:00')))
         self.assertEqual(PublicSourceRecord.model_validate(FIXTURE['public_source_record']).date_precision, 'source_date_assigned')
         self.assertFalse(Association.model_validate(FIXTURE['unresolved_candidate']).confirmed)
 
@@ -127,7 +131,7 @@ class P4DesignContracts(unittest.TestCase):
         for steps, refs in [((one,two), {'process:1': executions['process:1']}),
                             ((one,changed(two, sequence=3)), executions),
                             ((one,changed(two, from_state='Failure')), executions),
-                            ((one,changed(two, to_state='Published')), executions)]:
+                            ((one,changed(two, to_state='Requested')), executions)]:
             with self.assertRaises(ValueError):
                 replay_transitions(run, steps, refs)
         decision_id = uuid4()
@@ -141,6 +145,21 @@ class P4DesignContracts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'gate decision'):
             replay_transitions(run, (one, controlled), controlled_refs,
                                {decision_id: changed(decision, target=VersionRef(identity=uuid4(), version=1))})
+
+    def test_published_needs_verified_destination_ack(self):
+        run = uuid4()
+        base = dict(run_id=run, sequence=3, execution_id='process:3', from_state='Prepared',
+                    to_state='Published', expected_run_version=3, committed_run_version=4)
+        with self.assertRaisesRegex(ValidationError, 'publication'):
+            AppliedTransition(**base)
+        product = VersionRef(identity=uuid4(), version=1)
+        ack = DeliveryAcknowledgment(attempt_id=uuid4(), product=product, destination_id=uuid4(),
+                                     document_id='synthetic-document-1', acknowledged_at=datetime.fromisoformat('2026-11-19T14:15:00+00:00'))
+        step = AppliedTransition(**base, delivery_ack=ack, policy_version='workflow-i-synthetic-publication/v1',
+                                 policy_evaluation=VersionRef(identity=uuid4(), version=1))
+        self.assertEqual(step.to_state, 'Published')
+        with self.assertRaises(ValidationError):
+            changed(ack, acknowledged_at=datetime(2026, 11, 19))
 
     def test_public_ingress_rejects_sentinel_and_unknown_time(self):
         payload = dict(FIXTURE['public_source_record'])

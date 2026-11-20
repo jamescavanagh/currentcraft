@@ -76,6 +76,13 @@ class ReportCalendar(Frozen):
         """Only for known date-only inputs; caller retains original date and 'assigned' precision."""
         return datetime.combine(source_date, time(9, 0), tzinfo=ZoneInfo("America/Los_Angeles"))
 
+    def check_request(self, request: "GenerationRequest") -> None:
+        if (request.calendar_id, request.calendar_version) != (self.calendar_id, self.version):
+            raise ValueError("request and reporting calendar versions disagree")
+        local_cutoff = request.cutoff_exclusive.astimezone(ZoneInfo(self.timezone_name))
+        if local_cutoff.timetz().replace(tzinfo=None) != self.cutoff_local:
+            raise ValueError("request cutoff does not match configured local clock")
+
 
 class GenerationRequest(Frozen):
     schema_version: Literal["workflow-i-request/v1"] = "workflow-i-request/v1"
@@ -284,6 +291,20 @@ class CriterionAssessment(Frozen):
         return self.requirement != "informational" and self.result not in ("pass", "not_applicable")
 
 
+class DeliveryAcknowledgment(Frozen):
+    attempt_id: UUID
+    product: VersionRef
+    destination_id: UUID  # opaque public destination identity, not a configured ClickUp path
+    document_id: str = Field(min_length=1, max_length=120, pattern=r"^[A-Za-z0-9._:-]+$")
+    acknowledged_at: datetime
+    verified_receipt: Literal[True] = True
+
+    @field_validator("acknowledged_at")
+    @classmethod
+    def acknowledgment_time(cls, value: datetime):
+        return aware(value)
+
+
 class AppliedTransition(Frozen):
     """Replay index referencing the committed execution, not an independent event log."""
     run_id: UUID
@@ -292,6 +313,9 @@ class AppliedTransition(Frozen):
     from_state: Literal["Requested", "In Process", "Prepared", "Failure", "Published"]
     to_state: Literal["Requested", "In Process", "Prepared", "Failure", "Published"]
     gate_decision_id: UUID | None = None
+    policy_version: str | None = None
+    policy_evaluation: VersionRef | None = None
+    delivery_ack: DeliveryAcknowledgment | None = None
     expected_run_version: int = Field(ge=1, strict=True)
     committed_run_version: int = Field(ge=2, strict=True)
 
@@ -299,6 +323,11 @@ class AppliedTransition(Frozen):
     def contiguous_version(self):
         if self.committed_run_version != self.expected_run_version + 1:
             raise ValueError("transition version must advance by one")
+        if self.to_state == "Published":
+            if self.delivery_ack is None or self.policy_evaluation is None or not self.policy_version:
+                raise ValueError("publication requires verified delivery and policy evaluation")
+        elif self.delivery_ack is not None:
+            raise ValueError("delivery acknowledgment belongs only to publication")
         return self
 
 
@@ -337,6 +366,10 @@ def replay_transitions(run_id: UUID, transitions: tuple[AppliedTransition, ...],
             if (decision is None or decision.run_id != run_id or decision.execution_id != step.execution_id or
                     decision.decision_id != step.gate_decision_id or decision.target != execution.target):
                 raise ValueError("gate decision reference is missing or inconsistent")
+            if step.policy_evaluation is not None and step.policy_evaluation != decision.evaluation:
+                raise ValueError("policy evaluation and gate decision disagree")
+        if step.to_state == "Published" and step.delivery_ack.product != execution.target:
+            raise ValueError("acknowledged product differs from committed execution target")
         if step.from_state != state or step.expected_run_version != version:
             raise ValueError("history has a state/version gap")
         if (state, step.to_state) not in {("Requested", "In Process"), ("Requested", "Failure"),
