@@ -1,4 +1,4 @@
-"""Historical import compatibility, placeholders and V1 proposal layering."""
+"""Historical import compatibility, placeholders and implemented proposal layering."""
 import ast, doctest, importlib, json, sys, unittest
 from pathlib import Path
 from uuid import uuid4
@@ -15,16 +15,18 @@ class DomainScaffold(unittest.TestCase):
         self.assertEqual(len(ENTRIES), 94)
         self.assertEqual(len({e['class_name'] for e in ENTRIES}), 94)
         self.assertEqual(sum(e['source'] == 'addition' for e in ENTRIES), 12)
+        p4 = [e for e in ENTRIES if getattr(importlib.import_module(e['module']), e['class_name']).SCHEMA_STATUS == 'p4-proposal']
+        self.assertEqual(len(p4), 17)
 
     def test_every_historical_import_is_preserved_and_unreviewed(self):
         for e in ENTRIES:
             with self.subTest(cls=e['class_name']):
                 cls = getattr(importlib.import_module(e['module']), e['class_name'])
-                self.assertIn(cls.SCHEMA_STATUS, {'unreviewed-scaffold', 'v1-proposal'})
+                self.assertIn(cls.SCHEMA_STATUS, {'unreviewed-scaffold', 'v1-proposal', 'p4-proposal'})
                 self.assertFalse(cls.model_json_schema()['additionalProperties'])
-                if cls.SCHEMA_STATUS == 'v1-proposal':
+                if cls.SCHEMA_STATUS in {'v1-proposal', 'p4-proposal'}:
                     with self.assertRaises(ValidationError):
-                        cls()  # Explicitly documented migration: identity is now required.
+                        cls()  # Explicit migration: implemented proposals require identity and contract fields.
                     continue
                 obj = cls()
                 self.assertEqual((obj.entity_id, obj.definition_status), (None, 'unreviewed-scaffold'))
