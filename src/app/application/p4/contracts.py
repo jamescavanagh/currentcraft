@@ -2,6 +2,12 @@
 
 These application contracts precede implementation of the 17 domain scaffolds.
 Design source: docs/domain/P4_DESIGN_CONTRACTS.md.
+Boundary: docs/architecture/SOURCE_ADAPTER_BOUNDARY.md.
+Integration: docs/architecture/P4_INTEGRATION.md.
+
+All PR #4 definitions remain at this import path. The inventories at the end
+reference existing definitions only; they do not register generated schemas,
+implement orchestration or authorize any proposed domain migration.
 """
 from __future__ import annotations
 
@@ -469,3 +475,16 @@ class PublicSourceRecord(Frozen):
         if self.date_precision == "source_timestamp" and self.occurred_at is None:
             raise ValueError("source timestamp missing")
         return self
+
+
+# Inventory only: existing definitions, not duplicate schemas or generator registration.
+CONTRACTS = (
+    VersionRef, WorkflowIIdentity, ReportCalendar, GenerationRequest,
+    ExtractionManifest, Association, MeasureDefinition, MeasureInput,
+    CriterionAssessment, DeliveryAcknowledgment, AppliedTransition,
+    CommittedExecutionRef, CommittedGateDecisionRef, CommittedPolicyEvaluationRef,
+    PublicSourceRecord,
+)
+CONTRACT_SUPPORT_TYPES = (Frozen,)
+CONTRACT_TYPE_ALIASES = ("RequirementClass", "Applicability", "EvidenceCondition", "Result")
+CONTRACT_HELPERS = (aware, resume_action, aggregate_measure, replay_transitions)
