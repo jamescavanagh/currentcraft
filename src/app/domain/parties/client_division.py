@@ -1,12 +1,13 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""A client subdivision with its own party and parent client classification."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class ClientDivision(ScaffoldRecord):
-    """Definition pending review."""
+class ClientDivision(VersionedEntity):
+    """Explicit client subdivision; no inferred purchasing authority."""
 
     SOURCE_CLASS: ClassVar[str] = 'ClientDivision'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["client_division"] = "client_division"
+    party_id: PartyId
+    client_id: PartyId

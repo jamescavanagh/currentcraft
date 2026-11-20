@@ -87,7 +87,7 @@ class ReviewCorrections(unittest.TestCase):
     def test_d04_project_and_subsystem_contexts(self):
         raw = self.optional()
         stakeholder = self.find(raw, "stakeholder")
-        self.assertEqual(hydrate_snapshot(raw).records[-1].kind, "order")
+        self.assertTrue(any(r.kind == "order" for r in hydrate_snapshot(raw).records))
         stakeholder["context"] = {"kind": "subsystem", "project_id": str(fixture_id(5)), "subsystem_id": str(fixture_id(7))}
         snapshot = hydrate_snapshot(raw)
         relationship = next(r for r in snapshot.records if r.kind == "stakeholder")

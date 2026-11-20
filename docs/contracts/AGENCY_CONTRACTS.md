@@ -301,6 +301,7 @@ Consulting engagement; approvals require explicit scoped human authority.
 | `party_id` | `app.domain.shared.identity.PartyId` | yes |  |
 | `context` | `Union[app.domain.shared.contexts.ProjectContext, app.domain.shared.contexts.SubsystemCo...` | yes |  |
 | `role` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `scope` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
 | `approval_claim_ids` | `tuple[UUID, ...]` | no (`()`) |  |
 
 ### `ManufacturerRep`
@@ -337,6 +338,9 @@ Project identity, separate from its source business number.
 | `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
 | `kind` | `Literal['project']` | no (`'project'`) |  |
 | `name` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `baseline_window` | `Fact[TimeWindow]` | no (`unknown()`) |  |
+| `actual_window` | `Fact[TimeWindow]` | no (`unknown()`) |  |
+| `estimated_effort` | `Fact[Quantity]` | no (`unknown()`) |  |
 
 ### `Phase`
 
@@ -353,6 +357,8 @@ Project lifecycle phase; not a simulator phase or execution stage.
 | `kind` | `Literal['phase']` | no (`'phase'`) |  |
 | `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
 | `name` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `baseline_window` | `Fact[TimeWindow]` | no (`unknown()`) |  |
+| `actual_window` | `Fact[TimeWindow]` | no (`unknown()`) |  |
 
 ### `WBS`
 
@@ -369,6 +375,8 @@ Project work-breakdown identity; nesting is not inferred.
 | `kind` | `Literal['wbs']` | no (`'wbs'`) |  |
 | `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
 | `code` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `parent_wbs_id` | `Fact[NewType]` | no (`unknown()`) |  |
+| `phase_id` | `Fact[NewType]` | no (`unknown()`) |  |
 
 ### `Subsystem`
 
@@ -385,6 +393,7 @@ Project subsystem identity.
 | `kind` | `Literal['subsystem']` | no (`'subsystem'`) |  |
 | `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
 | `name` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `system_id` | `Fact[UUID]` | no (`unknown()`) |  |
 
 ### `Task`
 
@@ -404,6 +413,10 @@ Business task; not an external task or process execution.
 | `subsystem_id` | `Fact[NewType]` | no (`unknown()`) |  |
 | `phase_id` | `Fact[NewType]` | no (`unknown()`) |  |
 | `wbs_id` | `Fact[NewType]` | no (`unknown()`) |  |
+| `location_id` | `Fact[UUID]` | no (`unknown()`) |  |
+| `baseline_window` | `Fact[TimeWindow]` | no (`unknown()`) |  |
+| `actual_window` | `Fact[TimeWindow]` | no (`unknown()`) |  |
+| `estimated_effort` | `Fact[Quantity]` | no (`unknown()`) |  |
 
 ### `ProductDefinition`
 
@@ -461,6 +474,8 @@ Versioned document identity; lifecycle policy is unresolved.
 | `name` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
 | `source_version` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
 | `storage_locator` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `source_type_label` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `source_state` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
 
 ### `BOM`
 
@@ -580,6 +595,9 @@ Commercial order identity, separate from supporting documents.
 | `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
 | `counterparty_id` | `Fact[NewType]` | no (`unknown()`) |  |
 | `document_ids` | `tuple[app.domain.shared.identity.DocumentId, ...]` | no (`()`) |  |
+| `order_type` | `Fact[Literal['sales_order', 'purchase_order', 'change_order', 'other']]` | no (`unknown()`) |  |
+| `contract_id` | `Fact[UUID]` | no (`unknown()`) |  |
+| `source_order_identifier` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
 
 ### `QualityEvidence`
 
@@ -603,6 +621,209 @@ Source assertion and time provenance; never implicit human authority.
 | `source_sha256` | `str | None` | no |  |
 | `source_sha256_missing_reason` | `Optional[str]` | no (`'not supplied'`) |  |
 | `derivation` | `app.domain.quality.quality_evidence.Derivation | None` | no |  |
+
+### `Contract`
+
+Company-client agreement capture; counterparty classification is not verified here.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['contract']` | no (`'contract'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `counterparty_id` | `Fact[NewType]` | no (`unknown()`) |  |
+| `source_contract_identifier` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `scope_document_ids` | `tuple[app.domain.shared.identity.DocumentId, ...]` | no (`()`) |  |
+| `execution_verified` | `Fact[bool]` | no (`unknown()`) |  |
+
+### `Revision`
+
+Document version and optional artifact, separate from document identity.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['revision']` | no (`'revision'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `document_id` | `app.domain.shared.identity.DocumentId` | yes |  |
+| `source_revision_label` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `artifact_locator` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `content_sha256` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+| `supersedes_id` | `Fact[UUID]` | no (`unknown()`) |  |
+
+### `ReferenceDocument`
+
+Contextual document reference; not a duplicate artifact.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['reference_document']` | no (`'reference_document'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `document_id` | `app.domain.shared.identity.DocumentId` | yes |  |
+| `source_role` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+
+### `System`
+
+Named project system; no inferred subsystem allocation.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['system']` | no (`'system'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `name` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+
+### `Location`
+
+Explicit project-scoped location; no inferred physical hierarchy.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['location']` | no (`'location'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `source_label` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+
+### `WorkItem`
+
+Source-reported work item; construction does not execute it.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['work_item']` | no (`'work_item'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `task_id` | `app.domain.shared.identity.TaskId` | yes |  |
+| `description` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+
+### `ReviewItem`
+
+Review request or finding, distinct from an authorized decision.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['review_item']` | no (`'review_item'`) |  |
+| `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
+| `task_id` | `app.domain.shared.identity.TaskId` | yes |  |
+| `finding` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+
+### `Organization`
+
+A party classified as an organization; classification grants no rights.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['organization']` | no (`'organization'`) |  |
+| `party_id` | `app.domain.shared.identity.PartyId` | yes |  |
+
+### `ClientDivision`
+
+Explicit client subdivision; no inferred purchasing authority.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['client_division']` | no (`'client_division'`) |  |
+| `party_id` | `app.domain.shared.identity.PartyId` | yes |  |
+| `client_id` | `app.domain.shared.identity.PartyId` | yes |  |
+
+### `ReferenceSet`
+
+Source vocabulary linked to, but not selected instead of, ReferenceDictionary.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['reference_set']` | no (`'reference_set'`) |  |
+| `dictionary_id` | `str` | yes |  |
+| `dictionary_version` | `str` | yes |  |
+| `source_owner` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
+
+### `ReferenceValue`
+
+A code in one source vocabulary; deprecation never erases history.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['reference_value']` | no (`'reference_value'`) |  |
+| `reference_set_id` | `UUID` | yes |  |
+| `code` | `Fact[Annotated[str, StringConstraints]]` | yes |  |
+| `deprecated` | `Fact[bool]` | no (`unknown()`) |  |
+| `superseded_by_id` | `Fact[UUID]` | no (`unknown()`) |  |
+
+### `Manufacturer`
+
+A maker party; representation remains a separate contextual record.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity_id` | `UUID` | yes | Required opaque internal identity. |
+| `definition_status` | `Literal['v1-proposal']` | no (`'v1-proposal'`) |  |
+| `schema_version` | `Literal['enterprise-v1.1']` | no (`'enterprise-v1.1'`) |  |
+| `record_version` | `int` | no (`1`) |  |
+| `external_refs` | `tuple[app.domain.shared.identity.ExternalReference, ...]` | no (`()`) |  |
+| `evidence_ids` | `tuple[app.domain.shared.identity.EvidenceId, ...]` | no (`()`) |  |
+| `kind` | `Literal['manufacturer']` | no (`'manufacturer'`) |  |
+| `party_id` | `app.domain.shared.identity.PartyId` | yes |  |
 
 ### `ExternalReference`
 
@@ -2434,10 +2655,12 @@ Column order of `PlateRunResult.plate` (axis `feature`):
 - [`CellAnchor`](schemas/agency/CellAnchor.schema.json)
 - [`ChamberParams`](schemas/agency/ChamberParams.schema.json)
 - [`Client`](schemas/agency/Client.schema.json)
+- [`ClientDivision`](schemas/agency/ClientDivision.schema.json)
 - [`CommandRecord`](schemas/agency/CommandRecord.schema.json)
 - [`Consultant`](schemas/agency/Consultant.schema.json)
 - [`ConsultantApprovalClaim`](schemas/agency/ConsultantApprovalClaim.schema.json)
 - [`ConsumerSpec`](schemas/agency/ConsumerSpec.schema.json)
+- [`Contract`](schemas/agency/Contract.schema.json)
 - [`Contributor`](schemas/agency/Contributor.schema.json)
 - [`CrosswalkCheck`](schemas/agency/CrosswalkCheck.schema.json)
 - [`DateBounds`](schemas/agency/DateBounds.schema.json)
@@ -2472,12 +2695,15 @@ Column order of `PlateRunResult.plate` (axis `feature`):
 - [`LensRecord`](schemas/agency/LensRecord.schema.json)
 - [`LensRequest`](schemas/agency/LensRequest.schema.json)
 - [`LineTableSpec`](schemas/agency/LineTableSpec.schema.json)
+- [`Location`](schemas/agency/Location.schema.json)
+- [`Manufacturer`](schemas/agency/Manufacturer.schema.json)
 - [`ManufacturerRep`](schemas/agency/ManufacturerRep.schema.json)
 - [`ObjectEvent`](schemas/agency/ObjectEvent.schema.json)
 - [`ObjectIncidence`](schemas/agency/ObjectIncidence.schema.json)
 - [`ObjectInventory`](schemas/agency/ObjectInventory.schema.json)
 - [`ObjectMassEvent`](schemas/agency/ObjectMassEvent.schema.json)
 - [`Order`](schemas/agency/Order.schema.json)
+- [`Organization`](schemas/agency/Organization.schema.json)
 - [`OutboxEntry`](schemas/agency/OutboxEntry.schema.json)
 - [`PairCandidate`](schemas/agency/PairCandidate.schema.json)
 - [`Party`](schemas/agency/Party.schema.json)
@@ -2514,11 +2740,16 @@ Column order of `PlateRunResult.plate` (axis `feature`):
 - [`RecordStrength`](schemas/agency/RecordStrength.schema.json)
 - [`RecordText`](schemas/agency/RecordText.schema.json)
 - [`ReferenceDictionary`](schemas/agency/ReferenceDictionary.schema.json)
+- [`ReferenceDocument`](schemas/agency/ReferenceDocument.schema.json)
 - [`ReferenceSelection`](schemas/agency/ReferenceSelection.schema.json)
+- [`ReferenceSet`](schemas/agency/ReferenceSet.schema.json)
+- [`ReferenceValue`](schemas/agency/ReferenceValue.schema.json)
 - [`Rejection`](schemas/agency/Rejection.schema.json)
 - [`Reservation`](schemas/agency/Reservation.schema.json)
 - [`Resource`](schemas/agency/Resource.schema.json)
 - [`ResourceRef`](schemas/agency/ResourceRef.schema.json)
+- [`ReviewItem`](schemas/agency/ReviewItem.schema.json)
+- [`Revision`](schemas/agency/Revision.schema.json)
 - [`RingEntry`](schemas/agency/RingEntry.schema.json)
 - [`RingReading`](schemas/agency/RingReading.schema.json)
 - [`RingWindingRequest`](schemas/agency/RingWindingRequest.schema.json)
@@ -2548,6 +2779,7 @@ Column order of `PlateRunResult.plate` (axis `feature`):
 - [`SubcontractorFreelancerVendor`](schemas/agency/SubcontractorFreelancerVendor.schema.json)
 - [`Subsystem`](schemas/agency/Subsystem.schema.json)
 - [`SubsystemContext`](schemas/agency/SubsystemContext.schema.json)
+- [`System`](schemas/agency/System.schema.json)
 - [`Task`](schemas/agency/Task.schema.json)
 - [`TensorBatch`](schemas/agency/TensorBatch.schema.json)
 - [`TensorPlan`](schemas/agency/TensorPlan.schema.json)
@@ -2562,4 +2794,5 @@ Column order of `PlateRunResult.plate` (axis `feature`):
 - [`VersionedRecord`](schemas/agency/VersionedRecord.schema.json)
 - [`VocabularySpec`](schemas/agency/VocabularySpec.schema.json)
 - [`WBS`](schemas/agency/WBS.schema.json)
+- [`WorkItem`](schemas/agency/WorkItem.schema.json)
 - [`WorkbookProfile`](schemas/agency/WorkbookProfile.schema.json)

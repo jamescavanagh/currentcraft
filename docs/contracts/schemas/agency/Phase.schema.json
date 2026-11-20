@@ -132,11 +132,145 @@
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
+    },
+    "Fact_TimeWindow_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeWindow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[TimeWindow]",
+      "type": "object"
+    },
+    "TimeWindow": {
+      "additionalProperties": false,
+      "description": "Half-open timezone-aware interval; seconds are not inferred from dates.",
+      "properties": {
+        "end": {
+          "format": "date-time",
+          "title": "End",
+          "type": "string"
+        },
+        "start": {
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "TimeWindow",
+      "type": "object"
     }
   },
   "additionalProperties": false,
   "description": "Project lifecycle phase; not a simulator phase or execution stage.",
   "properties": {
+    "actual_window": {
+      "$ref": "#/$defs/Fact_TimeWindow_"
+    },
+    "baseline_window": {
+      "$ref": "#/$defs/Fact_TimeWindow_"
+    },
     "definition_status": {
       "const": "v1-proposal",
       "default": "v1-proposal",

@@ -56,6 +56,36 @@ def optional_data(snapshot):
     add("rfi", 118, project_id=project, question=fact("Synthetic question?"),
         impact_ids=[str(fixture_id(9)), str(fixture_id(112))])
     add("order", 119, project_id=project, counterparty_id=fact(party), document_ids=[str(fixture_id(112))])
+    # Project -> company-client contract -> purchase order -> document -> revisions.
+    add("reference_set", 130, dictionary_id=data["references"]["dictionary_id"],
+        dictionary_version=data["references"]["version"])
+    add("reference_value", 131, reference_set_id=str(fixture_id(130)), code=fact("synthetic.value"))
+    add("organization", 132, party_id=party)
+    add("manufacturer", 139, party_id=party)
+    add("client_division", 133, party_id=party, client_id=str(fixture_id(102)))
+    add("system", 134, project_id=project, name=fact("Synthetic system"))
+    add("location", 135, project_id=project, source_label=fact("Synthetic room"))
+    add("wbs", 136, project_id=project, code=fact("SYNTHETIC-WBS-CHILD"),
+        parent_wbs_id=fact(str(fixture_id(111))), phase_id=fact(str(fixture_id(6))))
+    add("work_item", 137, project_id=project, task_id=str(fixture_id(8)))
+    add("review_item", 138, project_id=project, task_id=str(fixture_id(8)))
+    add("contract", 140, project_id=project, counterparty_id=fact(party),
+        source_contract_identifier={"value": None, "epistemic_status": "unknown",
+                                    "missing_reason": "Exact record not supplied"},
+        execution_verified={"value": None, "epistemic_status": "unknown",
+                            "missing_reason": "No signed agreement supplied"},
+        scope_document_ids=[str(fixture_id(112))])
+    add("reference_document", 141, project_id=project, document_id=str(fixture_id(112)))
+    add("revision", 142, project_id=project, document_id=str(fixture_id(112)),
+        source_revision_label=fact("r1"))
+    add("revision", 143, project_id=project, document_id=str(fixture_id(112)),
+        source_revision_label=fact("r2"), supersedes_id=fact(str(fixture_id(142))))
+    next(r for r in data["records"] if r["kind"] == "order").update(
+        order_type=fact("purchase_order"), contract_id=fact(str(fixture_id(140))),
+        source_order_identifier={"value": None, "epistemic_status": "unknown",
+                                 "missing_reason": "No source order supplied"})
+    next(r for r in data["records"] if r["kind"] == "task")["location_id"] = fact(str(fixture_id(135)))
+    next(r for r in data["records"] if r["kind"] == "subsystem")["system_id"] = fact(str(fixture_id(134)))
     return data
 
 
@@ -132,6 +162,33 @@ class SnapshotIntegration(unittest.TestCase):
         store = MemoryStore()
         capture_snapshot(store, snapshot, selection=self.selection)
         self.assertEqual(restore_snapshot(store, snapshot.snapshot_id), snapshot)
+
+    def test_p3_chain_remains_capture_only(self):
+        snapshot = hydrate_snapshot(optional_data(self.snapshot))
+        records = {r.kind: r for r in snapshot.records if r.kind in {"contract", "order", "document"}}
+        self.assertIsNone(records["contract"].execution_verified.value)
+        self.assertIsNone(records["order"].source_order_identifier.value)
+        revisions = [r for r in snapshot.records if r.kind == "revision"]
+        self.assertEqual(revisions[1].supersedes_id.value, revisions[0].entity_id)
+        self.assertTrue(all(r.artifact_locator.value is None for r in revisions))
+        with self.assertRaises(PermissionError):
+            records["document"].transition("approved")
+
+    def test_p0_p3_typed_links_and_cycles(self):
+        for kind, field, target in (("reference_value", "reference_set_id", 5),
+            ("client_division", "client_id", 2), ("subsystem", "system_id", 5),
+            ("task", "location_id", 4), ("order", "contract_id", 112),
+            ("revision", "document_id", 140)):
+            raw = optional_data(self.snapshot)
+            record = next(r for r in raw["records"] if r["kind"] == kind)
+            record[field] = fact(str(fixture_id(target))) if isinstance(record[field], dict) else str(fixture_id(target))
+            with self.subTest(kind=kind, field=field), self.assertRaises(ReferenceError):
+                hydrate_snapshot(raw)
+        raw = optional_data(self.snapshot)
+        first = next(r for r in raw["records"] if r["kind"] == "revision")
+        first["supersedes_id"] = fact(str(fixture_id(143)))
+        with self.assertRaisesRegex(ReferenceError, "cycle"):
+            hydrate_snapshot(raw)
 
     def test_unknown_record_type_and_fields_are_rejected(self):
         for field, value in (("kind", "python.import.anything"), ("approval_authority", True),

@@ -15,4 +15,5 @@ class Consultant(VersionedEntity):
     party_id: PartyId
     context: Context
     role: Fact[Text] = Field(default_factory=unknown)
+    scope: Fact[Text] = Field(default_factory=unknown)
     approval_claim_ids: tuple[UUID, ...] = ()

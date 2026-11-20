@@ -3,7 +3,7 @@ from typing import ClassVar, Literal
 from pydantic import Field
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, unknown
-from app.domain.shared.identity import Text, ProjectId
+from app.domain.shared.identity import Text, ProjectId, WBSId, PhaseId
 
 
 class WBS(VersionedEntity):
@@ -12,3 +12,5 @@ class WBS(VersionedEntity):
     kind: Literal["wbs"] = "wbs"
     project_id: ProjectId
     code: Fact[Text] = Field(default_factory=unknown)
+    parent_wbs_id: Fact[WBSId] = Field(default_factory=unknown)
+    phase_id: Fact[PhaseId] = Field(default_factory=unknown)

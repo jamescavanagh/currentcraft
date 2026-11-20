@@ -192,6 +192,12 @@
       "title": "Schema Version",
       "type": "string"
     },
+    "source_state": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    },
+    "source_type_label": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    },
     "source_version": {
       "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
     },

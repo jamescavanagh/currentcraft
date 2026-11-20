@@ -37,6 +37,18 @@ from app.domain.logistics.shipment import Shipment, ShipmentLine
 from app.domain.scheduling.calendar_booking import CalendarBooking
 from app.domain.coordination.rfi import RFI
 from app.domain.commercial.commercial_order import Order
+from app.domain.commercial.contract import Contract
+from app.domain.document.revision import Revision
+from app.domain.document.reference_document import ReferenceDocument
+from app.domain.project.system import System
+from app.domain.geography.location import Location
+from app.domain.task.work_item import WorkItem
+from app.domain.task.review_item import ReviewItem
+from app.domain.parties.organization import Organization
+from app.domain.parties.client_division import ClientDivision
+from app.domain.parties.manufacturer import Manufacturer
+from app.domain.reference.reference_set import ReferenceSet
+from app.domain.reference.reference_value import ReferenceValue
 
 SCHEMA_VERSION = "enterprise-v1.1"
 # Compile-time allowlist: reference files cannot import, select or execute Python.
@@ -45,7 +57,9 @@ Entity = Annotated[Union[
     ProfessionalServicesManufacturerVendor, LaborPlatformVendor, SubcontractorFreelancerVendor,
     Stakeholder, Consultant, ManufacturerRep, Project, Phase, WBS, Subsystem, Task,
     ProductDefinition, AssetInstance, Document, BOM, BOMLine, Shipment, ShipmentLine,
-    CalendarBooking, RFI, Order, QualityEvidence], Field(discriminator="kind")]
+    CalendarBooking, RFI, Order, QualityEvidence, Contract, Revision, ReferenceDocument,
+    System, Location, WorkItem, ReviewItem, Organization, ClientDivision,
+    ReferenceSet, ReferenceValue, Manufacturer], Field(discriminator="kind")]
 ENTITY_TYPES = get_args(get_args(Entity)[0])
 
 

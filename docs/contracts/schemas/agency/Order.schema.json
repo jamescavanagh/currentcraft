@@ -24,6 +24,228 @@
       "title": "ExternalReference",
       "type": "object"
     },
+    "Fact_Annotated_str__StringConstraints__": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    },
+    "Fact_Literal__sales_order____purchase_order____change_order____other___": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "sales_order",
+                "purchase_order",
+                "change_order",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[Literal['sales_order', 'purchase_order', 'change_order', 'other']]",
+      "type": "object"
+    },
     "Fact_NewType_": {
       "additionalProperties": false,
       "allOf": [
@@ -131,11 +353,122 @@
       ],
       "title": "Fact[NewType]",
       "type": "object"
+    },
+    "Fact_UUID_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[UUID]",
+      "type": "object"
     }
   },
   "additionalProperties": false,
   "description": "Commercial order identity, separate from supporting documents.",
   "properties": {
+    "contract_id": {
+      "$ref": "#/$defs/Fact_UUID_"
+    },
     "counterparty_id": {
       "$ref": "#/$defs/Fact_NewType_"
     },
@@ -183,6 +516,9 @@
       "title": "Kind",
       "type": "string"
     },
+    "order_type": {
+      "$ref": "#/$defs/Fact_Literal__sales_order____purchase_order____change_order____other___"
+    },
     "project_id": {
       "format": "uuid",
       "title": "Project Id",
@@ -199,6 +535,9 @@
       "default": "enterprise-v1.1",
       "title": "Schema Version",
       "type": "string"
+    },
+    "source_order_identifier": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
     }
   },
   "required": [

@@ -1,12 +1,12 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""Manufacturer classification of an existing party; no inferred rights."""
+from typing import ClassVar, Literal
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.identity import PartyId
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Manufacturer(ScaffoldRecord):
-    """Definition pending review."""
+class Manufacturer(VersionedEntity):
+    """A maker party; representation remains a separate contextual record."""
 
     SOURCE_CLASS: ClassVar[str] = 'Manufacturer'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["manufacturer"] = "manufacturer"
+    party_id: PartyId

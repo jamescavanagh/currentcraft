@@ -14,6 +14,8 @@ class Document(VersionedEntity):
     name: Fact[Text] = Field(default_factory=unknown)
     source_version: Fact[Text] = Field(default_factory=unknown)
     storage_locator: Fact[Text] = Field(default_factory=unknown)
+    source_type_label: Fact[Text] = Field(default_factory=unknown)
+    source_state: Fact[Text] = Field(default_factory=unknown)
 
     def transition(self, target: str):
         raise PermissionError("document lifecycle policy is not defined")

@@ -4,6 +4,8 @@ from pydantic import Field
 from app.domain.versioning import VersionedEntity
 from app.domain.shared.facts import Fact, unknown
 from app.domain.shared.identity import Text
+from app.domain.shared.facts import TimeWindow
+from app.domain.shared.quantities import Quantity
 
 
 class Project(VersionedEntity):
@@ -11,3 +13,6 @@ class Project(VersionedEntity):
     SOURCE_CLASS: ClassVar[str] = 'Project'
     kind: Literal["project"] = "project"
     name: Fact[Text] = Field(default_factory=unknown)
+    baseline_window: Fact[TimeWindow] = Field(default_factory=unknown)
+    actual_window: Fact[TimeWindow] = Field(default_factory=unknown)
+    estimated_effort: Fact[Quantity] = Field(default_factory=unknown)

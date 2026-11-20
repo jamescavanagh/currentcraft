@@ -1,12 +1,18 @@
-"""Unreviewed domain scaffold. Design source: docs/domain/DOMAIN_SCAFFOLD.md."""
+"""Independent contract capture; design: docs/domain/P0_P3_CAPTURE.md."""
+from typing import ClassVar, Literal
+from pydantic import Field
+from app.domain.versioning import VersionedEntity
+from app.domain.shared.facts import Fact, unknown
+from app.domain.shared.identity import ProjectId, PartyId, DocumentId, Text
 
-from typing import ClassVar
 
-from app.domain.shared.scaffold_record import ScaffoldRecord
-
-
-class Contract(ScaffoldRecord):
-    """Definition pending review."""
+class Contract(VersionedEntity):
+    """Company-client agreement capture; counterparty classification is not verified here."""
 
     SOURCE_CLASS: ClassVar[str] = 'Contract'
-    NOTE: ClassVar[str] = 'Definition pending review.'
+    kind: Literal["contract"] = "contract"
+    project_id: ProjectId
+    counterparty_id: Fact[PartyId] = Field(default_factory=unknown)
+    source_contract_identifier: Fact[Text] = Field(default_factory=unknown)
+    scope_document_ids: tuple[DocumentId, ...] = ()
+    execution_verified: Fact[bool] = Field(default_factory=unknown)

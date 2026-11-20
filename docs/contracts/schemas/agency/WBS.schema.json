@@ -132,6 +132,114 @@
       ],
       "title": "Fact[Annotated[str, StringConstraints]]",
       "type": "object"
+    },
+    "Fact_NewType_": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[NewType]",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -174,6 +282,12 @@
       "default": "wbs",
       "title": "Kind",
       "type": "string"
+    },
+    "parent_wbs_id": {
+      "$ref": "#/$defs/Fact_NewType_"
+    },
+    "phase_id": {
+      "$ref": "#/$defs/Fact_NewType_"
     },
     "project_id": {
       "format": "uuid",

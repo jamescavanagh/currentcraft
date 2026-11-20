@@ -1,0 +1,202 @@
+{
+  "$defs": {
+    "ExternalReference": {
+      "additionalProperties": false,
+      "description": "Source namespace plus source key; neither becomes internal identity.",
+      "properties": {
+        "key": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Key",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Namespace",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "key"
+      ],
+      "title": "ExternalReference",
+      "type": "object"
+    },
+    "Fact_Annotated_str__StringConstraints__": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "epistemic_status": {
+                  "const": "unknown"
+                },
+                "missing_reason": {
+                  "minLength": 1,
+                  "pattern": "\\S",
+                  "type": "string"
+                },
+                "value": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "missing_reason"
+              ]
+            },
+            {
+              "properties": {
+                "epistemic_status": {
+                  "enum": [
+                    "observed",
+                    "inferred"
+                  ]
+                },
+                "evidence_ids": {
+                  "minItems": 1
+                },
+                "missing_reason": {
+                  "type": "null"
+                },
+                "value": {
+                  "not": {
+                    "type": "null"
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "epistemic_status",
+                "evidence_ids"
+              ]
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "epistemic_status": {
+          "enum": [
+            "observed",
+            "inferred",
+            "unknown"
+          ],
+          "title": "Epistemic Status",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "missing_reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Reason"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value",
+        "epistemic_status"
+      ],
+      "title": "Fact[Annotated[str, StringConstraints]]",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Named project system; no inferred subsystem allocation.",
+  "properties": {
+    "definition_status": {
+      "const": "v1-proposal",
+      "default": "v1-proposal",
+      "title": "Definition Status",
+      "type": "string"
+    },
+    "entity_id": {
+      "description": "Required opaque internal identity.",
+      "format": "uuid",
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "evidence_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "external_refs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ExternalReference"
+      },
+      "title": "External Refs",
+      "type": "array"
+    },
+    "kind": {
+      "const": "system",
+      "default": "system",
+      "title": "Kind",
+      "type": "string"
+    },
+    "name": {
+      "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "record_version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Record Version",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "enterprise-v1.1",
+      "default": "enterprise-v1.1",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_id",
+    "project_id"
+  ],
+  "title": "System",
+  "type": "object"
+}

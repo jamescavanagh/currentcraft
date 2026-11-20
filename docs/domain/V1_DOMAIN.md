@@ -1,5 +1,8 @@
 # V1 enterprise slice
 
+P0–P3 capture extensions and deferred choices: [P0_P3_CAPTURE.md](P0_P3_CAPTURE.md).
+The 84-row inventory is [PHASE_TRACEABILITY.json](PHASE_TRACEABILITY.json).
+
 Status: implementation proposal for review, not an accepted operating policy.
 Correction base: `391013bb195f0906da7dbb3dc05714d1d9dd2b36` (0.9.9).
 Current payload contract: `enterprise-v1.1`. See [review corrections and validation matrix](V1_REVIEW_CORRECTIONS.md).
