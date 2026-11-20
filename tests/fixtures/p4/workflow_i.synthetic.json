@@ -1,0 +1,55 @@
+{
+  "fixture_version": "workflow-i-synthetic/v1",
+  "calendar": {
+    "calendar_id": "workflow-i-synthetic-calendar",
+    "version": 1,
+    "timezone_name": "America/Los_Angeles",
+    "cutoff_local": "06:00:00"
+  },
+  "request": {
+    "request_key": "synthetic-project-1-2026-11-19",
+    "project_id": "f2cc50ed-8c5e-494c-b53f-dbf68d65fc00",
+    "logical_product_id": "a35a3de5-734b-4e70-ad3e-e0eecc16483e",
+    "mode": "initial",
+    "window_start": "2026-11-18T06:00:00-08:00",
+    "cutoff_exclusive": "2026-11-19T06:00:00-08:00",
+    "calendar_id": "workflow-i-synthetic-calendar",
+    "calendar_version": 1,
+    "output_profile": "dashboard-synthetic/v1",
+    "source_profile": "source-synthetic/v1",
+    "mapping_version": "mapping-synthetic/v1",
+    "calculation_version": "measures-synthetic/v1",
+    "policy_version": "workflow-i-synthetic-publication/v1"
+  },
+  "source_manifest": {
+    "extraction_id": "0824ab81-8d28-4599-bca7-b2f96fe2da5a",
+    "source_profile": "source-synthetic/v1",
+    "contract_version": "source-envelope/v1",
+    "capability": "stable_snapshot",
+    "snapshot_token": "opaque-synthetic-token-1",
+    "page_count": 1,
+    "complete": true,
+    "content_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "window_start": "2026-11-18T06:00:00-08:00",
+    "cutoff_exclusive": "2026-11-19T06:00:00-08:00",
+    "received_at": "2026-11-19T06:05:00-08:00"
+  },
+  "public_source_record": {
+    "source_id": "0e126953-0fca-48db-9d48-0199220f29bb",
+    "project_id": "f2cc50ed-8c5e-494c-b53f-dbf68d65fc00",
+    "evidence_id": "00d9bb13-8d98-451f-851d-f893a6072952",
+    "category": "hourly_labor",
+    "amount": "8.25",
+    "unit": "hour",
+    "occurred_at": "2026-11-18T09:00:00-08:00",
+    "original_date": "2026-11-18",
+    "date_precision": "source_date_assigned"
+  },
+  "unresolved_candidate": {
+    "source_id": "0e126953-0fca-48db-9d48-0199220f29bb",
+    "target_id": "d54efdec-7cc9-4d8d-8626-356d9b011e16",
+    "relation": "wbs",
+    "basis": "candidate",
+    "evidence_ids": ["00d9bb13-8d98-451f-851d-f893a6072952"]
+  }
+}
