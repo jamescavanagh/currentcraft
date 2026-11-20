@@ -1,13 +1,12 @@
 """P4 design contracts for Workflow I. No I/O, ERP schema or operating grant.
 
-These application contracts precede implementation of the 17 domain scaffolds.
 Design source: docs/domain/P4_DESIGN_CONTRACTS.md.
 Boundary: docs/architecture/SOURCE_ADAPTER_BOUNDARY.md.
 Integration: docs/architecture/P4_INTEGRATION.md.
 
-All PR #4 definitions remain at this import path. The inventories at the end
-reference existing definitions only; they do not register generated schemas,
-implement orchestration or authorize any proposed domain migration.
+VersionRef is now a compatibility re-export of the single domain definition.
+All other PR #4 definitions remain here; inventories do not register generated
+schemas, implement orchestration or authorize operating policy.
 """
 from __future__ import annotations
 
@@ -20,6 +19,7 @@ from uuid import UUID
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from app.domain.shared.versioning import VersionRef
 
 
 class Frozen(BaseModel):
@@ -30,11 +30,6 @@ def aware(value: datetime) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError("timestamp must have a timezone")
     return value
-
-
-class VersionRef(Frozen):
-    identity: UUID
-    version: int = Field(ge=1, strict=True)
 
 
 class WorkflowIIdentity(Frozen):
