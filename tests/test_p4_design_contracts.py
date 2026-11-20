@@ -13,6 +13,7 @@ from pydantic import BaseModel, ValidationError
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+from app.domain.shared.versioning import VersionRef as DomainVersionRef
 from app.application.p4 import contracts as p4_contracts
 from app.application.p4.contracts import (AppliedTransition, Association, CommittedExecutionRef,
     CommittedGateDecisionRef, CommittedPolicyEvaluationRef, CriterionAssessment,
@@ -271,7 +272,7 @@ class P4DesignContracts(unittest.TestCase):
         local_models = {value for value in vars(p4_contracts).values()
                         if inspect.isclass(value) and issubclass(value, BaseModel)
                         and value.__module__ == p4_contracts.__name__}
-        self.assertEqual(set(registered), local_models)
+        self.assertEqual(set(registered), local_models | {DomainVersionRef})
         for model in registered:
             with self.subTest(model=model.__name__):
                 self.assertIs(getattr(p4_contracts, model.__name__), model)
@@ -331,6 +332,18 @@ class P4DesignContracts(unittest.TestCase):
             self.assertEqual(replay_transitions(run, (step,), refs), 'In Process')
             self.assertEqual(step.model_dump(mode='json'), before_step)
             self.assertEqual({key: value.model_dump(mode='json') for key, value in refs.items()}, before_refs)
+
+    def test_domain_reference_is_identity_preserving_compatibility_reexport(self):
+        self.assertIs(VersionRef, DomainVersionRef)
+        identity = uuid4()
+        domain = DomainVersionRef(identity=identity, version=2)
+        self.assertEqual(VersionRef.model_validate_json(domain.model_dump_json()), domain)
+        schema = VersionRef.model_json_schema()
+        self.assertEqual(schema['required'], ['identity', 'version'])
+        self.assertEqual(schema['properties']['version']['minimum'], 1)
+        self.assertFalse(schema['additionalProperties'])
+        tree = ast.parse(inspect.getsource(p4_contracts))
+        self.assertNotIn('VersionRef', {n.name for n in tree.body if isinstance(n, ast.ClassDef)})
 
 
 if __name__ == '__main__':
