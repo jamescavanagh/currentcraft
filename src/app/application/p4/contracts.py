@@ -204,8 +204,9 @@ class MeasureDefinition(Frozen):
     code: Literal["so_sell", "po_ordered", "labor_recorded_hours", "category_total"]
     category: Literal["hourly_labor", "lump_sum_labor", "product", "outsourced_labor", "integration_material"]
     grain: Literal["line", "time_entry", "project_category"]
-    unit: str = Field(min_length=1)
+    unit: Literal["hour", "source_currency"]
     currency: str | None = Field(default=None, pattern=r"^[A-Z]{3}$")
+    basis_code: Literal["so_sell", "po_ordered"] | None = None
     inclusion_rule: str = Field(min_length=1)
     duplicate_rule: Literal["stable_source_id_and_version", "block_ambiguous"]
     provenance_required: bool = True
@@ -214,20 +215,33 @@ class MeasureDefinition(Frozen):
 
     @model_validator(mode="after")
     def valid_measure(self):
-        if self.code == "labor_recorded_hours" and (self.unit != "hour" or self.currency is not None or self.grain != "time_entry"):
-            raise ValueError("recorded hours require time-entry grain and hour unit")
-        if self.code != "labor_recorded_hours" and self.currency is None:
-            raise ValueError("monetary measures require currency")
+        if self.code == "labor_recorded_hours":
+            if (self.unit, self.grain, self.currency, self.basis_code) != ("hour", "time_entry", None, None):
+                raise ValueError("recorded hours require time-entry grain, hour unit and no currency/basis")
+            if self.category not in ("hourly_labor", "lump_sum_labor"):
+                raise ValueError("recorded hours require an internal labor category")
+        elif self.code in ("so_sell", "po_ordered"):
+            if self.unit != "source_currency" or self.grain != "line" or self.currency is None or self.basis_code is not None:
+                raise ValueError("SO/PO monetary measures require line grain, currency unit/code and no basis")
+            if self.code == "po_ordered" and self.category not in ("product", "outsourced_labor", "integration_material"):
+                raise ValueError("PO amounts require a purchasable category")
+        elif (self.unit != "source_currency" or self.grain != "project_category" or
+              self.currency is None or self.basis_code is None):
+            raise ValueError("category totals require one named monetary SO/PO basis, project-category grain and currency")
+        if self.code == "category_total" and self.basis_code == "po_ordered" and self.category not in (
+                "product", "outsourced_labor", "integration_material"):
+            raise ValueError("PO category total requires a purchasable category")
         return self
 
 
 class MeasureInput(Frozen):
     source_id: UUID
     source_version: str = Field(min_length=1)
-    category: str
+    measure_code: Literal["so_sell", "po_ordered", "labor_recorded_hours"]
+    category: Literal["hourly_labor", "lump_sum_labor", "product", "outsourced_labor", "integration_material"]
     amount: Decimal
     unit: str
-    currency: str | None = None
+    currency: str | None = Field(default=None, pattern=r"^[A-Z]{3}$")
     evidence_id: UUID
     confirmed_project_id: UUID | None = None
 
@@ -238,15 +252,31 @@ class MeasureInput(Frozen):
             raise ValueError("amount must be exact source decimal, not float")
         return value
 
+    @model_validator(mode="after")
+    def compatible_source(self):
+        if self.measure_code == "labor_recorded_hours":
+            if self.unit != "hour" or self.currency is not None or self.category not in (
+                    "hourly_labor", "lump_sum_labor"):
+                raise ValueError("recorded-hour input requires labor category, hour unit and no currency")
+        elif self.unit != "source_currency" or self.currency is None:
+            raise ValueError("SO/PO input requires a currency amount and currency code")
+        if self.measure_code == "po_ordered" and self.category not in (
+                "product", "outsourced_labor", "integration_material"):
+            raise ValueError("PO input requires a purchasable category")
+        return self
+
 
 def aggregate_measure(definition: MeasureDefinition, inputs: tuple[MeasureInput, ...], project_id: UUID) -> Decimal | None:
     """Return None when no confirmed inputs; incompatible/ambiguous inputs block the aggregate."""
     seen: dict[UUID, MeasureInput] = {}
     total = Decimal(0)
     matched = False
+    source_code = definition.basis_code if definition.code == "category_total" else definition.code
     for item in inputs:
         if item.confirmed_project_id != project_id or item.category != definition.category:
             continue
+        if item.measure_code != source_code:
+            raise ValueError("SO sell, PO ordered and recorded-hour streams must not be combined")
         matched = True
         if item.unit != definition.unit or item.currency != definition.currency:
             raise ValueError("unit/currency collision in aggregate")
@@ -326,6 +356,8 @@ class AppliedTransition(Frozen):
         if self.to_state == "Published":
             if self.delivery_ack is None or self.policy_evaluation is None or not self.policy_version:
                 raise ValueError("publication requires verified delivery and policy evaluation")
+            if self.gate_decision_id is not None:
+                raise ValueError("automatic publication uses committed policy evaluation, not a gate decision")
         elif self.delivery_ack is not None:
             raise ValueError("delivery acknowledgment belongs only to publication")
         return self
@@ -349,11 +381,23 @@ class CommittedGateDecisionRef(Frozen):
     target: VersionRef
 
 
+class CommittedPolicyEvaluationRef(Frozen):
+    """Read-only link to a committed automatic evaluation, not a second decision history."""
+    evaluation: VersionRef
+    run_id: UUID
+    target: VersionRef
+    policy_version: str = Field(min_length=1)
+    outcome: Literal["permit", "block"]
+    evidence: tuple[VersionRef, ...] = Field(min_length=1)
+
+
 def replay_transitions(run_id: UUID, transitions: tuple[AppliedTransition, ...],
                        committed_executions: Mapping[str, CommittedExecutionRef],
-                       committed_decisions: Mapping[UUID, CommittedGateDecisionRef] | None = None) -> str:
+                       committed_decisions: Mapping[UUID, CommittedGateDecisionRef] | None = None,
+                       committed_policy_evaluations: Mapping[VersionRef, CommittedPolicyEvaluationRef] | None = None) -> str:
     state, version, used = "Requested", 1, set()
     decisions = committed_decisions or {}
+    evaluations = committed_policy_evaluations or {}
     for index, step in enumerate(transitions, 1):
         execution = committed_executions.get(step.execution_id)
         if (step.run_id != run_id or step.sequence != index or step.execution_id in used or
@@ -368,8 +412,16 @@ def replay_transitions(run_id: UUID, transitions: tuple[AppliedTransition, ...],
                 raise ValueError("gate decision reference is missing or inconsistent")
             if step.policy_evaluation is not None and step.policy_evaluation != decision.evaluation:
                 raise ValueError("policy evaluation and gate decision disagree")
-        if step.to_state == "Published" and step.delivery_ack.product != execution.target:
-            raise ValueError("acknowledged product differs from committed execution target")
+        if step.to_state == "Published":
+            if step.gate_decision_id is not None:
+                raise ValueError("automatic publication requires a committed policy evaluation path")
+            evaluation = evaluations.get(step.policy_evaluation)
+            if (evaluation is None or evaluation.evaluation != step.policy_evaluation or
+                    evaluation.run_id != run_id or evaluation.target != execution.target or
+                    evaluation.policy_version != step.policy_version or evaluation.outcome != "permit"):
+                raise ValueError("publication evaluation missing, mismatched or blocking")
+            if step.delivery_ack.product != execution.target:
+                raise ValueError("acknowledged product differs from committed execution target")
         if step.from_state != state or step.expected_run_version != version:
             raise ValueError("history has a state/version gap")
         if (state, step.to_state) not in {("Requested", "In Process"), ("Requested", "Failure"),
@@ -407,8 +459,13 @@ class PublicSourceRecord(Frozen):
             aware(self.occurred_at)
         if self.date_precision == "unknown" and (self.occurred_at is not None or self.original_date is not None):
             raise ValueError("unknown date cannot be assigned")
-        if self.date_precision == "source_date_assigned" and (self.occurred_at is None or self.original_date is None):
-            raise ValueError("assigned time requires original date and resulting timestamp")
+        if self.date_precision == "source_date_assigned":
+            if self.occurred_at is None or self.original_date is None:
+                raise ValueError("assigned time requires original date and resulting timestamp")
+            expected = datetime.combine(self.original_date, time(9, 0), tzinfo=ZoneInfo("America/Los_Angeles"))
+            if (self.occurred_at.replace(tzinfo=None) != expected.replace(tzinfo=None) or
+                    self.occurred_at.utcoffset() != expected.utcoffset()):
+                raise ValueError("assigned time must be 9:00 AM Los Angeles on original date with its DST offset")
         if self.date_precision == "source_timestamp" and self.occurred_at is None:
             raise ValueError("source timestamp missing")
         return self
