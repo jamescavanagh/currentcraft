@@ -1,4 +1,6 @@
 """First-change negative and fixture tests; no P4 runtime is asserted here."""
+import ast
+import inspect
 import json
 import sys
 import unittest
@@ -7,10 +9,11 @@ from decimal import Decimal
 from pathlib import Path
 from uuid import uuid4
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+from app.application.p4 import contracts as p4_contracts
 from app.application.p4.contracts import (AppliedTransition, Association, CommittedExecutionRef,
     CommittedGateDecisionRef, CommittedPolicyEvaluationRef, CriterionAssessment,
     DeliveryAcknowledgment, ExtractionManifest, GenerationRequest, MeasureDefinition, MeasureInput, PublicSourceRecord,
@@ -252,6 +255,82 @@ class P4DesignContracts(unittest.TestCase):
         self.assertTrue(check_release.allowed('src/app/application/p4/__init__.py'))
         self.assertFalse(check_release.allowed('src/app/application/p4/private-mappings.json'))
         self.assertFalse(check_release.allowed('src/app/application/p4/part_numbers.txt'))
+
+    def test_inventory_accounts_for_every_local_model_without_copies(self):
+        expected = {
+            'VersionRef', 'WorkflowIIdentity', 'ReportCalendar', 'GenerationRequest',
+            'ExtractionManifest', 'Association', 'MeasureDefinition', 'MeasureInput',
+            'CriterionAssessment', 'DeliveryAcknowledgment', 'AppliedTransition',
+            'CommittedExecutionRef', 'CommittedGateDecisionRef',
+            'CommittedPolicyEvaluationRef', 'PublicSourceRecord',
+        }
+        self.assertEqual({item.__name__ for item in p4_contracts.CONTRACTS}, expected)
+        self.assertEqual(len(p4_contracts.CONTRACTS), len(expected))
+        self.assertEqual(p4_contracts.CONTRACT_SUPPORT_TYPES, (p4_contracts.Frozen,))
+        registered = p4_contracts.CONTRACTS + p4_contracts.CONTRACT_SUPPORT_TYPES
+        local_models = {value for value in vars(p4_contracts).values()
+                        if inspect.isclass(value) and issubclass(value, BaseModel)
+                        and value.__module__ == p4_contracts.__name__}
+        self.assertEqual(set(registered), local_models)
+        for model in registered:
+            with self.subTest(model=model.__name__):
+                self.assertIs(getattr(p4_contracts, model.__name__), model)
+                self.assertTrue(model.model_config['frozen'])
+                self.assertEqual(model.model_config['extra'], 'forbid')
+                self.assertTrue(model.model_config['validate_default'])
+
+    def test_inventory_accounts_for_aliases_helpers_and_single_definitions(self):
+        tree = ast.parse(inspect.getsource(p4_contracts))
+        definitions = [node.name for node in tree.body
+                       if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))]
+        self.assertEqual(len(definitions), len(set(definitions)))
+        aliases = {target.id for node in tree.body if isinstance(node, ast.Assign)
+                   and isinstance(node.value, ast.Subscript)
+                   and isinstance(node.value.value, ast.Name) and node.value.value.id == 'Literal'
+                   for target in node.targets if isinstance(target, ast.Name)}
+        self.assertEqual(set(p4_contracts.CONTRACT_TYPE_ALIASES), aliases)
+        self.assertEqual(aliases, {'RequirementClass', 'Applicability', 'EvidenceCondition', 'Result'})
+        helpers = {value for value in vars(p4_contracts).values()
+                   if inspect.isfunction(value) and value.__module__ == p4_contracts.__name__}
+        self.assertEqual(set(p4_contracts.CONTRACT_HELPERS), helpers)
+        self.assertEqual(len(p4_contracts.CONTRACT_HELPERS), len(helpers))
+        self.assertEqual({item.__name__ for item in helpers},
+                         {'aware', 'resume_action', 'aggregate_measure', 'replay_transitions'})
+
+    def test_authoritative_inventory_documents_every_retained_symbol(self):
+        design = (ROOT / 'docs/domain/P4_DESIGN_CONTRACTS.md').read_text()
+        symbols = [item.__name__ for item in p4_contracts.CONTRACTS
+                   + p4_contracts.CONTRACT_SUPPORT_TYPES + p4_contracts.CONTRACT_HELPERS]
+        symbols.extend(p4_contracts.CONTRACT_TYPE_ALIASES)
+        for name in symbols:
+            with self.subTest(symbol=name):
+                self.assertIn(f'`{name}`', design)
+        for filename in ('SOURCE_ADAPTER_BOUNDARY.md', 'P4_INTEGRATION.md'):
+            self.assertTrue((ROOT / 'docs/architecture' / filename).is_file())
+            self.assertIn(filename, design)
+
+    def test_retained_reference_schema_and_replay_are_read_only(self):
+        reference = VersionRef(identity=uuid4(), version=1)
+        self.assertEqual(set(reference.model_json_schema()['properties']), {'identity', 'version'})
+        self.assertEqual(hash(reference), hash(VersionRef.model_validate(reference.model_dump())))
+        with self.assertRaises(ValidationError):
+            reference.version = 2
+        with self.assertRaises(ValidationError):
+            VersionRef(identity=uuid4(), version=True)
+        with self.assertRaises(ValidationError):
+            VersionRef(identity=uuid4(), version=1, private_key='synthetic-sentinel')
+        run = uuid4()
+        step = AppliedTransition(run_id=run, sequence=1, execution_id='process:read-only',
+            from_state='Requested', to_state='In Process', expected_run_version=1,
+            committed_run_version=2)
+        refs = {step.execution_id: CommittedExecutionRef(execution_id=step.execution_id,
+                                                        run_id=run, target=reference)}
+        before_step = step.model_dump(mode='json')
+        before_refs = {key: value.model_dump(mode='json') for key, value in refs.items()}
+        for _ in range(2):
+            self.assertEqual(replay_transitions(run, (step,), refs), 'In Process')
+            self.assertEqual(step.model_dump(mode='json'), before_step)
+            self.assertEqual({key: value.model_dump(mode='json') for key, value in refs.items()}, before_refs)
 
 
 if __name__ == '__main__':
