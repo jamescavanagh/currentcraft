@@ -37,7 +37,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Embedding enrichment](pipelines/EMBEDDING_ENRICHMENT.md) | `app.application.enrichment`, `app.infrastructure.enrichment` | implemented 0.6.0; geometry-only rays |
 | [Probe](pipelines/PROBE.md) | `app.application.probe`, `app.infrastructure.probe` | implemented 0.7.0 (backend only) |
 | [Domain scaffold](domain/DOMAIN_SCAFFOLD.md) | `app.domain` | remaining placeholders plus V1.1 capture proposals |
-| [L-system domain vocabulary](domain/LSYS_DOMAIN_VOCABULARY.md) | expectation grammar alphabet over `app.domain` objects | proposed; candidate symbols only, no grammar code |
+| [L-system domain vocabulary](domain/LSYS_DOMAIN_VOCABULARY.md) | `app.application.lsys`, `app.infrastructure.lsys` | loader and bounded growth implemented; every production a candidate; no matching or 0.13.0 grammar features |
+| [Needs and scope](domain/NEEDS_AND_SCOPE.md) | `app.domain.estimation`, `Subsystem.location_id` | implemented capture proposal; not in snapshot, persistence or API |
 | [Framework profiles over domain objects](domain/FRAMEWORK_PROFILES.md) | framework profiles, `app.infrastructure.enterprise` loader pattern | proposed; synthetic standard example only; real profiles private |
 | [Enterprise review corrections](domain/V1_REVIEW_CORRECTIONS.md) | `app.application.enterprise`, `app.domain` | confirmed requirements, proposed encodings and validation matrix |
 | [P4 design contracts](domain/P4_DESIGN_CONTRACTS.md) | `app.application.p4`, `app.domain` (workflow, quality) | reviewable domain contracts and reuse map; no orchestration or production publication |
@@ -68,7 +69,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 - [Evidence contracts](contracts/EVIDENCE_CONTRACTS.md): hierarchical chunks and provenance
 
 - [Agency contracts](contracts/AGENCY_CONTRACTS.md): process, plate, messaging, enrichment, probe, ingestion, persistence, splice, hfgt
-- [Readiness contracts](contracts/READINESS_CONTRACTS.md): evaluation, release ladder
+- [Readiness contracts](contracts/READINESS_CONTRACTS.md): evaluation, release ladder, L-system grammar
 - [Persistence schema](contracts/PERSISTENCE_SCHEMA.md): PostgreSQL 18 DDL from the migrations
 - [Domain scaffold](contracts/DOMAIN_SCAFFOLD.md)
 - [Gauge contracts](contracts/GAUGE_CONTRACTS.md)

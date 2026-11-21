@@ -659,6 +659,20 @@
    "path": "src/app/domain/parties/subcontractor_freelancer_vendor.py",
    "module": "app.domain.parties.subcontractor_freelancer_vendor",
    "note": "Vendor subtype: subcontractor or freelancer."
+  },
+  {
+   "class_name": "Need",
+   "source": "addition",
+   "path": "src/app/domain/estimation/need.py",
+   "module": "app.domain.estimation.need",
+   "note": "Definition pending review."
+  },
+  {
+   "class_name": "Scope",
+   "source": "addition",
+   "path": "src/app/domain/estimation/scope.py",
+   "module": "app.domain.estimation.scope",
+   "note": "Definition pending review."
   }
  ]
 }
