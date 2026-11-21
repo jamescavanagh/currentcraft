@@ -1,6 +1,6 @@
 ---
 title: Framework profiles over domain objects
-version: 0.1.0
+version: 0.2.0
 status: proposed
 tags: [currentcraft, domain, infrastructure, references, synthetic]
 ---
@@ -51,6 +51,23 @@ What the example shows:
 - One framework reaches several domains by mapping, so the profile count stays below the domain count.
 - A partial mapping records its gap in words; it does not invent a domain object to close it.
 - A gap framework may name a domain with no domain object yet. It then maps to nothing and lets the grammar grow nothing; it only records that the gap is covered once objects exist.
+
+## Synthetic meta-framework test envelope
+
+Tests and synthetic data are generated from one fictional standard: [`tests/fixtures/framework_profiles/framework.meta.synthetic.v1.json`](../../tests/fixtures/framework_profiles/framework.meta.synthetic.v1.json) (`SYNTH-META-001`, edition `TEST-1`, status `synthetic_test_only`). It models how a standard is built, not what any real standard says: identity, dated normative references, informative references, terms, clauses, annexes and notes. It confers no approval, compatibility or conformance, reproduces no source text, and is not a runtime schema or a parser for real standards.
+
+| Element | What the tests check |
+| --- | --- |
+| Envelope | `synthetic: true`; authority is none; private mappings and the real catalogue are excluded |
+| `meta_content_sha256` | SHA-256 of `meta_content` as sorted, compact JSON |
+| Records | `ReferenceSet` and `ReferenceValue` payloads validate against the domain classes; each value points at its set |
+| Scaffold rejections | the unreviewed standards scaffolds (`StandardsOrganization`, `Standard`, `StandardEdition`, `StandardClause`, `SpecificationReference`) reject fields they cannot yet capture |
+| Provision kinds | verbal form matches kind: requirement `shall`, prohibition `shall not`, recommendation `should`, permission `may`, possibility and capability `can`, statement none |
+| Testability | only requirements and prohibitions carry a test predicate; recommendations, permissions, possibilities, capabilities, statements, annexes and notes never execute |
+| References | normative references are dated and resolved; an unresolved informative reference carries a reason |
+| Generated data | toy records are checked against the testable clauses: a known marker passes, a missing or out-of-alphabet marker fails |
+
+Acceptance: [`tests/test_synthetic_meta_framework.py`](../../tests/test_synthetic_meta_framework.py). The envelope's `mapping_status` holds: the standards scaffolds cannot capture clause, edition or reference fields yet, so that content stays in the test envelope until reviewed definitions replace the scaffolds.
 
 ## Profile shape
 
@@ -117,5 +134,5 @@ A framework that models commercial exchanges can rank substitute products inside
 ## Not claimed
 
 - No real framework profile, loader change or mapper exists in this repository.
-- The synthetic frameworks resemble no particular standard.
+- The synthetic frameworks resemble no particular standard. The envelope cites public drafting concepts only and claims no endorsement.
 - See [L-system domain vocabulary](LSYS_DOMAIN_VOCABULARY.md) for the grammar alphabet these mappings constrain.
