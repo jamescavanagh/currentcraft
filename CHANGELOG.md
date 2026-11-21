@@ -38,6 +38,7 @@
 # 0.9.7 (2026-11-12)
 
 - **Sparse phase splice** (`app.application.splice`, `app.infrastructure.splice`), design source `docs/pipelines/SPARSE_PHASE_SPLICE.md`. Couples workbook source occurrences to a phase-blocked sparse embedding space with declared, versioned phase parameters.
+  - `PhaseChart`: anchors per phase code, origin, direction, bins, von Mises concentration, sparsity floor, shared weight and required provenance. A research coordinate for similarity weighting, never the simulator plate phase.
   - Phase evidence by declared rule only: a field, one typed relation hop to a field-phased target, or positive per-phase hours. Blank and zero are never evidence; unanchored codes are reported, not guessed; no phase from row order or titles.
   - Space: block 0 phase-free, block 1+b per bin; same signed blake2b hash as the ingest tensorizer; slot tokens for declared fields and non-provenance relation types (never targets). Cosine factorises exactly as content x coupling; unit norm; zero-based indices persisted through the existing pgvector `sparsevec` conversion. Profile digest (chart included) pins `EmbeddingSpace.model_version`, so a parameter change is a new space.
   - Junctions: cross-phase candidates with content similarity, phase coupling, spliced similarity, chart distance and shared words; kind filter, content threshold, minimum shared words and cap. Always `candidate`; no relation, dependency, approval or allocation is written.
