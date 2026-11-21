@@ -20,27 +20,40 @@ upgrade, reidentify or migrate it. Original constructors and payloads are unchan
 ## Six meanings
 
 1. Project: evidenced scope/phase, exact work packages/dependencies and a selected
-   configuration baseline. ISO 21502/21511 are the design frame, not an imposed
-   phase list or an allocation policy.
+   configuration baseline. This capture does not impose a phase list or allocation
+   policy.
 2. Working document: an exact captured source revision, derivation, supersession,
    latest received revision and separately evidenced authorization record.
-   ISO 15489/23081 and W3C PROV inform lineage. Received is not authorized.
-   Drawing stays separate; the original document transition still fails closed.
+   Received is not authorized. Drawing stays separate; the original document
+   transition still fails closed.
 3. Commercial order: exact line identities/versions, explicit unknown or exact
    quantities/units, requested configuration, commitment and fulfillment references.
-   REA/ISO 15944-4 and UBL inform the boundary. A line, PO reference, price or
-   fulfillment reference is not authority or proof that a commitment was approved.
+   A line, PO reference, price or fulfillment reference is not authority or proof
+   that a commitment was approved.
 4. Subsystem: evidenced boundary, versioned components, interfaces, dependencies
-   and sourced feature realization. ISO 42010 informs architecture description,
-   not a claim that graph compatibility proves physical interoperability.
+   and sourced feature realization. Graph compatibility does not prove physical
+   interoperability.
 5. Site acceptance test: exact project/configuration, document-revision basis,
    conditions, source-reported criteria/results, observed configuration and time.
-   IEC 62381 is a scoped process vocabulary, not universal commissioning policy.
    A separately sourced acceptance-decision reference is never created by passing.
 6. Feature configuration: explicit configuration identity/version and selected
-   features pinned to an exact model graph identity/revision/digest. ISO 26580
-   informs the feature-model frame. Uses the existing mandatory/pairwise validator;
-   source observation, installation, ordering and release remain separate.
+   features pinned to an exact model graph identity/revision/digest. Uses the
+   existing mandatory/pairwise validator; source observation, installation,
+   ordering and release remain separate.
+
+## Private reference boundary
+
+Standards names/editions, source links, clauses, domain crosswalks and enterprise
+interpretations belong in the private server-side `REF` layer, not public design
+pages, fixtures or generated examples. Proprietary mappings, business rules and
+adapter implementations remain private too.
+
+Authorized server-side adapters are intended to hydrate version-pinned references
+into the private graph. Public code exposes only generic contracts, opaque
+references and synthetic fixtures, and must work without private packages.
+
+This page records the boundary; it does not implement REF storage, access control
+or graph hydration, and does not claim that private sources have been moved.
 
 ## Rules
 

@@ -1,0 +1,35 @@
+{
+  "note": "Synthetic framework profiles. Invented concepts; no real standard is represented.",
+  "profiles": [
+    {
+      "schema": "framework-profile/0",
+      "framework_id": "SYN-A",
+      "framework_edition": "synthetic-1",
+      "kind": "primary",
+      "profile_version": "0.1.0",
+      "source_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "valid_from": "2026-01-01T00:00:00+00:00",
+      "valid_to": null,
+      "concepts": [
+        {"concept_id": "SYN-A.C1", "label": "work container", "domain": "Projects", "maps_to": "Project", "role": "primary", "coverage": "native"},
+        {"concept_id": "SYN-A.C2", "label": "record", "domain": "Working Docs", "maps_to": "Document", "role": "primary", "coverage": "mapped"},
+        {"concept_id": "SYN-A.C3", "label": "part of a whole", "domain": "Subsystems", "maps_to": "Subsystem", "role": "primary", "coverage": "mapped"},
+        {"concept_id": "SYN-A.C4", "label": "catalog item", "domain": "Inventory", "maps_to": "ProductDefinition", "role": "primary", "coverage": "mapped, partial", "gap": "movement events"},
+        {"concept_id": "SYN-A.C5", "label": "list of parts", "domain": "Inventory", "maps_to": "BOM", "role": "secondary", "coverage": "mapped, partial", "gap": "movement events"}
+      ]
+    },
+    {
+      "schema": "framework-profile/0",
+      "framework_id": "SYN-G",
+      "framework_edition": "synthetic-1",
+      "kind": "gap",
+      "profile_version": "0.1.0",
+      "source_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "valid_from": "2026-01-01T00:00:00+00:00",
+      "valid_to": null,
+      "concepts": [
+        {"concept_id": "SYN-G.C1", "label": "maturity class", "domain": "Estimation / Needs Analysis", "maps_to": null, "role": "gap", "coverage": "mapped, gap filled", "gap": "maturity thresholds"}
+      ]
+    }
+  ]
+}
