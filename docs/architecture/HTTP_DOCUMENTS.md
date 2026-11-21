@@ -1,7 +1,7 @@
 ---
 title: HTTP document API
 version: 0.10.0
-status: design and application queries implemented; document HTTP routes not implemented
+status: read projections and routes implemented; intake and live acceptance pending
 tags: [currentcraft, architecture, http, ingestion]
 ---
 
@@ -27,7 +27,7 @@ source occurrences, not approved or executable work.
 
 ## Intended endpoints
 
-Document HTTP routes are specified, not implemented by this slice:
+Read routes are implemented by this slice; intake routes remain follow-up work:
 
 * POST /v1/intake/documents: multipart intake, confirmed publish, then 202.
 * GET /v1/intake/{event_id}: pending, processed or quarantined.
@@ -94,6 +94,52 @@ OUTLINE_COLUMNS but withholds/substitutes private cells and escapes formula
 prefixes. Internal query/WBS output is not automatically safe for disclosure.
 Use synthetic public fixtures only.
 
+
+### Read projection and handle policy (0.10.0)
+
+Read DTOs allow only opaque object handles, fixed kind labels, fixed
+source-record assertions, approved_work=false and opaque subject links.
+No internal object is serialized directly. HMAC-SHA256 uses separate domains
+for document, task, subject and WBS handles and a random server-only process
+key, never the bearer secret. Handles cannot be decoded to source identities.
+They rotate on restart; persisted source identities do not change. Private
+server-side integrations obtain initial handles from the same container
+codec; subsequent projected responses carry subject links. This slice adds
+no public discovery endpoint or persistent handle directory.
+
+Document IDs in public URLs must be doc_ handles. Subject lookup accepts
+project or opportunity, the literal namespace opaque, and sub_ handles.
+Raw source IDs, namespaces and references are not valid public URL inputs.
+Handle resolution checks stored project-document/reference records before
+calling the existing application queries. The repository port has no opaque
+index or pagination: resolution reads at most 10,001 candidates of the
+requested kind and fails with safe 503 at that ceiling, never a silently
+incomplete 404. Linear lookup and process-local handles are local-alpha
+limits, not scalable public-service discovery. Persistent indexing needs a
+separate design.
+
+Both WBS formats preserve OUTLINE_COLUMNS order. WBS codes and parent codes
+become document-scoped opaque handles; levels are bounded structural integers
+and row kinds are allowlisted literals. Names become the fixed label
+"Source record (not approved work)". All other cells are withheld. CSV uses
+the same projection and also escapes formula prefixes (=, +, -, @, tab, CR,
+LF, including after leading whitespace). Structure never grants approval.
+
+The HTTP container exposes the existing UnitOfWorkFactory and one process
+codec; only wiring supplies infrastructure. Every repository access,
+including resolution, runs in the threadpool. Missing dependencies fail
+closed. Reads never invoke put, commit, messaging or blob APIs. Unknown and
+wrong-kind handles produce identical safe 404s. Invalid subject grammar
+produces safe 422. Unexpected errors log only a fixed application message,
+without paths, queries, exception names, exception text or tracebacks.
+External proxies/server access logs must separately be disabled or sanitized;
+this slice controls application error logs, not third-party logs.
+
+Acceptance covers exclusion canaries, DTO allowlists, handle domains and
+restart rotation, opaque URL inputs, token fail-closed behavior, current/all
+revisions, empty and malformed heads, JSON/CSV parity, formula escaping,
+threadpool reads and no writes. Live database/API acceptance remains pending.
+
 ## Committed-state queries
 
 document_head returns a project document or None. Unknown IDs and other
@@ -114,11 +160,9 @@ behavior requires live database acceptance.
 intake_status uses the exact public inbox_key used by the worker. No marker
 means pending, including unknown IDs; it does not prove queue membership.
 Applied means processed source occurrences; rejected means quarantined.
-The legacy adapter can emit a rejection while returning None, which the
-generic worker records as applied. This slice reflects stored outcomes,
-does not repair historical ambiguity and does not claim HTTP quarantine
-acceptance. Follow-up must commit adapter rejection and inbox outcome
-consistently before exposing status as end-to-end extraction truth.
+The merged application-prerequisite slice records adapter rejection and
+inbox outcome consistently. Historical markers are not repaired by these
+read routes; HTTP intake/quarantine acceptance remains a separate slice.
 
 Subject lookup uses the validated existing identity helper and document_of
 relation. Invalid subject grammar raises the existing contract validation
@@ -131,11 +175,12 @@ revision selection, malformed multiple heads, subject validation, no query
 commits, legacy/public inbox-key equality and actual worker markers.
 Stand-ins do not establish PostgreSQL/NATS/Docker compatibility.
 
-Remaining prerequisites: wire shared helpers into XLSX with byte-identical
-regressions, integrate worker quarantine outcomes, and reuse the existing
-token connection helper in runtime. HTTP routes, safe response projections,
-retry receipt storage, generated OpenAPI changes and Compose/API smoke remain
-follow-up work. Do not weaken layering or release checks.
+The merged prerequisite slice wires shared XLSX identity helpers, aligns
+worker quarantine outcomes and reuses the NATS token connection helper.
+Intake HTTP routes, retry receipt storage and Compose/API smoke remain
+follow-up work. Read routes, safe projections and generated OpenAPI are
+implemented here; live acceptance is pending. Do not weaken layering or
+release checks.
 
 Generate OpenAPI via scripts/gen_openapi.py, never hand-edit JSON.
 CI must require API tests, not silently skip dependencies. Run real database,

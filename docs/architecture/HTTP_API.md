@@ -5,7 +5,7 @@ status: shell implemented; nonroot Compose API and secret provisioner; live acce
 tags: [currentcraft, architecture, http]
 ---
 
-# HTTP API Architecture (0.9.9 Shell)
+# HTTP API Architecture (0.10.0 read slice)
 
 ## Overview & Process Model
 The HTTP API runs as a **separate operating system process** alongside the existing ingestion worker. It does not replace, wrap, or alter the verified `0.9.9` worker flow (`confirmed intake -> worker -> PostgreSQL object -> confirmed stored event`).
@@ -20,12 +20,33 @@ Out of scope for this slice: document intake, simulation endpoints, HFGT endpoin
 
 The generated contract lives in [`docs/contracts/OPENAPI.json`](../contracts/OPENAPI.json) and is CI-gated by `scripts/gen_openapi.py --check`.
 
+## Read endpoints (0.10.0)
+
+The [HTTP document design](HTTP_DOCUMENTS.md) governs the four protected read
+routes: document head, current/all-revision tasks, WBS JSON/CSV, and subject
+lookup. Explicit DTOs withhold private source text, fields, evidence and
+provenance. Opaque handles in bodies and URLs use a random server-only
+process key, separate from authentication. Task occurrences are source
+records, never approved work. Repository access runs in the threadpool and
+never commits. Generated OpenAPI includes these routes.
+
+Handles rotate on restart; private server-side integrations obtain initial
+handles from the container codec. Subject URLs use the literal namespace
+`opaque`, not a source namespace. Resolution fails closed at the documented
+10,001-candidate ceiling; this is a local-alpha implementation, not a
+persistent handle directory or public discovery service. WBS retains only
+opaque structural codes, bounded levels, safe row kinds and a fixed source
+label; other cells are withheld. Application error logs contain no request
+paths or raw exceptions. Slash redirects are disabled so Location headers
+cannot reflect supplied identifiers. Server/proxy access logs need separate
+privacy configuration. Live database/API acceptance is not claimed.
+
 ## Intended Later Ingestion Flow
 In subsequent slices (0.10.0), HTTP document intake will follow a strict asynchronous handoff:
 `Blob Storage write -> Confirmed NATS JetStream publish -> Ingestion Worker -> PostgreSQL authoritative version store -> Confirmed stored event`.
 
 ## Authentication & Security Model
-- **Shared Bearer Secret**: The protected endpoint uses HTTP Bearer authentication (`Authorization: Bearer <token>`) compared via constant-time digest (`secrets.compare_digest`).
+- **Shared Bearer Secret**: The protected endpoints use HTTP Bearer authentication (`Authorization: Bearer <token>`) compared via constant-time digest (`secrets.compare_digest`).
 - **Scope of Trust**: A valid bearer token authenticates **possession of a shared secret** only. It does **not** establish personal identity, role-based access control, or human approval authority.
 - **Unresolved Identity Platform**: Long-term API identity and platform authentication (e.g., OIDC, mTLS, service-mesh identity) remain unresolved and are intentionally not decided by this shell.
 - **Zero Secret Leakage**: Secrets must never appear in application logs, exception payloads, CLI arguments, environment values, generated OpenAPI schemas, or committed test fixtures. Secrets are read from files, never from inline environment values.

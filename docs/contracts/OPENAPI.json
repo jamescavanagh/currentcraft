@@ -15,6 +15,90 @@
         "title": "AuthCheckResponse",
         "type": "object"
       },
+      "DocumentResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_work": {
+            "const": false,
+            "default": false,
+            "description": "This projection never grants work approval.",
+            "title": "Approved Work",
+            "type": "boolean"
+          },
+          "assertion": {
+            "const": "source_record",
+            "default": "source_record",
+            "description": "Committed source record, not approval evidence.",
+            "title": "Assertion",
+            "type": "string"
+          },
+          "kind": {
+            "const": "project_document",
+            "default": "project_document",
+            "description": "Fixed source-object category.",
+            "title": "Kind",
+            "type": "string"
+          },
+          "object_id": {
+            "description": "Process-local opaque document handle, not its persisted identity.",
+            "pattern": "^(doc|task|sub|wbs)_[0-9a-f]{64}$",
+            "title": "Object Id",
+            "type": "string"
+          },
+          "subjects": {
+            "default": [],
+            "description": "Opaque subject links only, without relation evidence.",
+            "items": {
+              "$ref": "#/components/schemas/SubjectLink"
+            },
+            "title": "Subjects",
+            "type": "array"
+          }
+        },
+        "required": [
+          "object_id"
+        ],
+        "title": "DocumentResponse",
+        "type": "object"
+      },
+      "DocumentsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "documents": {
+            "description": "Allowlisted documents bound to the opaque subject.",
+            "items": {
+              "$ref": "#/components/schemas/DocumentResponse"
+            },
+            "title": "Documents",
+            "type": "array"
+          }
+        },
+        "required": [
+          "documents"
+        ],
+        "title": "DocumentsResponse",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "description": "Safe explanation without private values.",
+            "title": "Detail",
+            "type": "string"
+          },
+          "error": {
+            "description": "Stable error category.",
+            "title": "Error",
+            "type": "string"
+          }
+        },
+        "required": [
+          "error",
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
       "HealthResponse": {
         "properties": {
           "status": {
@@ -58,6 +142,292 @@
           "nats"
         ],
         "title": "ReadinessResponse",
+        "type": "object"
+      },
+      "SubjectLink": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "const": "opaque",
+            "default": "opaque",
+            "description": "Public namespace marker, never the source namespace.",
+            "title": "Namespace",
+            "type": "string"
+          },
+          "reference": {
+            "description": "Process-local opaque subject handle.",
+            "pattern": "^(doc|task|sub|wbs)_[0-9a-f]{64}$",
+            "title": "Reference",
+            "type": "string"
+          },
+          "subject_kind": {
+            "description": "Allowlisted subject category, not authority.",
+            "enum": [
+              "project",
+              "opportunity"
+            ],
+            "title": "Subject Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject_kind",
+          "reference"
+        ],
+        "title": "SubjectLink",
+        "type": "object"
+      },
+      "TaskResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "approved_work": {
+            "const": false,
+            "default": false,
+            "description": "Source occurrences are never executable-work approval.",
+            "title": "Approved Work",
+            "type": "boolean"
+          },
+          "assertion": {
+            "const": "source_record",
+            "default": "source_record",
+            "description": "Extracted occurrence, not an approved task.",
+            "title": "Assertion",
+            "type": "string"
+          },
+          "kind": {
+            "const": "wbs_task",
+            "default": "wbs_task",
+            "description": "Fixed source-occurrence category.",
+            "title": "Kind",
+            "type": "string"
+          },
+          "object_id": {
+            "description": "Process-local opaque occurrence handle.",
+            "pattern": "^(doc|task|sub|wbs)_[0-9a-f]{64}$",
+            "title": "Object Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "object_id"
+        ],
+        "title": "TaskResponse",
+        "type": "object"
+      },
+      "TasksResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "all_revisions": {
+            "description": "Whether all retained revisions were explicitly requested.",
+            "title": "All Revisions",
+            "type": "boolean"
+          },
+          "assertion": {
+            "const": "source_records_not_approved_work",
+            "default": "source_records_not_approved_work",
+            "description": "No task or work approval is asserted.",
+            "title": "Assertion",
+            "type": "string"
+          },
+          "document_id": {
+            "description": "Opaque handle of the selected source document.",
+            "pattern": "^(doc|task|sub|wbs)_[0-9a-f]{64}$",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "tasks": {
+            "description": "Allowlisted source occurrences only.",
+            "items": {
+              "$ref": "#/components/schemas/TaskResponse"
+            },
+            "title": "Tasks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "document_id",
+          "all_revisions",
+          "tasks"
+        ],
+        "title": "TasksResponse",
+        "type": "object"
+      },
+      "WbsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "assertion": {
+            "const": "source_records_not_approved_work",
+            "default": "source_records_not_approved_work",
+            "description": "An outline never grants work approval.",
+            "title": "Assertion",
+            "type": "string"
+          },
+          "columns": {
+            "default": [
+              "wbs_code",
+              "parent_wbs_code",
+              "wbs_level",
+              "name",
+              "row_kind",
+              "phase_code",
+              "subsystem_code",
+              "subsystem_state",
+              "hierarchy_basis",
+              "parent_status",
+              "labor_hours_known",
+              "roles_with_input",
+              "labor_sources",
+              "responsible_party",
+              "responsibility_raw",
+              "locator"
+            ],
+            "description": "Exact internal outline column order, not permission to disclose cells.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "document_id": {
+            "description": "Opaque source-document handle.",
+            "pattern": "^(doc|task|sub|wbs)_[0-9a-f]{64}$",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "rows": {
+            "description": "Privacy-projected structural outline.",
+            "items": {
+              "$ref": "#/components/schemas/WbsRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "document_id",
+          "rows"
+        ],
+        "title": "WbsResponse",
+        "type": "object"
+      },
+      "WbsRow": {
+        "additionalProperties": false,
+        "properties": {
+          "hierarchy_basis": {
+            "description": "Withheld private source cell.",
+            "title": "Hierarchy Basis",
+            "type": "null"
+          },
+          "labor_hours_known": {
+            "description": "Withheld private source cell.",
+            "title": "Labor Hours Known",
+            "type": "null"
+          },
+          "labor_sources": {
+            "description": "Withheld private source cell.",
+            "title": "Labor Sources",
+            "type": "null"
+          },
+          "locator": {
+            "description": "Withheld private source locator.",
+            "title": "Locator",
+            "type": "null"
+          },
+          "name": {
+            "const": "Source record (not approved work)",
+            "default": "Source record (not approved work)",
+            "description": "Fixed replacement for the private source title.",
+            "title": "Name",
+            "type": "string"
+          },
+          "parent_status": {
+            "description": "Withheld private source cell.",
+            "title": "Parent Status",
+            "type": "null"
+          },
+          "parent_wbs_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Opaque parent structural code, when present.",
+            "title": "Parent Wbs Code"
+          },
+          "phase_code": {
+            "description": "Withheld private source cell.",
+            "title": "Phase Code",
+            "type": "null"
+          },
+          "responsibility_raw": {
+            "description": "Withheld private source cell.",
+            "title": "Responsibility Raw",
+            "type": "null"
+          },
+          "responsible_party": {
+            "description": "Withheld private source cell.",
+            "title": "Responsible Party",
+            "type": "null"
+          },
+          "roles_with_input": {
+            "description": "Withheld private source cell.",
+            "title": "Roles With Input",
+            "type": "null"
+          },
+          "row_kind": {
+            "description": "Allowlisted structural row category.",
+            "enum": [
+              "phase",
+              "task",
+              "source_record"
+            ],
+            "title": "Row Kind",
+            "type": "string"
+          },
+          "subsystem_code": {
+            "description": "Withheld private source cell.",
+            "title": "Subsystem Code",
+            "type": "null"
+          },
+          "subsystem_state": {
+            "description": "Withheld private source cell.",
+            "title": "Subsystem State",
+            "type": "null"
+          },
+          "wbs_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Document-scoped opaque structural code, when present.",
+            "title": "Wbs Code"
+          },
+          "wbs_level": {
+            "anyOf": [
+              {
+                "maximum": 64.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Bounded structural level only.",
+            "title": "Wbs Level"
+          }
+        },
+        "required": [
+          "row_kind"
+        ],
+        "title": "WbsRow",
         "type": "object"
       }
     },
@@ -151,6 +521,405 @@
         "summary": "Auth Check",
         "tags": [
           "authentication"
+        ]
+      }
+    },
+    "/v1/documents/{document_id}": {
+      "get": {
+        "operationId": "get_document_v1_documents__document_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Document",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/v1/documents/{document_id}/tasks": {
+      "get": {
+        "operationId": "get_tasks_v1_documents__document_id__tasks_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "all_revisions",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "All Revisions",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TasksResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Tasks",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/v1/documents/{document_id}/wbs": {
+      "get": {
+        "operationId": "get_wbs_v1_documents__document_id__wbs_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "default": "json",
+              "enum": [
+                "json",
+                "csv"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WbsResponse"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Wbs",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/v1/subjects/{subject_kind}/{namespace}/{reference}/documents": {
+      "get": {
+        "operationId": "get_subject_documents_v1_subjects__subject_kind___namespace___reference__documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subject_kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "project",
+                "opportunity"
+              ],
+              "title": "Subject Kind",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "reference",
+            "required": true,
+            "schema": {
+              "title": "Reference",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Subject Documents",
+        "tags": [
+          "documents"
         ]
       }
     }

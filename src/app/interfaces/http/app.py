@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from app._version import __version__
 from .container import Container
 from .errors import install_error_handlers
-from .routes import auth, health
+from .routes import auth, documents, health
 
 ContainerFactory = Callable[[], Awaitable[Container]]
 
@@ -36,8 +36,10 @@ def create_app(
         title="Currentcraft API",
         version=__version__,
         lifespan=lifespan,
+        redirect_slashes=False,
     )
     install_error_handlers(app)
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/v1")
+    app.include_router(documents.router, prefix="/v1")
     return app

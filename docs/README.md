@@ -45,7 +45,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [JetStream broker adapter](architecture/JETSTREAM.md) | `app.application.messaging.durable`, `app.infrastructure.messaging.jetstream`, `app.application.ingest.durable` | implemented 0.9.3; server integration gated |
 | [Persistence](architecture/PERSISTENCE.md) | `app.application.persistence`, `app.infrastructure.persistence` | implemented 0.9.2; PostgreSQL 18 SQL, proven only by the postgres-18 CI job |
 | [Message broker](architecture/MESSAGE_BROKER.md) | `app.application.messaging`, `app.infrastructure.messaging` | in-memory adapter 0.5.0; MQTT/IoT adapter planned |
-| [HTTP API](architecture/HTTP_API.md) | `app.interfaces.http` | 0.9.9 shell: health, readiness, auth check |
+| [HTTP API](architecture/HTTP_API.md) | `app.interfaces.http` | shell and 0.10.0 privacy-safe reads; intake/live acceptance pending |
+| [HTTP documents](architecture/HTTP_DOCUMENTS.md) | `app.application.queries`, `app.interfaces.http` | allowlist read projections and opaque handles; intake/live acceptance pending |
 | [CNN to GNN pipeline](pipelines/CNN_GNN_PIPELINE.md) | `app.application.simulation` | stages 1 to 4 |
 | [Gauge pipeline](pipelines/GAUGE_PIPELINE.md) | `app.application.gauge` | research instrument |
 | [Geodesic probe](pipelines/GEODESIC_PROBE.md) | `app.application.gauge.geodesic` | research instrument |
@@ -59,7 +60,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 - [Domain scaffold](contracts/DOMAIN_SCAFFOLD.md)
 - [Gauge contracts](contracts/GAUGE_CONTRACTS.md)
 - [Simulation contracts](contracts/SIMULATION_CONTRACTS.md)
-- [OpenAPI contract](contracts/OPENAPI.json): HTTP API shell
+- [OpenAPI contract](contracts/OPENAPI.json): HTTP API shell and privacy-safe read routes
 
 ## How the slices connect
 
