@@ -34,6 +34,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [P4 design contracts](domain/P4_DESIGN_CONTRACTS.md) | `app.application.p4`, `app.domain` (workflow, quality) | reviewable domain contracts and reuse map; no orchestration or production publication |
 | [P4 integration plan](architecture/P4_INTEGRATION.md) | `app.application.p4`, persistence, messaging | planned only: transaction boundaries, delivery and recovery |
 | [Drawing and document lifecycle](domain/DOCUMENT_LIFECYCLE.md) | `app.domain.document` | proposed decision record for 0.11.0; no code yet |
+| [Evaluation harness](architecture/EVALUATION.md) | `app.application.evaluation` | contracts and metrics 0.11.0; benchmark runner not implemented |
 | [Domain boundary](architecture/DOMAIN_BOUNDARY.md) | all layers | Pydantic approved; deterministic domain |
 | [XLSX workbook](pipelines/XLSX_WORKBOOK.md) | `app.application.ingest.workbook`, `app.infrastructure.ingest.xlsx` | implemented 0.9.1; source occurrences, reviewed promotion |
 | [Sparse phase splice](pipelines/SPARSE_PHASE_SPLICE.md) | `app.application.splice`, `app.infrastructure.splice` | implemented 0.9.7; hashing features, junctions are candidates |
@@ -52,6 +53,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 ## Generated references (never edit by hand)
 
 - [Agency contracts](contracts/AGENCY_CONTRACTS.md): process, plate, messaging, enrichment, probe, ingestion, persistence, splice, hfgt
+- [Readiness contracts](contracts/READINESS_CONTRACTS.md): evaluation
 - [Persistence schema](contracts/PERSISTENCE_SCHEMA.md): PostgreSQL 18 DDL from the migrations
 - [Domain scaffold](contracts/DOMAIN_SCAFFOLD.md)
 - [Gauge contracts](contracts/GAUGE_CONTRACTS.md)
