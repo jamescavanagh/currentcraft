@@ -3,6 +3,7 @@ import asyncio
 import os
 import signal
 import sys
+import tempfile
 import time
 import uuid
 from datetime import datetime, timezone
@@ -15,6 +16,54 @@ from app.infrastructure.ingest.directory_blobs import DirectoryBlobStore
 from app.infrastructure.ingest.wiring import build_durable_ingest
 from app.infrastructure.messaging.jetstream import JetStreamBroker
 from app.infrastructure.persistence import build_postgres
+
+
+def configuration_bridge(environ):
+    """One-release launch bridge; explicit preferred values always win."""
+    for name, value in tuple(environ.items()):
+        if name.startswith('CURRENTCRAFT_'):
+            environ['DATAMESH_' + name[len('CURRENTCRAFT_'):]] = value
+
+
+def stage_api_secrets(directory):
+    """Copy validated mounted secrets into a private, ephemeral UID-10001 directory."""
+    stage = Path(tempfile.mkdtemp(prefix='api-', dir=directory))
+    for name in ('api_token', 'pg_app', 'nats_token'):
+        value = secret(name)
+        target = stage / name
+        fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, 'w') as stream:
+            stream.write(value + '\n')
+            stream.flush()
+            os.fchown(stream.fileno(), 10001, 10001)
+            os.fchmod(stream.fileno(), 0o400)
+    os.chown(stage, 10001, 10001)
+    os.chmod(stage, 0o700)
+    return stage
+
+
+def launch_api():
+    # File-backed Compose secrets retain host permissions. Stage while privileged,
+    # then permanently drop privilege before importing/running any HTTP application.
+    if os.geteuid() != 0:
+        raise RuntimeError('API secret staging requires the local container entrypoint')
+    try:
+        stage = stage_api_secrets('/run/currentcraft')
+        for setting, name in (('API_TOKEN_FILE', 'api_token'), ('PG_APP_FILE', 'pg_app'),
+                              ('NATS_TOKEN_FILE', 'nats_token')):
+            # These container paths are fixed: host overrides must not bypass staging.
+            os.environ['CURRENTCRAFT_' + setting] = str(stage / name)
+            os.environ['DATAMESH_' + setting] = str(stage / name)
+        os.setgroups([])
+        os.setgid(10001)
+        os.setuid(10001)
+        if os.getuid() != 10001 or os.geteuid() != 10001 or os.getgid() != 10001:
+            raise RuntimeError('privilege drop failed')
+        os.execv(sys.executable, [sys.executable, '-m', 'uvicorn',
+                 'app.interfaces.http.app:create_app', '--factory', '--host', '0.0.0.0',
+                 '--port', '8000', '--no-access-log'])
+    except Exception:
+        raise RuntimeError('local API launch failed; inspect configuration and permissions') from None
 
 
 def secret(name):
@@ -45,6 +94,9 @@ async def broker():
 
 
 async def main(mode):
+    if mode == 'api':
+        launch_api()
+        return
     if mode == 'prepare':
         for name in ('blobs', 'nats'):
             path = Path('/srv/datamesh') / name
@@ -141,4 +193,5 @@ async def main(mode):
 
 
 if __name__ == '__main__':
+    configuration_bridge(os.environ)
     asyncio.run(main(sys.argv[1]))
