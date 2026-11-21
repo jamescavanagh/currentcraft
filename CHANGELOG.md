@@ -31,7 +31,7 @@
 # 0.9.7 (2026-11-12)
 
 - **Sparse phase splice** (`app.application.splice`, `app.infrastructure.splice`), design source `docs/pipelines/SPARSE_PHASE_SPLICE.md`. Couples workbook source occurrences to a phase-blocked sparse embedding space with declared, versioned phase parameters.
-  - `PhaseChart`: anchors per phase code, origin, direction, bins, von Mises concentration, sparsity floor, shared weight and required provenance. A research coordinate for similarity weighting, never the simulator plate phase.
+  - `PhaseChart`: anchors per phase code, origin, direction, bins, von Mises concentration, chart distance, sparsity floor, shared weight and required provenance. A research coordinate for similarity weighting, never the simulator plate phase.
   - Phase evidence by declared rule only: a field, one typed relation hop to a field-phased target, or positive per-phase hours. Blank and zero are never evidence; unanchored codes are reported, not guessed; no phase from row order or titles.
   - Space: block 0 phase-free, block 1+b per bin; same signed blake2b hash as the ingest tensorizer; slot tokens for declared fields and non-provenance relation types (never targets). Cosine factorises exactly as content x coupling; unit norm; zero-based indices persisted through the existing pgvector `sparsevec` conversion. Profile digest (chart included) pins `EmbeddingSpace.model_version`, so a parameter change is a new space.
   - Junctions: cross-phase candidates with content similarity, phase coupling, spliced similarity, chart distance and shared words; kind filter, content threshold, minimum shared words and cap. Always `candidate`; no relation, dependency, approval or allocation is written.
@@ -61,7 +61,7 @@
 
 # 0.9.3 (2026-11-12)
 
-- **Durable broker adapter architecture**: separate async `DurableBrokerPort`, `PublishReceipt`, `DurableDelivery`; synchronous simulation API retained unchanged. Design: `docs/architecture/JETSTREAM.md`.
+- **Durable broker adapter architecture**: separate async `DurableBrokerPort`, `PublishReceipt`, `DurableConsumerSpec`, `DurableDelivery`; synchronous simulation API retained unchanged. Design: `docs/architecture/JETSTREAM.md`.
 - NATS JetStream infrastructure adapter (optional `nats` extra), lazy connection, explicit stream provisioning, file-backed Limits retention with DiscardNew, independent RAW/EVENTS/TELEMETRY/QUARANTINE capacities, confirmed publishing with event-id dedup header, bounded durable pull consumers, explicit ack/retry/progress and durable replay start.
 - Reversible per-level hex encoding preserves slash topics and dotted source IDs; final # maps to parent + descendant filters.
 - Transactional worker: persistent per-handler inbox deduplication, commit-before-ack, lease heartbeats, rollback and delayed retry, transactional quarantine before terminal acknowledgment. Async outbox relay marks only confirmed publications. No end-to-end exactly-once promise.
@@ -74,7 +74,7 @@
 - Ubuntu deployment addendum: `scripts/deploy_postgres_ubuntu.sh` provisions dedicated localhost-only PostgreSQL 18 service, PGDG key fingerprint check, SCRAM login, root-only credentials, safe reruns and optional pgvector. Bash-only checks pass; actual APT/systemd deployment remains unexecuted.
 
 - **Persistence layer** (repository pattern), design source `docs/architecture/PERSISTENCE.md`.
-  - `app.application.persistence`: Pydantic contracts (`StoreResult`, `EdgeRecord`, `VersionedRecord`, `CommandRecord`, `StockPosition`, `Reservation`, `EmbeddingSpace`, `EmbeddingRecord`, `OutboxEntry`), `Protocol` repository ports, array-free `UnitOfWork`, and use cases `persist_objects`, `save_aggregate` / `load_aggregate`, `run_once`, `reserve_stock`, `relay_outbox`, `documents_for`, `tasks_of`. No drivers, SQL or `json`; never imported by `app.domain`.
+  - `app.application.persistence`: Pydantic contracts (`StoreResult`, `EdgeRecord`, `VersionedRecord`, `CommandRecord`, `StockPosition`, `Reservation`, `EmbeddingSpace`, `EmbeddingRecord`, `OutboxEntry`), `Protocol` repository ports, `UnitOfWork`, and use cases `persist_objects`, `save_aggregate` / `load_aggregate`, `run_once`, `reserve_stock`, `relay_outbox`, `documents_for`, `tasks_of`. No drivers, SQL or `json`; never imported by `app.domain`.
   - `app.infrastructure.persistence`: PostgreSQL 18 dialect, ordered idempotent migrations (001-005, opt-in 101 pgvector), SQL repositories with bound parameters only, `SqlUnitOfWork` (explicit READ COMMITTED transactions), in-memory repositories with snapshot rollback, and wiring (`build_postgres`, lazy psycopg 3; `build_duckdb_standin`; `build_memory`).
   - Source occurrences version by digest (same digest = no-op); edges are stored per source version and read through the current head; recursive traversal depth 1-6. Aggregates use compare-and-swap with full history. Commands apply at most once. Reservations use one conditional update plus `CHECK (reserved <= on_hand)` so competing claims cannot overcommit. Embeddings keep masks and model identity; sparse indices convert zero-based to one-based only in `vectors.py`. Outbox events (`domain.stored`) commit with the change and relay at least once.
   - Project documents from 0.9.1 persist unchanged: `tasks_of` returns tasks of the document's current revision by default.
@@ -87,8 +87,9 @@
 
 - **Project estimation workbooks** (`xlsx` source format), design source `docs/pipelines/XLSX_WORKBOOK.md`.
   - Stdlib SpreadsheetML reader: raw cell text, formulas and cached values kept apart; shared formulas expanded by reference shifting; bold, italic, indent and Excel outline levels read for hierarchy evidence. No macro execution, external-link resolution or URL fetching.
+  - `WorkbookProfile` contracts (anchors, vocabularies, catalogs, role matrix with `HierarchySpec` and `RoleClassRule`, line tables, reference and crosswalk checks). Unknown layouts are quarantined.
   - **Document tied to the project:** `IntakeBinding` on `RawItem` names the project or opportunity (governed external reference, supplied at intake, never parsed). A profile with `document_type` emits a `project_document` with a stable source-document identity, `document_of` its `project_reference`, and one `workbook_revision` per content hash. Unbound documents are kept and flagged.
-  - Task extraction: phases (root), stems and sub-system headings, leaves under a sub-system (indent or name code, parent proposed). `wbs_code` / `parent_wbs_code` / `wbs_level` give an explicit hierarchy column per revision; `wbs_outline()` projects it for review. Sub-system codes resolve only against the index; template placeholders keep their example code unresolved.
+  - **Task extraction:** phases (root), stems and sub-system headings, leaves under a sub-system (indent or name code, parent proposed). `wbs_code` / `parent_wbs_code` / `wbs_level` give an explicit hierarchy column per revision; `wbs_outline()` projects it for review. Sub-system codes resolve only against the index; template placeholders keep their example code unresolved.
   - Task x role demand only where inputs exist: blank never becomes zero, partial and explicit-zero states kept, labor hours = count x hours each with elapsed estimate = hours each, stale caches reported. Role codes split into series/number/year; labor source internal, contract or vendor (vendor hours flagged as priced elsewhere). Responsibility conflicts resolved by declared precedence with raw values kept.
   - BOM lines with one part-number claim each (unmapped, never collapsed), the line's own classification (group headers are context, never carried down), sub-system candidates, raw money text and external UOM authority.
   - Diagnostics, never repairs: inconsistent formula references, role-code mismatch, references beyond a sheet's used range, dependencies on excluded sheets, code crosswalk conflicts, formatting/text disagreement, unknown responsibility values.
@@ -96,7 +97,7 @@
 
 # 0.9.0 (2026-11-12)
 
-- **Domain entity scaffold** (`app.domain`), design source `docs/domain/DOMAIN_SCAFFOLD.md`. 94 classes: 82 names from a source class model plus 12 additions (ProductDefinition, AssetInstance, Supplier, four Vendor subtypes, Shipment, CalendarBooking, BOM, BOMLine, RFI, Agent). Each has two fields (optional UUID, fixed `unreviewed-scaffold` status), rejects extra fields and fails closed on `require_accepted_definition()`. No business fields, permissions, lifecycles or inheritance between scaffolds.
+- **Domain entity scaffold** (`app.domain`), design source `docs/domain/DOMAIN_SCAFFOLD.md`. 94 classes: 82 names from a source class model plus 12 additions (ProductDefinition, AssetInstance, four Vendor subtypes, Shipment, CalendarBooking, BOM, BOMLine, RFI, Agent). Each has two fields (optional UUID, fixed `unreviewed-scaffold` status), rejects extra fields and fails closed on `require_accepted_definition()`. No business fields, permissions, lifecycles or inheritance between scaffolds.
 - Generated reference `docs/contracts/DOMAIN_SCAFFOLD.md`, CI-gated by `scripts/gen_domain_scaffold_docs.py --check`.
 - Release check allowlists `src/app/domain/`. Enterprise-specific records stay out of the public tree.
 - Docs: removed an enterprise term from the ingestion page and an internal work-item title from the CNN/GNN pipeline page (both present in 0.8.0).
