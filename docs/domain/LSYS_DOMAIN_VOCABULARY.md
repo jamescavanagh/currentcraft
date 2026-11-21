@@ -1,6 +1,6 @@
 ---
 title: L-system domain vocabulary
-version: 0.1.0
+version: 0.1.1
 status: proposed
 tags: [currentcraft, domain, lsys, grammar, vocabulary]
 ---
@@ -104,8 +104,8 @@ The private register holds five evidenced productions. Their public reading:
 
 | Rule | Domain-object reading | Mapping status |
 | --- | --- | --- |
-| `p1: Project → F[L] × n` | a project decomposes into locations | `L` (location) has no domain object; gap |
-| `p2: L → F[Subsystem] × k` | a location decomposes into subsystems | `Subsystem` has a project link only; location link absent |
+| `p1: Project → F[Location] × n` | a project decomposes into locations | `Location` exists as an unreviewed scaffold; no project link yet |
+| `p2: Location → F[Subsystem] × k` | a location decomposes into subsystems | `Subsystem` has a project link only; location link absent |
 | `p3: Subsystem → F[o] × m` | a subsystem holds objects | `o` must be a non-resource object |
 | `p4: Need → Document` | a need produces a scope document | `Need` has no domain object; gap |
 | `p5: Document → BOM + Scope` | a scope document produces a BOM and a labor/service scope | `BOM` exists; `Scope` has no domain object; gap |
@@ -115,6 +115,20 @@ The private register holds five evidenced productions. Their public reading:
 ## Readout symbols
 
 Nine physics symbols in the register (vorticity, divergence, flow compression, dilation, the vorticity dilation term, polar coordinates, radial and angular velocity, polar vorticity) are **state readouts**, not domain objects. Today they correspond only to the `datamesh-sim/v2` field channels (`vorticity`, `divergence`), which are `embedding_geometry`, not physical encodings of object meaning. Polar terms are not a first-class contract input. They may annotate a grown possibility for exploration; they never become conditions for growth or release.
+
+## Acceptance: resources are rejected
+
+[`tests/test_lsys_resource_symbols.py`](../../tests/test_lsys_resource_symbols.py) with the synthetic cases in [`tests/fixtures/lsys/resource_symbol_cases.json`](../../tests/fixtures/lsys/resource_symbol_cases.json):
+
+| Check | Runs now |
+| --- | --- |
+| Resources are discovered as `Resource` subclasses from the domain; the set must equal Employee, Contributor, Agent until reviewed | yes |
+| The alphabet tables on this page name no resource class | yes |
+| Every reject case (axiom, predecessor, successor terminal, verb argument, incidence object, the `Resource` base, case and whitespace variants) is caught; every accept case is clean and names real domain classes | yes |
+| `ProcessExecution` rejects a resource id used as an object id | yes |
+| `app.application.lsys.load_profile` raises `ValueError` on every reject case and accepts every accept case | skipped until the loader exists |
+
+Proposed profile shape used by the fixture: `axiom`, `productions` (`id`, `predecessor`, `successor` list) and optional `expectations` (`verb`, `args`). Symbol matching trims and case-folds, so spelling variants of a resource are rejected too.
 
 ## Not claimed
 
