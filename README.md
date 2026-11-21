@@ -4,7 +4,7 @@
 
 It exposes situation, alternatives, readiness and decision rights. It does not decide for people: readiness is never a release, candidates are never approved work, and simulated work can never release.
 
-> **Status: alpha (`0.9.9`).** Contracts, persistence, messaging and an HTTP shell are implemented and tested on synthetic data. No business or process validation is claimed. Mathematical models in this repository are exploratory lenses, not validated process facts.
+> **Status: alpha release candidate (`0.10.0`), not released.** Contracts, persistence, messaging, bounded HTTP intake and privacy-safe document reads are implemented. Hosted real-service smoke is recorded separately from synthetic tests; the private vocabulary release gate remains outstanding. No business or process validation is claimed. Mathematical models in this repository are exploratory lenses, not validated process facts.
 
 Currentcraft was previously developed as DataMesh; older changelog entries and design pages keep that name.
 
@@ -25,7 +25,7 @@ A hexagonal layout with dependency boundaries enforced by AST layering tests:
 - **`src/app/domain/`**: domain entities, versioning contracts and invariants. Pydantic v2 is approved here; no I/O, drivers or numerical runtimes.
 - **`src/app/application/`**: use cases and contracts (`ingest`, `persistence`, `messaging`, `enrichment`, `probe`, `plate`, `splice`, `process`, `gauge`, `simulation`, `hfgt`, `enterprise`, `p4`).
 - **`src/app/infrastructure/`**: adapters for PostgreSQL 18 (`psycopg`), NATS JetStream (`nats-py`), tensor operations and runtime execution.
-- **`src/app/interfaces/http/`**: the FastAPI HTTP shell. Only `wiring.py` may import from `app.infrastructure`.
+- **`src/app/interfaces/http/`**: the FastAPI document API with bounded intake, opaque receipts and privacy-safe reads. Only `wiring.py` may import from `app.infrastructure`.
 
 Persistence is append-only and versioned; events flow through durable JetStream streams with an outbox.
 
@@ -50,9 +50,11 @@ This runs the release check, verifies every generated contract (including the Op
 ## Run locally
 
 - **Local stack** (PostgreSQL 18, NATS JetStream, worker): see [Local Compose stack](docs/architecture/LOCAL_COMPOSE.md).
-- **HTTP API shell** (`/healthz`, `/readyz`, `/v1/auth/check`): see [HTTP API](docs/architecture/HTTP_API.md) for configuration and a localhost-only launch.
+- **Document API** (health/readiness/auth, bounded intake/status and privacy-safe reads): see [HTTP API](docs/architecture/HTTP_API.md) for configuration and a localhost-only launch.
 
 ## Documentation
+
+- [0.10.0 candidate evidence and blocking release gate](docs/releases/0.10.0.md)
 
 - [Documentation index](docs/README.md)
 - [Docs-first design](docs/DOCS_FIRST.md): every change starts as a design page; generated contracts are CI-gated.

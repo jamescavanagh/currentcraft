@@ -1,44 +1,41 @@
 ---
 title: Roadmap
-version: 0.9.9
-status: living page; updated each release
+version: 0.10.0
+status: release candidate; pending private vocabulary gate and coordinator release approval
 tags: [datamesh, roadmap]
 ---
 
 # Roadmap
 
-What the next release carries. Everything here is **not** implemented in 0.9.9.
+## 0.10.0 document API candidate: implemented
 
-## 0.10.0: FastAPI document API, rebased on 0.9.9
+The HTTP API beside the durable worker is implemented: shared CLI/API document
+identity, local bearer auth, docs-first contracts, application prerequisites,
+FastAPI shell/readiness, bounded intake/status and durable opaque receipts,
+privacy-safe document/task/WBS/subject reads, required combined synthetic API
+acceptance and nonroot Compose API/secret provisioning. Real text HTTP upload,
+worker polling and identical retry passed on the preceding merged baseline,
+before and after durable-service restart. Candidate-specific run evidence is
+recorded in [the candidate record](releases/0.10.0.md), never inferred from that
+baseline. The strict required HTTP gate fails on missing or skipped tests.
 
-The 0.10.0 plan (HTTP API beside the ingestion worker, clean public repository) was written against the 0.9.6 bundle.
-It now starts from the **0.9.9** coordinator bundle. Build order is unchanged:
+The repository has advanced since the 0.9.9 bundle. Version preparation does
+not itself publish a release or close acceptance. Remaining candidate gates:
+exact-head hosted checks, recorded server/driver/image matrix, fresh public
+export/private-path checks, private vocabulary scan and coordinator release
+approval. Hosted dependency-complete Python 3.11/3.12 required tests are the
+approved execution criterion; local checks remain separately reported.
 
-1. Publish the public repo baseline (parallel; gates going live)
-2. Decide API identity and access rules
-3. Write the HTTP API design page (`docs/architecture/HTTP_API.md`, `version: 0.10.0`)
-4. Add application prerequisites
-5. Scaffold the FastAPI layer (`app.interfaces.http`)
-6. Build intake endpoints
-7. Build document and task read endpoints
-8. Test the API end to end
-9. Add the API to the Compose stack
-10. Release 0.10.0 and run live acceptance
+Scope exclusions remain deletion/restoration, OIDC, public CORS, ClickUp import,
+S3, simulation and HFGT HTTP endpoints. Source occurrences are never approved
+work. Existing compatibility aliases remain; their removal is not authorized
+by changing this package version. Fault injection remains production follow-up.
 
-What changes because of 0.9.7 to 0.9.9:
+Forward-version evidence/evaluation/ladder/drawing/challenge contracts and design
+pages retain their own stated limits, not implied completed workflows. The
+items below are deferred, with no new date, owner assignment or 0.11.0 promise.
 
-| Area | Change the 0.10.0 work must respect |
-|---|---|
-| Baseline | Export from the 0.9.9 bundle; move `references/private/` out first (it now also holds `splice-0.9.7/` and the PEW 3.1 objects). |
-| Allowlist | `src/app/application/common/`, `src/app/application/hfgt/`, `src/app/infrastructure/hfgt/` and `tests/fixtures/**/*.json` are public. `src/app/interfaces/` is added in step 5. |
-| Shared base | Import `_Frozen` from `app.application.common.contracts`; the `simulation.contracts` re-export is for one release only. |
-| Simulation contract | `datamesh-sim/v2`: eigenvalue key `mu_min_abs` (v1 `lambda_min_abs` read as a deprecated alias); nodes are sorted by id on validation, so digests and tensor row order are input-order independent. Any API DTO built from simulation results uses the v2 names. |
-| Process contract | `datamesh-process/v1` gained optional `at_buffer`, `origin_buffer`, `destination_buffer`. Ingestion projections are byte-identical; DTOs may expose the fields as optional. |
-| New contract | `datamesh-hfgt/v1` exists. Exposing it over HTTP is **out of 0.10.0 scope** unless decided in step 2. |
-| Live gates | The postgres-18, jetstream and compose-smoke jobs are still waiting; nothing in 0.9.7 to 0.9.9 cleared them. |
-| Scope | Still out: deletion review and delete endpoints, ClickUp import, S3 blob adapter, OIDC, public CORS. |
-
-## 0.10.0: HFGT follow-ups deferred from 0.9.9
+## Deferred HFGT backlog (not a 0.10.0 commitment)
 
 | # | Item | Owner of the decision |
 |---|---|---|
