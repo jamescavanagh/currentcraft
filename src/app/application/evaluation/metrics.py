@@ -1,4 +1,4 @@
-"""Deterministic metric functions. Pure Python; no numeric libraries."""
+"""Deterministic metric functions (design: docs/architecture/EVALUATION.md). Pure Python."""
 from __future__ import annotations
 
 import math
@@ -8,12 +8,18 @@ from typing import Iterable, Optional
 from .contracts import (
     ABSENCE_STATES,
     AbsenceJudgment,
+    AbsenceMetrics,
     AbsencePrediction,
+    Coverage,
     EdgeJudgment,
+    EdgeMetrics,
     EdgePrediction,
+    EvaluationEnvelope,
     EvaluationReport,
     RankedRun,
+    RelationEdgeMetrics,
     RelevanceJudgment,
+    RetrievalMetrics,
 )
 
 
@@ -90,8 +96,21 @@ def ndcg_at_k(judgments, runs, k: int) -> Optional[float]:
     return total / len(qs)
 
 
-def edge_scores(judgments: Iterable[EdgeJudgment], predictions: Iterable[EdgePrediction]) -> dict[str, float | int | None]:
-    """Precision over judged predictions; recall over edges judged true. Unknown and unjudged are reported."""
+def _edge_block(labels: dict, preds: set) -> RelationEdgeMetrics:
+    judged = [p for p in preds if labels.get(p) in ("true", "false")]
+    tp = sum(1 for p in judged if labels[p] == "true")
+    true_edges = {k for k, v in labels.items() if v == "true"}
+    return RelationEdgeMetrics(
+        precision=tp / len(judged) if judged else None,
+        recall=len(true_edges & preds) / len(true_edges) if true_edges else None,
+        predicted=len(preds), judged=len(judged),
+        unknown=sum(1 for p in preds if labels.get(p) == "unknown"),
+        unjudged=sum(1 for p in preds if p not in labels),
+    )
+
+
+def edge_metrics(judgments: Iterable[EdgeJudgment], predictions: Iterable[EdgePrediction]) -> EdgeMetrics:
+    """Open-world edge metrics overall and per relation type."""
     labels: dict[tuple[str, str, str], str] = {}
     for j in judgments:
         key = (j.source_id, j.relation, j.target_id)
@@ -99,21 +118,14 @@ def edge_scores(judgments: Iterable[EdgeJudgment], predictions: Iterable[EdgePre
             raise ValueError(f"conflicting edge labels for {key}")
         labels[key] = j.label
     preds = {(p.source_id, p.relation, p.target_id) for p in predictions}
-    judged = [p for p in preds if labels.get(p) in ("true", "false")]
-    tp = sum(1 for p in judged if labels[p] == "true")
-    true_edges = {k for k, v in labels.items() if v == "true"}
-    return {
-        "edge_precision": tp / len(judged) if judged else None,
-        "edge_recall": len(true_edges & preds) / len(true_edges) if true_edges else None,
-        "edges_predicted": len(preds),
-        "edges_judged": len(judged),
-        "edges_unknown": sum(1 for p in preds if labels.get(p) == "unknown"),
-        "edges_unjudged": sum(1 for p in preds if p not in labels),
-    }
+    relations = sorted({k[1] for k in labels} | {p[1] for p in preds})
+    by_relation = {r: _edge_block({k: v for k, v in labels.items() if k[1] == r}, {p for p in preds if p[1] == r})
+                   for r in relations}
+    return EdgeMetrics(overall=_edge_block(labels, preds), by_relation=by_relation)
 
 
-def absence_accuracy(judgments: Iterable[AbsenceJudgment], predictions: Iterable[AbsencePrediction]):
-    """Accuracy over judged expected nodes plus a full confusion matrix (truth -> predicted -> count).
+def absence_metrics(judgments: Iterable[AbsenceJudgment], predictions: Iterable[AbsencePrediction]) -> AbsenceMetrics:
+    """Accuracy over judged expected nodes plus a full confusion matrix.
 
     A judged node with no prediction counts as wrong and is reported as ``missing_prediction``.
     """
@@ -133,40 +145,32 @@ def absence_accuracy(judgments: Iterable[AbsenceJudgment], predictions: Iterable
         p = pred.get(node, "missing_prediction")
         confusion[t][p] += 1
         correct += p == t
-    acc = correct / len(truth) if truth else None
-    return acc, confusion, {"expected_nodes_judged": len(truth),
-                            "predictions_unjudged": sum(1 for n in pred if n not in truth)}
+    return AbsenceMetrics(accuracy=correct / len(truth) if truth else None,
+                          confusion=confusion if truth else {}, judged=len(truth),
+                          predictions_unjudged=sum(1 for n in pred if n not in truth))
 
 
-def evaluate(system_id: str, *, k: int = 10, relevance=(), runs=(), edge_labels=(), edges=(),
-             absence_labels=(), absence_predictions=()) -> EvaluationReport:
-    """One report for one system. Metrics that have no judged population are omitted, never zero-filled."""
+def evaluate(envelope: EvaluationEnvelope, *, k_values: tuple[int, ...] = (10,), relevance=(), runs=(),
+             edge_labels=None, edges=None, absence_labels=None, absence_predictions=None) -> EvaluationReport:
+    """One report for one system. Metrics with no judged population are omitted, never zero-filled."""
+    if not k_values or any(k < 1 for k in k_values):
+        raise ValueError("k_values must be positive")
     relevance, runs = list(relevance), list(runs)
     for r in runs:
-        if r.system_id != system_id:
-            raise ValueError(f"run from {r.system_id} passed to evaluation of {system_id}")
-    metrics: dict[str, float] = {}
-    coverage: dict[str, int] = {}
+        if r.system_id != envelope.system_id:
+            raise ValueError(f"run from {r.system_id} passed to evaluation of {envelope.system_id}")
     grades = _grades(relevance)
     scored = _scored_queries(grades)
     by_q = _runs_by_query(runs)
-    coverage["queries_judged"] = len(grades)
-    coverage["queries_scored"] = len(scored)
-    coverage["queries_without_relevant"] = len(grades) - len(scored)
-    coverage["queries_missing_run"] = sum(1 for q in scored if q not in by_q)
-    for name, value in (("recall_at_k", recall_at_k(relevance, runs, k)), ("mrr", mrr(relevance, runs)),
-                        ("ndcg_at_k", ndcg_at_k(relevance, runs, k))):
-        if value is not None:
-            metrics[name] = value
-    es = edge_scores(edge_labels, edges)
-    for key in ("edge_precision", "edge_recall"):
-        if es[key] is not None:
-            metrics[key] = es[key]
-    for key in ("edges_predicted", "edges_judged", "edges_unknown", "edges_unjudged"):
-        coverage[key] = es[key]
-    acc, confusion, acov = absence_accuracy(absence_labels, absence_predictions)
-    if acc is not None:
-        metrics["absence_accuracy"] = acc
-    coverage.update(acov)
-    return EvaluationReport(system_id=system_id, k=k, metrics=metrics, coverage=coverage,
-                            absence_confusion=confusion if acov["expected_nodes_judged"] else {})
+    ks = tuple(sorted(set(k_values)))
+    recall = {k: v for k in ks if (v := recall_at_k(relevance, runs, k)) is not None}
+    ndcg = {k: v for k in ks if (v := ndcg_at_k(relevance, runs, k)) is not None}
+    retrieval = RetrievalMetrics(recall_at=recall, ndcg_at=ndcg, mrr=mrr(relevance, runs))
+    edges_out = None if edge_labels is None and edges is None else edge_metrics(edge_labels or (), edges or ())
+    absence_out = (None if absence_labels is None and absence_predictions is None
+                   else absence_metrics(absence_labels or (), absence_predictions or ()))
+    coverage = Coverage(queries_judged=len(grades), queries_scored=len(scored),
+                        queries_without_relevant=len(grades) - len(scored),
+                        queries_missing_run=sum(1 for q in scored if q not in by_q))
+    return EvaluationReport(envelope=envelope, retrieval=retrieval, edges=edges_out, absence=absence_out,
+                            coverage=coverage)

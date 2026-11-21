@@ -1,13 +1,7 @@
-"""Evaluation harness (0.11.0): retrieval, edge and absence-state metrics over labeled judgments."""
-from .contracts import (  # noqa: F401
-    ABSENCE_STATES,
-    EVALUATION_SCHEMA,
-    AbsenceJudgment,
-    AbsencePrediction,
-    EdgeJudgment,
-    EdgePrediction,
-    EvaluationReport,
-    RankedRun,
-    RelevanceJudgment,
-)
-from .metrics import absence_accuracy, edge_scores, evaluate, mrr, ndcg_at_k, recall_at_k  # noqa: F401
+"""Evaluation harness (0.11.0): retrieval, edge and absence-state metrics over labeled judgments.
+
+Design: docs/architecture/EVALUATION.md.
+"""
+from .contracts import *  # noqa: F401,F403
+from .contracts import CONTRACTS, SCHEMA_VERSION  # noqa: F401
+from .metrics import absence_metrics, edge_metrics, evaluate, mrr, ndcg_at_k, recall_at_k  # noqa: F401

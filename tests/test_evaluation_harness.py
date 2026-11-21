@@ -1,3 +1,4 @@
+import doctest
 import math
 import sys
 import unittest
@@ -8,12 +9,22 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from pydantic import ValidationError  # noqa: E402
 
+from app.application.common import ABSENCE_STATES  # noqa: E402
 from app.application.evaluation import (  # noqa: E402
-    ABSENCE_STATES, EVALUATION_SCHEMA, AbsenceJudgment, AbsencePrediction, EdgeJudgment, EdgePrediction,
-    RankedRun, RelevanceJudgment, absence_accuracy, edge_scores, evaluate, mrr, ndcg_at_k, recall_at_k,
+    CONTRACTS, SCHEMA_VERSION, AbsenceJudgment, AbsencePrediction, EdgeJudgment, EdgePrediction,
+    EvaluationEnvelope, RankedRun, RelevanceJudgment, absence_metrics, edge_metrics, evaluate, mrr, ndcg_at_k,
+    recall_at_k,
 )
 
 SYS = "hybrid-synthetic"
+H = "0" * 64
+
+
+def env(**kw):
+    base = dict(judgment_set_id="synthetic-set", judgment_set_sha256=H, system_id=SYS, system_version="0.0.1",
+                config_sha256=H, run_id="run-1", criteria_frozen_before_run=True)
+    base.update(kw)
+    return EvaluationEnvelope(**base)
 
 
 def rj(q, i, g):
@@ -31,12 +42,10 @@ RUNS = [run("q1", "d9", "d1", "d3", "d2"), run("q2", "d5"), run("q3", "d7")]
 
 class Retrieval(unittest.TestCase):
     def test_recall_at_k(self):
-        # q1: top2 = d9,d1 -> 1/2; q2: 1/1 -> mean 0.75
         self.assertAlmostEqual(recall_at_k(REL, RUNS, 2), 0.75)
         self.assertAlmostEqual(recall_at_k(REL, RUNS, 4), 1.0)
 
     def test_mrr(self):
-        # q1 first relevant at rank 2, q2 at rank 1
         self.assertAlmostEqual(mrr(REL, RUNS), (0.5 + 1.0) / 2)
 
     def test_ndcg_perfect_and_imperfect(self):
@@ -44,19 +53,27 @@ class Retrieval(unittest.TestCase):
         self.assertAlmostEqual(ndcg_at_k(REL, perfect, 2), 1.0)
         self.assertLess(ndcg_at_k(REL, RUNS, 2), 1.0)
 
+    def test_several_k_in_one_report(self):
+        r = evaluate(env(), k_values=(4, 2), relevance=REL, runs=RUNS)
+        self.assertEqual(list(r.retrieval.recall_at), [2, 4])
+        self.assertAlmostEqual(r.retrieval.recall_at[2], 0.75)
+        self.assertAlmostEqual(r.retrieval.recall_at[4], 1.0)
+
     def test_missing_run_scores_zero_and_is_reported(self):
-        report = evaluate(SYS, k=2, relevance=REL, runs=[run("q2", "d5")])
-        self.assertAlmostEqual(report.metrics["recall_at_k"], 0.5)
-        self.assertEqual(report.coverage["queries_missing_run"], 1)
+        r = evaluate(env(), k_values=(2,), relevance=REL, runs=[run("q2", "d5")])
+        self.assertAlmostEqual(r.retrieval.recall_at[2], 0.5)
+        self.assertEqual(r.coverage.queries_missing_run, 1)
 
     def test_queries_without_relevant_are_excluded_not_zero(self):
-        report = evaluate(SYS, k=2, relevance=REL, runs=RUNS)
-        self.assertEqual(report.coverage["queries_scored"], 2)
-        self.assertEqual(report.coverage["queries_without_relevant"], 1)
+        r = evaluate(env(), relevance=REL, runs=RUNS)
+        self.assertEqual((r.coverage.queries_scored, r.coverage.queries_without_relevant), (2, 1))
 
     def test_no_judgments_omits_metric(self):
-        self.assertIsNone(recall_at_k([], RUNS, 5))
-        self.assertNotIn("recall_at_k", evaluate(SYS, runs=RUNS).metrics)
+        r = evaluate(env(), runs=RUNS)
+        self.assertEqual(r.retrieval.recall_at, {})
+        self.assertIsNone(r.retrieval.mrr)
+        self.assertIsNone(r.edges)
+        self.assertIsNone(r.absence)
 
     def test_conflicting_judgments_rejected(self):
         with self.assertRaises(ValueError):
@@ -64,11 +81,26 @@ class Retrieval(unittest.TestCase):
 
     def test_one_system_at_a_time(self):
         with self.assertRaises(ValueError):
-            evaluate(SYS, relevance=REL, runs=[run("q1", "d1", system="other")])
+            evaluate(env(), relevance=REL, runs=[run("q1", "d1", system="other")])
 
     def test_ranked_items_unique(self):
         with self.assertRaises(ValidationError):
             run("q1", "d1", "d1")
+
+    def test_k_must_be_positive(self):
+        with self.assertRaises(ValueError):
+            evaluate(env(), k_values=(0,), relevance=REL, runs=RUNS)
+
+
+class Envelope(unittest.TestCase):
+    def test_hashes_must_be_sha256(self):
+        with self.assertRaises(ValidationError):
+            env(config_sha256="abc")
+
+    def test_envelope_is_required(self):
+        r = evaluate(env(scope="partition-a"), relevance=REL, runs=RUNS)
+        self.assertEqual(r.envelope.scope, "partition-a")
+        self.assertTrue(r.envelope.criteria_frozen_before_run)
 
 
 class Edges(unittest.TestCase):
@@ -78,25 +110,33 @@ class Edges(unittest.TestCase):
         EdgeJudgment(source_id="x", relation="document_of", target_id="p", label="true"),
         EdgeJudgment(source_id="y", relation="document_of", target_id="p", label="unknown"),
     ]
+    PREDS = [EdgePrediction(source_id="a", relation="revision_of", target_id="b"),
+             EdgePrediction(source_id="a", relation="supersedes", target_id="c"),
+             EdgePrediction(source_id="y", relation="document_of", target_id="p"),
+             EdgePrediction(source_id="z", relation="document_of", target_id="p")]
 
     def test_open_world_precision(self):
-        preds = [EdgePrediction(source_id="a", relation="revision_of", target_id="b"),
-                 EdgePrediction(source_id="a", relation="supersedes", target_id="c"),
-                 EdgePrediction(source_id="y", relation="document_of", target_id="p"),
-                 EdgePrediction(source_id="z", relation="document_of", target_id="p")]
-        s = edge_scores(self.LABELS, preds)
-        self.assertAlmostEqual(s["edge_precision"], 0.5)  # unknown and unjudged excluded
-        self.assertAlmostEqual(s["edge_recall"], 0.5)
-        self.assertEqual((s["edges_unknown"], s["edges_unjudged"]), (1, 1))
+        o = edge_metrics(self.LABELS, self.PREDS).overall
+        self.assertAlmostEqual(o.precision, 0.5)
+        self.assertAlmostEqual(o.recall, 0.5)
+        self.assertEqual((o.unknown, o.unjudged), (1, 1))
+
+    def test_per_relation_breakdown(self):
+        m = edge_metrics(self.LABELS, self.PREDS).by_relation
+        self.assertEqual(set(m), {"revision_of", "supersedes", "document_of"})
+        self.assertEqual(m["revision_of"].precision, 1.0)
+        self.assertEqual(m["supersedes"].precision, 0.0)
+        self.assertIsNone(m["document_of"].precision)
+        self.assertEqual(m["document_of"].recall, 0.0)
 
     def test_relation_type_matters(self):
-        s = edge_scores(self.LABELS, [EdgePrediction(source_id="a", relation="document_of", target_id="b")])
-        self.assertIsNone(s["edge_precision"])
-        self.assertEqual(s["edges_unjudged"], 1)
+        o = edge_metrics(self.LABELS, [EdgePrediction(source_id="a", relation="document_of", target_id="b")]).overall
+        self.assertIsNone(o.precision)
+        self.assertEqual(o.unjudged, 1)
 
 
 class Absence(unittest.TestCase):
-    def test_states_match_decision_record(self):
+    def test_states_come_from_common(self):
         self.assertEqual(set(ABSENCE_STATES), {"confirmed", "candidate", "superseded", "not_yet_due",
                                                "inaccessible", "not_found_in_scope", "not_applicable"})
 
@@ -107,12 +147,11 @@ class Absence(unittest.TestCase):
         pred = [AbsencePrediction(expected_node_id="e1", state="confirmed"),
                 AbsencePrediction(expected_node_id="e2", state="not_found_in_scope"),
                 AbsencePrediction(expected_node_id="e9", state="candidate")]
-        acc, confusion, cov = absence_accuracy(truth, pred)
-        self.assertAlmostEqual(acc, 1 / 3)
-        # inaccessible mislabelled as not found is the failure this metric exists to expose
-        self.assertEqual(confusion["inaccessible"]["not_found_in_scope"], 1)
-        self.assertEqual(confusion["superseded"]["missing_prediction"], 1)
-        self.assertEqual(cov["predictions_unjudged"], 1)
+        m = absence_metrics(truth, pred)
+        self.assertAlmostEqual(m.accuracy, 1 / 3)
+        self.assertEqual(m.confusion["inaccessible"]["not_found_in_scope"], 1)
+        self.assertEqual(m.confusion["superseded"]["missing_prediction"], 1)
+        self.assertEqual(m.predictions_unjudged, 1)
 
     def test_unknown_state_rejected(self):
         with self.assertRaises(ValidationError):
@@ -121,16 +160,29 @@ class Absence(unittest.TestCase):
 
 class Report(unittest.TestCase):
     def test_full_report_is_deterministic(self):
-        a = evaluate(SYS, k=2, relevance=REL, runs=RUNS)
-        b = evaluate(SYS, k=2, relevance=list(reversed(REL)), runs=list(reversed(RUNS)))
+        a = evaluate(env(), k_values=(2, 5), relevance=REL, runs=RUNS)
+        b = evaluate(env(), k_values=(5, 2), relevance=list(reversed(REL)), runs=list(reversed(RUNS)))
         self.assertEqual(a, b)
-        self.assertEqual(a.schema_version, EVALUATION_SCHEMA)
-        self.assertTrue(all(math.isfinite(v) for v in a.metrics.values()))
+        self.assertEqual(a.schema_version, SCHEMA_VERSION)
+        self.assertTrue(all(math.isfinite(v) for v in a.retrieval.recall_at.values()))
 
     def test_report_is_frozen(self):
-        r = evaluate(SYS, relevance=REL, runs=RUNS)
+        r = evaluate(env(), relevance=REL, runs=RUNS)
         with self.assertRaises(ValidationError):
-            r.k = 5
+            r.coverage = None
+
+
+class DocsFirst(unittest.TestCase):
+    def test_every_field_has_a_description(self):
+        for m in CONTRACTS:
+            for name, f in m.model_fields.items():
+                self.assertTrue(f.description, f"{m.__name__}.{name}")
+
+    def test_design_page_examples_run(self):
+        page = ROOT / "docs" / "architecture" / "EVALUATION.md"
+        result = doctest.testfile(str(page), module_relative=False, verbose=False)
+        self.assertEqual(result.failed, 0)
+        self.assertGreater(result.attempted, 0)
 
 
 class Layering(unittest.TestCase):
