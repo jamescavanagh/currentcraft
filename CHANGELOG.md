@@ -1,3 +1,9 @@
+# Unreleased: required combined synthetic API acceptance
+
+- Added a single-container HTTP workbook upload -> durable in-memory broker -> real ingestion worker -> HTTP status -> privacy-safe document/task/WBS/subject read chain. Covers changed revisions, current/all-revision selection, retry without head restoration, malformed-workbook quarantine, exact CSV parity and response/log privacy canaries. No repository/inbox state is manually seeded.
+- The public gate exports `DATAMESH_REQUIRE_API_TESTS=1` and explicitly runs required HTTP modules before full discovery. Import/dependency errors, empty modules, failures, unexpected successes, skips and expected failures fail closed. Existing private/live-service gates and release/layering checks remain intact.
+- Not claimed: combined real-stack HTTP POST-and-poll acceptance, private vocabulary certification, release/version bump, deployment or production readiness. Runtime, persisted identities, response contracts, generated OpenAPI and dependency declarations are unchanged.
+
 # Unreleased: drawing lifecycle design correction (docs only)
 
 - Implemented in documentation only: superseded the earlier facet proposal with the accepted requirement that Drawing is separate from Document and Revision and Submittal are Document subtypes. Historical proposal retained; Decision 4 source-file never-lock rules unchanged.
