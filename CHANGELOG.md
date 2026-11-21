@@ -1,10 +1,10 @@
 # Unreleased: scoped local API integration
 
-- Added a separate Compose API service with loopback-only host publishing, bootstrap completion dependency, shared blob storage, readiness healthcheck and the API installation extra. Uvicorn runs as UID/GID 10001 after root-only secret staging to a private container tmpfs.
-- Local initialization exclusively generates and retains a 64-hex API token with owner-only host permissions; token staging never weakens host file permissions. Existing database, broker, volume and persisted object identities are unchanged.
+- Added a separate Compose API service with loopback-only host publishing, bootstrap completion dependency, shared blob storage, readiness healthcheck and the API installation extra. The API and its new secret-provisioning helper both start as UID/GID 10001 with all capabilities dropped and no-new-privileges; the earlier privileged API staging design is replaced.
+- Local initialization exclusively generates and retains a 64-hex API token with owner-only host permissions. The host streams three validated secrets over stdin to the nonroot provisioner, which installs mode-0400 files in a UID-10001-owned mode-0700 named volume initialized by the image at build time. The API mounts it read-only; no host secret mounts, root helper, secret argv/environment values, or world-readable API token workaround. Provisioning failure blocks launch. Existing database, broker, data-volume and persisted object identities are unchanged.
 - Local launch configuration prefers `CURRENTCRAFT_*`; `DATAMESH_*` remains a fallback for one release. Explicit preferred values win. A runtime bridge leaves HTTP and ingestion implementation paths unchanged.
 - Added bounded liveness/readiness and positive/negative shared-token shell smoke to `smoke`, plus standalone `api-smoke`. Existing worker smoke remains intact.
-- Not claimed: POST-and-poll intake smoke, repository-wide rename, live acceptance before the JetStream token prerequisite lands, or a 0.10.0 release/version bump. Docker/Actions and live-service evidence must be reported separately from static checks.
+- Not claimed: whole-stack rootlessness (the existing root prepare service is unchanged), Docker daemon rootless mode, POST-and-poll intake smoke, repository-wide rename, or a 0.10.0 release/version bump. The prior revision's Docker shell-smoke timeout is not evidence of this revision passing; Docker/Actions and live-service results must be reported separately from static checks.
 
 # 0.9.9 (2026-11-16)
 
