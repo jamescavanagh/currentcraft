@@ -1,8 +1,11 @@
 """Local integration stack composition. No production credentials, topology or permissions implied."""
 import asyncio
+import json
 import os
 import signal
+import stat
 import sys
+import tempfile
 import time
 import uuid
 from datetime import datetime, timezone
@@ -15,6 +18,95 @@ from app.infrastructure.ingest.directory_blobs import DirectoryBlobStore
 from app.infrastructure.ingest.wiring import build_durable_ingest
 from app.infrastructure.messaging.jetstream import connect_jetstream
 from app.infrastructure.persistence import build_postgres
+
+
+def configuration_bridge(environ):
+    """One-release launch bridge; explicit preferred values always win."""
+    for name, value in tuple(environ.items()):
+        if name.startswith('CURRENTCRAFT_'):
+            environ['DATAMESH_' + name[len('CURRENTCRAFT_'):]] = value
+
+
+API_UID = API_GID = 10001
+API_SECRET_DIR = Path('/run/currentcraft-secrets')
+API_SECRETS = ('api_token', 'pg_app', 'nats_token')
+
+
+def require_api_identity():
+    if (os.getuid(), os.geteuid(), os.getgid(), os.getegid()) != (
+            API_UID, API_UID, API_GID, API_GID) or os.geteuid() == 0:
+        raise ValueError('nonroot API identity required')
+
+
+def validate_api_path(path, mode, directory=False):
+    info = path.lstat()
+    expected = stat.S_ISDIR if directory else stat.S_ISREG
+    if (not expected(info.st_mode) or stat.S_IMODE(info.st_mode) != mode
+            or info.st_uid != API_UID or info.st_gid != API_GID):
+        raise ValueError('invalid private API secret permissions')
+
+
+def valid_token(value):
+    return isinstance(value, str) and len(value) == 64 and all(c in '0123456789abcdef' for c in value)
+
+
+def provision_api_secrets(payload, directory=API_SECRET_DIR):
+    """Nonroot, bounded stdin provisioning; never overwrite a different existing secret."""
+    try:
+        require_api_identity()
+        validate_api_path(directory, 0o700, directory=True)
+        if len(payload) > 4096:
+            raise ValueError('oversize payload')
+        values = json.loads(payload)
+        if not isinstance(values, dict) or set(values) != set(API_SECRETS):
+            raise ValueError('invalid payload keys')
+        if not all(valid_token(v) for v in values.values()):
+            raise ValueError('invalid payload values')
+        missing = []
+        # Validate the complete existing set before installing any missing file.
+        for name in API_SECRETS:
+            target = directory / name
+            if target.exists() or target.is_symlink():
+                validate_api_path(target, 0o400)
+                if target.read_text().strip() != values[name]:
+                    raise ValueError('secret rotation requires operator review')
+            else:
+                missing.append(name)
+        for name in missing:
+            fd, temporary = tempfile.mkstemp(prefix='.stage-', dir=directory)
+            temporary = Path(temporary)
+            try:
+                with os.fdopen(fd, 'w') as stream:
+                    stream.write(values[name] + '\n')
+                    stream.flush()
+                    os.fchmod(stream.fileno(), 0o400)
+                    os.fsync(stream.fileno())
+                # Atomic and exclusive installation. An interrupted provision can be retried.
+                os.link(temporary, directory / name, follow_symlinks=False)
+            finally:
+                temporary.unlink()
+    except Exception:
+        raise RuntimeError('local API secret provisioning failed; review input and volume permissions') from None
+
+
+def launch_api():
+    try:
+        require_api_identity()
+        validate_api_path(API_SECRET_DIR, 0o700, directory=True)
+        for name in API_SECRETS:
+            target = API_SECRET_DIR / name
+            validate_api_path(target, 0o400)
+            if not valid_token(target.read_text().strip()):
+                raise ValueError('invalid provisioned API secret')
+        for setting, name in (('API_TOKEN_FILE', 'api_token'), ('PG_APP_FILE', 'pg_app'),
+                              ('NATS_TOKEN_FILE', 'nats_token')):
+            os.environ['CURRENTCRAFT_' + setting] = str(API_SECRET_DIR / name)
+            os.environ['DATAMESH_' + setting] = str(API_SECRET_DIR / name)
+        os.execv(sys.executable, [sys.executable, '-m', 'uvicorn',
+                 'app.interfaces.http.app:create_app', '--factory', '--host', '0.0.0.0',
+                 '--port', '8000', '--no-access-log'])
+    except Exception:
+        raise RuntimeError('local API launch failed; inspect configuration and permissions') from None
 
 
 def secret(name):
@@ -44,6 +136,13 @@ async def broker():
 
 
 async def main(mode):
+    if mode == 'provision-api-secrets':
+        require_api_identity()
+        provision_api_secrets(sys.stdin.buffer.read(4097))
+        return
+    if mode == 'api':
+        launch_api()
+        return
     if mode == 'prepare':
         for name in ('blobs', 'nats'):
             path = Path('/srv/datamesh') / name
@@ -140,4 +239,5 @@ async def main(mode):
 
 
 if __name__ == '__main__':
+    configuration_bridge(os.environ)
     asyncio.run(main(sys.argv[1]))

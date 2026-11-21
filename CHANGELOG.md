@@ -1,28 +1,10 @@
-# Unreleased (0.10.0 read-endpoint slice)
+# Unreleased: scoped local API integration
 
-- Implemented a standalone allowlist DTO/projection module before read routes.
-  Opaque domain-separated HMAC handles use a random server-only process key,
-  never the shared bearer secret. Source titles, fields, evidence, provenance,
-  references, mapping names and paths are withheld. Source occurrences never
-  assert approved work.
-- Implemented token-protected document heads, current/all-revision tasks,
-  WBS JSON/CSV and opaque subject lookup over existing committed-state queries.
-  Every repository read runs in the threadpool; no query writes or commits.
-  The container exposes the existing UoW factory without new infrastructure
-  imports outside wiring. Unknown/wrong-kind handles fail with safe 404.
-- WBS retains OUTLINE_COLUMNS, opaque structural codes, bounded levels and
-  fixed labels; other cells are withheld. CSV additionally escapes formula
-  prefixes. Application error logs omit raw paths and exceptions; slash
-  redirects are disabled to prevent identifier reflection in Location.
-- Updated the HTTP documents design first, aligned HTTP API frontmatter to
-  the 0.10.0 slice, indexed the design page, and regenerated OpenAPI with its
-  generator. Package/release version remains 0.9.9 pending release acceptance.
-- Limits/not claimed: process-local handles rotate on restart and initial
-  discovery requires a private server-side integration; lookup is linear and
-  fails closed at 10,001 candidates. No persistent handle index, intake route,
-  retry storage, PostgreSQL snapshot guarantee, live API/database/broker or
-  Docker acceptance, third-party access-log sanitization, private-term
-  certification, production readiness, merge or deployment is implied.
+- Added a separate Compose API service with loopback-only host publishing, bootstrap completion dependency, shared blob storage, readiness healthcheck and the API installation extra. The API and its new secret-provisioning helper both start as UID/GID 10001 with all capabilities dropped and no-new-privileges; the earlier privileged API staging design is replaced.
+- Local initialization exclusively generates and retains a 64-hex API token with owner-only host permissions. The host streams three validated secrets over stdin to the nonroot provisioner, which installs mode-0400 files in a UID-10001-owned mode-0700 named volume initialized by the image at build time. The API mounts it read-only; no host secret mounts, root helper, secret argv/environment values, or world-readable API token workaround. Provisioning failure blocks launch. Existing database, broker, data-volume and persisted object identities are unchanged.
+- Local launch configuration prefers `CURRENTCRAFT_*`; `DATAMESH_*` remains a fallback for one release. Explicit preferred values win. A runtime bridge leaves HTTP and ingestion implementation paths unchanged.
+- Added bounded liveness/readiness and positive/negative shared-token shell smoke to `smoke`, plus standalone `api-smoke`. Existing worker smoke remains intact.
+- Not claimed: whole-stack rootlessness (the existing root prepare service is unchanged), Docker daemon rootless mode, POST-and-poll intake smoke, repository-wide rename, or a 0.10.0 release/version bump. The prior revision's Docker shell-smoke timeout is not evidence of this revision passing; Docker/Actions and live-service results must be reported separately from static checks.
 
 # 0.9.9 (2026-11-16)
 
