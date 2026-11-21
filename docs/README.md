@@ -1,6 +1,6 @@
 ---
 title: Currentcraft docs
-version: 0.9.9
+version: 0.10.0
 tags: [currentcraft, index]
 ---
 
@@ -15,13 +15,15 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 
 ## Start here
 
+- [0.10.0 candidate record](releases/0.10.0.md): exact-run evidence, versions/digests and outstanding private scan; not a published release.
+
 - [Document API prerequisites](architecture/API_PREREQUISITES.md): merged identity, inbox and quarantine groundwork.
 
 - [Local NATS + PostgreSQL stack](architecture/LOCAL_COMPOSE.md): Compose setup, smoke test and local file publication.
 
 - [Docs-first design](DOCS_FIRST.md): how a change moves from a page to code.
 
-- [Roadmap](ROADMAP.md): what 0.10.0 carries, including everything deferred from 0.9.9.
+- [Roadmap](ROADMAP.md): implemented candidate scope versus explicitly deferred work.
 
 ## Design sources (written before code)
 
@@ -50,8 +52,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [JetStream broker adapter](architecture/JETSTREAM.md) | `app.application.messaging.durable`, `app.infrastructure.messaging.jetstream`, `app.application.ingest.durable` | implemented 0.9.3; server integration gated |
 | [Persistence](architecture/PERSISTENCE.md) | `app.application.persistence`, `app.infrastructure.persistence` | implemented 0.9.2; PostgreSQL 18 SQL, proven only by the postgres-18 CI job |
 | [Message broker](architecture/MESSAGE_BROKER.md) | `app.application.messaging`, `app.infrastructure.messaging` | in-memory adapter 0.5.0; MQTT/IoT adapter planned |
-| [HTTP API](architecture/HTTP_API.md) | `app.interfaces.http` | shell and 0.10.0 privacy-safe reads; intake/live acceptance pending |
-| [HTTP documents](architecture/HTTP_DOCUMENTS.md) | `app.application.queries`, `app.interfaces.http` | allowlist reads, bounded intake and durable opaque receipts; live acceptance pending |
+| [HTTP API](architecture/HTTP_API.md) | `app.interfaces.http` | bounded intake/status and privacy-safe reads; candidate live smoke recorded separately |
+| [HTTP documents](architecture/HTTP_DOCUMENTS.md) | `app.application.queries`, `app.interfaces.http` | allowlist reads, bounded intake and durable opaque receipts; see candidate evidence limits |
 | [CNN to GNN pipeline](pipelines/CNN_GNN_PIPELINE.md) | `app.application.simulation` | stages 1 to 4 |
 | [Gauge pipeline](pipelines/GAUGE_PIPELINE.md) | `app.application.gauge` | research instrument |
 | [Geodesic probe](pipelines/GEODESIC_PROBE.md) | `app.application.gauge.geodesic` | research instrument |
@@ -67,7 +69,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 - [Domain scaffold](contracts/DOMAIN_SCAFFOLD.md)
 - [Gauge contracts](contracts/GAUGE_CONTRACTS.md)
 - [Simulation contracts](contracts/SIMULATION_CONTRACTS.md)
-- [OpenAPI contract](contracts/OPENAPI.json): HTTP API shell and privacy-safe read routes
+- [OpenAPI contract](contracts/OPENAPI.json): document API including intake/status and privacy-safe read routes
 
 ## How the slices connect
 
