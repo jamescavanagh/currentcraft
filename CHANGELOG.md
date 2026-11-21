@@ -1,3 +1,10 @@
+# Unreleased: real HTTP upload-and-poll Compose smoke
+
+- `smoke` and `api-smoke` retain shell/auth checks and now upload fresh synthetic text via multipart HTTP, validate a durable 202 opaque receipt, poll real worker status until processed, then verify an identical-upload retry preserves the processed receipt and broker sequence.
+- A fresh random source on each invocation prevents historical processed records from satisfying a new run. One 60-second deadline, four-second request caps, bounded response bodies, disabled proxies/redirects, validated status paths and sanitized failures protect the host probe. Tokens, source/receipt identifiers and response bodies are not printed.
+- Existing Compose CI invokes this path before and after PostgreSQL/NATS/worker restart, without workflow-file edits. Static/mocked tests remain separate from actual hosted Docker execution.
+- Not claimed: API-process restart or fault-injection acceptance, live workbook/read-route acceptance, exactly-once delivery, private vocabulary certification, production readiness, version bump, release or deployment.
+
 # Unreleased: required combined synthetic API acceptance
 
 - Added a single-container HTTP workbook upload -> durable in-memory broker -> real ingestion worker -> HTTP status -> privacy-safe document/task/WBS/subject read chain. Covers changed revisions, current/all-revision selection, retry without head restoration, malformed-workbook quarantine, exact CSV parity and response/log privacy canaries. No repository/inbox state is manually seeded.
