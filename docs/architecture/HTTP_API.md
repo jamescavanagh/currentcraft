@@ -1,7 +1,7 @@
 ---
 title: HTTP API
 version: 0.9.9
-status: shell implemented; scoped Compose launch integration; document intake acceptance deferred
+status: shell implemented; nonroot Compose API and secret provisioner; live acceptance pending
 tags: [currentcraft, architecture, http]
 ---
 
@@ -73,7 +73,10 @@ contains paths, never inline API/NATS/password values.
 The API is a separate process from the worker. `prepare` initializes shared
 volumes; `bootstrap` alone performs migrations and stream provisioning. The
 API waits for successful bootstrap and starts uvicorn as UID/GID 10001, with
-the API extra installed. Its healthcheck requires `/readyz` to return 200.
+the API extra installed. Both the API and the new secret-provisioning container
+start as UID/GID 10001, drop all capabilities and enable no-new-privileges.
+Neither starts as root, changes ownership or drops privileges at runtime.
+The API healthcheck requires `/readyz` to return 200.
 
 The container listener binds to `0.0.0.0:8000` so Docker can forward traffic,
 but the published host address is strictly `127.0.0.1`. This is container
@@ -90,12 +93,33 @@ python3 scripts/local_stack.py api-smoke
 owner-only mode 0600 in git-ignored `local/compose-secrets/`. It retains and
 validates existing secrets, refuses symlinks, and never prints their values.
 Other pre-existing stack secrets keep their existing modes and identities.
-Compose file-backed secrets do not reliably remap file ownership: the API
-entrypoint briefly runs as root to copy its three required secrets into a
-private directory on a container tmpfs. Staged files are owned by UID/GID 10001,
-mode 0400, inside a mode-0700 directory. It clears supplementary groups and
-drops GID/UID before replacing itself with uvicorn. The host API token is
-never made world-readable; staging failure prevents launch.
+Compose file-backed secrets do not reliably remap file ownership. Instead,
+the host launcher builds the application image, then streams only the three
+validated API dependencies (`api_token`, `pg_app`, `nats_token`) as bounded JSON
+over stdin to the nonroot `api-secrets` provisioning container. No secret
+value goes in argv or environment, and provisioning output is captured rather
+than echoed. Provisioning failure prevents the launcher from starting the API.
+
+The image initializes `/run/currentcraft-secrets` as UID/GID 10001, mode 0700
+at build time. Docker initializes the new `api_secrets` named volume from
+that directory. The provisioner alone mounts it writable; the API mounts it
+read-only and has no host secret mounts. Files are atomically installed with
+mode 0400 and verified owner/group. Existing matching files are retained;
+symlinks, wrong permissions, malformed input and mismatched existing values
+fail closed without silently rotating anything. A partial initial provision
+can be retried: already-installed matching files remain valid.
+
+The API validates its exact runtime UID/GID and private secret directory/files
+before exec. Starting it directly with Compose requires prior provisioning;
+an empty or incorrectly owned volume fails closed. The host API token is
+never made world-readable. The new volume persists with `down`, contains
+secrets and must not be exported or published. Credential rotation/recovery
+needs an explicit operator procedure, not automatic overwrite.
+
+This makes the API and its new provisioner nonroot, not the entire stack:
+the existing root `prepare` service is unchanged. It does not establish
+Docker daemon rootless mode. Actual volume ownership and startup behavior
+still require Docker acceptance evidence.
 
 `api-smoke` starts the stack and polls shell endpoints within a bounded
 deadline: `/healthz` and `/readyz` must return 200; `/v1/auth/check` must reject
@@ -106,7 +130,7 @@ worker-to-PostgreSQL-to-stored-event smoke. POST-and-poll document intake is
 deferred until the intake endpoints land; shell success is not intake acceptance.
 
 Acceptance requires static service/configuration and token-security tests,
-both naming schemes and precedence tests, privilege-drop ordering tests, and
+both naming schemes and precedence tests, nonroot provisioning/launch tests, and
 bounded positive/negative shell smoke tests. Actual Docker acceptance and
 live dependency compatibility must be reported separately from static checks.
 The shared-token JetStream connector prerequisite must land before live API
