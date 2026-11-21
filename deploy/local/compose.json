@@ -55,7 +55,7 @@
       }
     },
     "bootstrap": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "user": "10001:10001",
       "command": [
         "bootstrap"
@@ -82,7 +82,7 @@
       "restart": "no"
     },
     "worker": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "user": "10001:10001",
       "command": [
         "worker"
@@ -109,7 +109,7 @@
       }
     },
     "smoke": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "user": "10001:10001",
       "command": [
         "smoke"
@@ -132,7 +132,7 @@
       }
     },
     "publisher": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "user": "10001:10001",
       "command": [
         "publish"
@@ -161,7 +161,7 @@
       }
     },
     "api-secrets": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "user": "10001:10001",
       "command": ["provision-api-secrets"],
       "profiles": ["tools"],
@@ -172,7 +172,7 @@
       "restart": "no"
     },
     "api": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "user": "10001:10001",
       "command": ["api"],
       "init": true,
@@ -203,7 +203,7 @@
       }
     },
     "prepare": {
-      "image": "datamesh-local-app:0.9.9",
+      "image": "datamesh-local-app:0.10.0",
       "build": {
         "context": "../..",
         "dockerfile": "deploy/local/Dockerfile"
