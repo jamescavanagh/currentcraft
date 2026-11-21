@@ -1,23 +1,28 @@
 ---
 title: Drawing representation and document lifecycle
-version: 0.11.0-proposal
+version: 0.11.0-design.1
+status: accepted requirements; implementation pending
 tags: [currentcraft, domain, document, decision-record]
 ---
 
 # Drawing representation and document lifecycle
 
-Status: **proposed decision record for review**, not accepted operating policy.
+Status: **accepted requirements; implementation pending**, not operating policy.
+Implemented: this corrected record only. Not implemented: Document-derived
+Revision and Submittal, Drawing aggregate and governed lifecycle.
+Not claimed: operational authority, installation readiness or completed exit criteria.
 Target release: 0.11.0 (evidence baseline). This page is docs-first: no code
 changes until the 0.10.0 document read endpoints merge, because those endpoints
 serialize `Document` and would conflict with these contract changes.
 
-It closes two rows of the decision-gap ledger in [V1_DOMAIN.md](V1_DOMAIN.md):
+It corrects the direction for two rows in [V1_DOMAIN.md](V1_DOMAIN.md), without
+claiming older ledgers or runtime contracts are already reconciled:
 "Drawing as document" and "Readiness and document lifecycle" (the document half;
 work-release readiness stays with the release policy).
 
 ## Context
 
-What exists on `main` (0.9.9):
+Observed at baseline `8c3f3b8442b400d7ca730d56e23d33aa228cc364` (package 0.9.9):
 
 | Class | State | Relevant behavior |
 | --- | --- | --- |
@@ -26,19 +31,35 @@ What exists on `main` (0.9.9):
 | `ReferenceDocument` | V1 proposal | Contextual reference to a document by `document_id`; not a duplicate artifact. |
 | `Drawing`, `Submittal`, `Report` | unreviewed scaffolds | Two fields, fail-closed acceptance guard. |
 
-Two precedents shape the decision. `Revision` and `ReferenceDocument` already
-attach to a document by reference instead of inheriting from it. And the
-[dependency graph](DOMAIN_DEPENDENCY_GRAPH.md) has already retired inheritance
-assumptions elsewhere (Order does not inherit Document; Product splits into
-ProductDefinition and AssetInstance).
+Reference-based Revision implementation is a baseline observation, not authority
+to override the accepted subtype decision. The
+[dependency graph](DOMAIN_DEPENDENCY_GRAPH.md) is historical context where it
+differs from this corrected record.
 
 Downstream releases need this settled: the 0.13.0 expectation grammar generates
 expected document classes, and readiness (0.14.0) reports which expected
 documents are present, superseded or missing.
 
-## Decision 1: Drawing is a facet of Document, not a subclass
+## Decision 1: Drawing is separate; Revision and Submittal are Document subtypes
 
-**Proposed:** keep `Document` as the only document identity. Add a
+**Accepted requirement, 2026-11-21:** Drawing remains separate from Document
+to preserve locality of behavior. Drawing owns drawing-specific release,
+supersession and distribution behavior. Revision and Submittal are Document
+subtypes. Shared metadata does not require shared inheritance for Drawing.
+
+Document represents project-related material suitable for the document database,
+with authorship, revisions, storage references and accountability/evidence
+metadata. Revision is individually identifiable and linked to the object it
+revises. Submittal has submission and review behavior, not merely an issue event.
+
+The coordinator's accepted 0.11.0 decision supersedes the PR #15 facet proposal.
+The relationship between drawing revisions and the Document-derived Revision
+contract (inheritance or composition) is unresolved, not selected by this
+workflow decision. See [Drawing controlled release](DRAWING_CONTROLLED_RELEASE.md).
+
+### Superseded Decision 1: facet proposal (retained history, not current design)
+
+**Superseded proposal:** keep `Document` as the only document identity. Add a
 `document_class` fact resolved from a versioned reference dictionary. Re-define
 `Drawing` (same import path) as a facet record that references a document, the
 same pattern as `ReferenceDocument`.
@@ -55,7 +76,11 @@ Document (identity, document_class = drawing_sheet)
 | `document_class` fact only | rejected as sufficient | Loses drawing-specific facts that drive matching: sheet number, discipline, set membership. |
 | **Document identity + Drawing facet + class fact** | proposed | One identity model; drawing facts live where they are evidenced; other classes (submittal package, report) can add facets later without new identity types. |
 
-### Sheets and sets
+### Superseded sheets-and-sets representation
+
+This sheet/set-as-Document mapping is historical, not current design.
+Its mapping onto separate Drawing remains undecided. Revision-scoped membership
+remains a proposed constraint, not an implemented contract.
 
 - A **drawing sheet** is a `Document` with class `drawing_sheet` and a `Drawing` facet.
 - A **drawing set** is a `Document` with class `drawing_set`.
@@ -65,7 +90,10 @@ Document (identity, document_class = drawing_sheet)
 - Sheet numbers and disciplines are source facts (observed or inferred with a
   derivation), never parsed into identity.
 
-### Submittal
+### Superseded Submittal issue-event-only proposal
+
+The following paragraph and fields are historical, not current proposed fields.
+The accepted Document subtype replaces this classification.
 
 A submittal is not a document class. It is an **issue event**: a package of
 specific revisions sent for a stated purpose to a recipient, with a recorded
@@ -76,9 +104,11 @@ transmittal document, when one exists, is an ordinary `Document`.
 
 ## Decision 2: Lifecycle state belongs to Revision, not Document
 
-**Proposed:** `Document` stays stateless identity; its `transition()` keeps
-failing closed and is deprecated. Each `Revision` carries a common-data-environment
-state aligned with ISO 19650:
+**Accepted lifecycle direction, not implemented:** state belongs to the
+Document-derived Revision. Use the following ISO 19650-style states as reference.
+The existing `Document.transition()` failure is baseline behavior to replace
+with the accepted revision lifecycle in phase 2, not a permanent design.
+Governed transitions remain fail-closed without required evidence and authority.
 
 | State | Meaning | Is it approval? |
 | --- | --- | --- |
@@ -117,12 +147,17 @@ exact approval evidence; distribution evidence.
 
 ### Current revision
 
-"Current" is derived, never stored as a flag and never inferred from timestamps:
+"Current" is proposed to be derived, never inferred from timestamps:
 the published revision for a given document and issue purpose that no other
 published revision supersedes. Two published revisions for the same document and
 purpose with no supersession link between them are a **conflict**, reported as
 `conflicting_evidence`. A revision superseded through an explicit link is
 `superseded`, not conflicting (graph-view acceptance criterion AC-13).
+
+For Drawing, latest received and current authorized release are distinct.
+A received predecessor link alone never revokes or replaces authorization.
+Only an explicit authorized decision bound to exact revision evidence changes
+release currency; ambiguity blocks prerequisite clearance.
 
 ## Decision 3: Folder conventions are versioned evidence dictionaries
 
@@ -191,17 +226,22 @@ not found within the searched and accessible scope, never "does not exist".
 - `Document.source_state` moves to `Revision` as a captured-state fact. Keep the
   `Document` field for one release as deprecated, read-only, and map it onto the
   revision it was captured with; no silent relabeling as observed.
-- `Drawing` changes from a two-field scaffold to a facet with a required
-  `document_id`. Zero-argument construction is discontinued, matching the V1
-  precedent for implemented classes.
-- `Submittal` changes from scaffold to the issue-event record above.
+- `Drawing` becomes a separate aggregate, not a Document facet.
+- `Revision` and `Submittal` become Document subtypes; migration and compatibility
+  encodings remain phase-2 work. Preserve persisted identities; changing them
+  requires a separate coordinator decision.
+- No schemas, constructors, generated references or runtime behavior change in
+  this docs-only phase.
 
 ## Code plan (after the 0.10.0 read endpoints merge)
 
-1. Add `document_class: Fact[ReferenceCode]` to `Document`; deprecate `transition()` and `source_state`.
-2. Add `RevisionState` and `IssuePurpose` references, and `captured_state` on `Revision`.
-3. Re-define `Drawing` as a facet; add revision-scoped set membership.
-4. Define `Submittal` as an issue event.
+Phase 2 also requires explicit coordinator go-ahead after PR #25 merges.
+This PR stops at phase 1.
+
+1. Define Document and its Revision/Submittal subtypes with field descriptions and a compatibility plan before replacing the old transition failure.
+2. Implement the accepted Revision lifecycle, separate captured state and issue purpose.
+3. Implement separate Drawing release, supersession and distribution behavior without implicitly deciding drawing-revision composition.
+4. Implement exact-revision rendition, acknowledgment, PM visibility and prerequisite evidence per the linked design.
 5. Wire governed transitions through the existing P4 `StateTransition`, failing closed with `policy not defined` until approved.
 6. Add a synthetic folder-convention dictionary and a derivation from path to candidate class and state.
 7. Define the read-only source-reader port used by the SharePoint adapter: read by item and version, stream to blob storage, no write, lock or check-out operations.
@@ -209,6 +249,11 @@ not found within the searched and accessible scope, never "does not exist".
 
 ### Tests required
 
+- Newer receipt alone never authorizes or replaces the current authorized release.
+- Missing acknowledgments or PM visibility evidence leave the prerequisite uncleared.
+- Wrong or superseded revision acknowledgment never satisfies the current requirement.
+- Authorization, sending, acknowledgment and PM visibility retain separate evidence.
+- Drawing-prerequisite clearance changes no other prerequisite or resource allocation.
 - Captured state never produces a `StateTransition`.
 - A governed `published` transition without each required evidence item is rejected.
 - Current-revision derivation ignores timestamps; two unsuperseded published revisions for one purpose yield `conflicting_evidence`.
@@ -225,6 +270,9 @@ not found within the searched and accessible scope, never "does not exist".
 | Decision | Proposed owner |
 | --- | --- |
 | Who may perform governed `published` transitions, per issue purpose | release-policy owner (not yet assigned) |
+| Drawing-revision relationship to Document-derived Revision | coordinator |
+| Drawing authority, required recipients and PM visibility evidence policy | coordinator to establish; no assignment inferred |
+| Escalation, unavailable recipients, offline work and supersession during distribution | coordinator to establish before operational use |
 | Document-class and issue-purpose dictionaries | grammar-profile owner (not yet assigned) |
 | Whether the four ISO 19650 states suffice or a local state is needed | both owners |
 | Submittal response codes | release-policy owner |

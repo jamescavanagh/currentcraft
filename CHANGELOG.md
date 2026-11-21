@@ -1,3 +1,10 @@
+# Unreleased: drawing lifecycle design correction (docs only)
+
+- Implemented in documentation only: superseded the earlier facet proposal with the accepted requirement that Drawing is separate from Document and Revision and Submittal are Document subtypes. Historical proposal retained; Decision 4 source-file never-lock rules unchanged.
+- Added option 2 controlled-release design with described proposed fields, exact-native-revision rendition and acknowledgment, separate authorization/sending/acknowledgment/PM visibility evidence, and clearance of only the drawing prerequisite.
+- Not implemented or claimed: lifecycle contracts, workflow execution, operational authority/recipient/escalation policy, installation readiness, or completion of 0.11.0. Drawing-revision type composition remains undecided; work-package-specific release is deferred.
+- Phase 2 requires the 0.10.0 read-endpoints PR #25 merge and separate coordinator go-ahead. Package/runtime version remains 0.9.9 because this slice changes design documents only; no generated contracts or runtime files changed.
+
 # Unreleased: scoped local API integration
 
 - Added a separate Compose API service with loopback-only host publishing, bootstrap completion dependency, shared blob storage, readiness healthcheck and the API installation extra. The API and its new secret-provisioning helper both start as UID/GID 10001 with all capabilities dropped and no-new-privileges; the earlier privileged API staging design is replaced.

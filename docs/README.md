@@ -33,7 +33,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Enterprise review corrections](domain/V1_REVIEW_CORRECTIONS.md) | `app.application.enterprise`, `app.domain` | confirmed requirements, proposed encodings and validation matrix |
 | [P4 design contracts](domain/P4_DESIGN_CONTRACTS.md) | `app.application.p4`, `app.domain` (workflow, quality) | reviewable domain contracts and reuse map; no orchestration or production publication |
 | [P4 integration plan](architecture/P4_INTEGRATION.md) | `app.application.p4`, persistence, messaging | planned only: transaction boundaries, delivery and recovery |
-| [Drawing and document lifecycle](domain/DOCUMENT_LIFECYCLE.md) | `app.domain.document` | proposed decision record for 0.11.0; no code yet |
+| [Drawing and document lifecycle](domain/DOCUMENT_LIFECYCLE.md) | `app.domain.document` | corrected accepted requirements for 0.11.0; implementation pending |
+| [Drawing controlled release](domain/DRAWING_CONTROLLED_RELEASE.md) | separate Drawing aggregate | accepted option 2; proposed described fields; not implemented |
 | [Evaluation harness](architecture/EVALUATION.md) | `app.application.evaluation` | contracts and metrics 0.11.0; benchmark runner not implemented |
 | [Release ladder](domain/RELEASE_LADDER.md) | `app.application.ladder` | contracts and transition table 0.13.0; authority verification and persistence not implemented |
 | [Challenge and appeal route](architecture/CHALLENGE_APPEAL.md) | agency review and release consequences | proposed 0.15.0 design only; identity, authority and canonical decision integration remain open |
