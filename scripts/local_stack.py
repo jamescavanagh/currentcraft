@@ -255,9 +255,85 @@ def api_upload_smoke(directory=SECRET_DIR, environ=None, timeout=60):
           'Source occurrences, not approved work.')
 
 
+def _release_command(argv, deadline):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise RuntimeError('evidence deadline')
+    result = subprocess.run(argv, cwd=ROOT, env=configuration_environment(),
+                            capture_output=True, text=True, check=True,
+                            timeout=min(20, remaining))
+    if len(result.stdout) > 65536:
+        raise RuntimeError('evidence output limit')
+    return result.stdout.strip()
+
+
+def release_evidence(timeout=120):
+    """Allowlisted runtime facts only; never full inspect, environments or secrets."""
+    try:
+        if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+            raise ValueError('invalid evidence timeout')
+        deadline = time.monotonic() + timeout
+        def run(*args):
+            return _release_command(list(args), deadline)
+        def service(name, *args):
+            return run('docker', 'compose', '-f', str(COMPOSE), 'exec', '-T', name, *args)
+        revision = run('git', 'rev-parse', 'HEAD')
+        if re.fullmatch(r'[0-9a-f]{40}', revision) is None:
+            raise ValueError('invalid revision')
+        declared = (ROOT / 'src/app/_version.py').read_text().strip()
+        version = re.fullmatch(r'__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"', declared).group(1)
+        packages = ('datamesh-agency-toolkit', 'psycopg', 'nats-py', 'fastapi',
+                    'uvicorn', 'starlette', 'pydantic', 'python-multipart')
+        probe = ('import importlib.metadata as m,json,platform; '
+                 'print(json.dumps(dict(python=platform.python_version(),'
+                 'packages={n:m.version(n) for n in ' + repr(packages) + '})))')
+        runtime = json.loads(service('api', 'python', '-c', probe))
+        if (set(runtime) != {'python', 'packages'} or not isinstance(runtime['packages'], dict) or
+                set(runtime['packages']) != set(packages) or
+                runtime['packages']['datamesh-agency-toolkit'] != version):
+            raise ValueError('runtime metadata mismatch')
+        for value in [runtime['python'], *runtime['packages'].values()]:
+            if not isinstance(value, str) or re.fullmatch(r'[0-9][A-Za-z0-9.!+_-]{0,79}', value) is None:
+                raise ValueError('invalid package version')
+        postgres = re.fullmatch(r'postgres \(PostgreSQL\) ([0-9]+(?:\.[0-9]+){1,2})(?: [^\r\n]*)?',
+                                service('postgres', 'postgres', '--version')).group(1)
+        nats = re.fullmatch(r'nats-server: v([0-9]+(?:\.[0-9]+){2})',
+                            service('nats', 'nats-server', '--version')).group(1)
+        if not postgres.startswith('18.') or not nats.startswith('2.11.'):
+            raise ValueError('unexpected server release line')
+        images = {}
+        for name in ('postgres', 'nats', 'api'):
+            cid = run('docker', 'compose', '-f', str(COMPOSE), 'ps', '-q', name)
+            if re.fullmatch(r'[0-9a-f]{12,64}', cid) is None:
+                raise ValueError('container resolution failed')
+            image_id = run('docker', 'inspect', '--format', '{{.Image}}', cid)
+            if re.fullmatch(r'sha256:[0-9a-f]{64}', image_id) is None:
+                raise ValueError('invalid image id')
+            digests = json.loads(run('docker', 'image', 'inspect', '--format',
+                                    '{{json .RepoDigests}}', image_id))
+            if digests is None and name == 'api':
+                digests = []  # An unpublished local image has no registry digest.
+            if not isinstance(digests, list) or (name != 'api' and not digests):
+                raise ValueError('missing server repository digest')
+            repository = name if name != 'api' else 'datamesh-local-app'
+            pattern = r'(?:(?:docker\.io|index\.docker\.io)/)?(?:library/)?' + repository + r'@sha256:[0-9a-f]{64}'
+            if any(not isinstance(d, str) or re.fullmatch(pattern, d) is None for d in digests):
+                raise ValueError('invalid repository digest')
+            images[name] = {'image_id': image_id, 'repository_digests': sorted(digests)}
+        if time.monotonic() >= deadline:
+            raise RuntimeError('evidence deadline')
+        evidence = {'schema': 'currentcraft-release-evidence/v1', 'checkout_sha': revision,
+                    'package_version': version, 'servers': {'postgresql': postgres, 'nats': nats},
+                    'runtime': runtime, 'images': images}
+    except Exception:
+        raise RuntimeError('release environment evidence collection failed') from None
+    print('RELEASE_EVIDENCE ' + json.dumps(evidence, sort_keys=True))
+    return evidence
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('init', 'config', 'up', 'smoke', 'api-smoke', 'status', 'logs', 'down'))
+    parser.add_argument('action', choices=('init', 'config', 'up', 'smoke', 'api-smoke', 'evidence', 'status', 'logs', 'down'))
     args = parser.parse_args()
     if args.action in ('init', 'config', 'up', 'smoke', 'api-smoke'):
         initialize()
@@ -273,10 +349,14 @@ def main():
         compose('--profile', 'tools', 'run', '--rm', 'smoke')
         api_smoke()
         api_upload_smoke()
+        release_evidence()
     elif args.action == 'api-smoke':
         start_stack()
         api_smoke()
         api_upload_smoke()
+        release_evidence()
+    elif args.action == 'evidence':
+        release_evidence()
     elif args.action == 'status':
         compose('ps', '-a')
     elif args.action == 'logs':
