@@ -231,6 +231,39 @@ error for later safe HTTP translation.
 
 ## Acceptance and limits
 
+### Required combined synthetic API acceptance
+
+`tests/test_http_e2e.py` joins the existing routes in one application/container:
+HTTP multipart workbook upload -> confirmed in-memory durable publish -> pending
+HTTP status -> real ingestion worker batch -> committed memory repository ->
+processed HTTP status -> opaque document/task/WBS/subject HTTP reads.
+Do not seed source objects or inbox outcomes. Use only the existing synthetic
+workbook/profile, temporary directory blobs and private SQLite receipts.
+Initial discovery is server-side with the existing container codec, not a new
+public discovery endpoint.
+
+Require nonempty task/outline results, parity with committed query results
+through the privacy projection, exact CSV columns and JSON/CSV parity, and
+source-record/not-approved assertions. Upload and process a changed workbook
+revision, verify current-only versus all-revision task sets, retry the original
+upload and prove no objects or head restoration. A malformed workbook must go
+from queued/pending to quarantined through the actual worker without creating
+a project-document head. Assert synthetic privacy canaries are absent from
+response bodies/headers and captured application logs throughout the chain.
+
+`scripts/ci_public.sh` exports `DATAMESH_REQUIRE_API_TESTS=1` and runs an explicit
+required HTTP-suite preflight before full discovery. Missing modules or
+dependencies, import errors, failures, unexpected successes, zero tests in any
+required module or any skipped required HTTP test fail this preflight. Require
+the combined test plus HTTP shell/settings/layering, projection/read/intake,
+parser-limit, receipt and intake-wiring suites. Other optional/private/live-service
+tests retain their existing gates; their skips are not API acceptance.
+
+This is synthetic in-process integration, not live PostgreSQL, JetStream,
+Docker, network-server or combined real-stack POST-and-poll evidence. Compose
+HTTP intake smoke remains separate. No runtime contract, persisted identity,
+API DTO, generated OpenAPI or dependency pin changes.
+
 Test memory/DuckDB query contracts, workbook output, unknown/wrong kinds,
 revision selection, malformed multiple heads, subject validation, no query
 commits, legacy/public inbox-key equality and actual worker markers.
