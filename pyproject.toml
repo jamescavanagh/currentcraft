@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "datamesh-agency-toolkit"
 version = "0.9.9"
-description = "Unreviewed domain entity scaffold; hierarchical raw-topic ingestion with adapters, IngestRing and tensorizer; process-first contracts, plate/isosceles simulation, embedding enrichment chamber, probe with barrier brackets and HIL labels, event broker port, embedding geometry and guarded winding, and a PostgreSQL 18 repository/unit-of-work persistence layer for project-agency research"
+description = "Currentcraft: an open-source agency platform for complex systems-integration projects, making situation, alternatives, readiness and decision rights legible so people can act on evidence."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy>=2.0,<3", "pydantic>=2.7,<3"]
