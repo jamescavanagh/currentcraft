@@ -1,3 +1,4 @@
+import doctest
 import itertools
 import sys
 import unittest
@@ -9,7 +10,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from pydantic import ValidationError  # noqa: E402
 
 from app.application.ladder import (  # noqa: E402
-    LADDER_SCHEMA, TRANSITIONS, LadderMove, LadderViolation, ReadinessReading, apply_move, replay,
+    CONTRACTS, LADDER_SCHEMA, TRANSITIONS, LadderMove, LadderViolation, ReadinessReading, apply_move, replay,
 )
 
 WP = "wp-synthetic-1"
@@ -185,6 +186,19 @@ class Exhaustive(unittest.TestCase):
                         break
                     disp = m.disposition if rung == "returned" else None
                 self.assertNotEqual(rung, "executable")
+
+
+class DocsFirst(unittest.TestCase):
+    def test_every_field_has_a_description(self):
+        for m in CONTRACTS:
+            for name, f in m.model_fields.items():
+                self.assertTrue(f.description, f"{m.__name__}.{name}")
+
+    def test_design_page_examples_run(self):
+        page = ROOT / "docs" / "domain" / "RELEASE_LADDER.md"
+        result = doctest.testfile(str(page), module_relative=False, verbose=False)
+        self.assertEqual(result.failed, 0)
+        self.assertGreater(result.attempted, 0)
 
 
 class Layering(unittest.TestCase):
