@@ -4,7 +4,7 @@ Objects are things, never people. Employee, Contributor and Agent are resources;
 only through a CapabilityBinding on a ProcessExecution, never as an axiom, nonterminal, terminal
 or verb argument. See docs/domain/LSYS_DOMAIN_VOCABULARY.md.
 """
-import importlib, importlib.util, json, re, sys, unittest
+import importlib, json, re, sys, unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -65,6 +65,10 @@ class ResourceSymbolAcceptance(unittest.TestCase):
         # A new Resource subclass must be reviewed here before the grammar can be trusted to exclude it.
         self.assertEqual(self.resources - {'Resource'}, EXPECTED_RESOURCES)
 
+    def test_loader_resource_set_matches_domain_discovery(self):
+        from app.application.lsys import RESOURCES
+        self.assertEqual(set(RESOURCES), self.resources)
+
     def test_vocabulary_alphabet_names_no_resource(self):
         tokens = alphabet_table_tokens(DOC)
         self.assertIn('Project', tokens)  # the parser actually read the tables
@@ -101,12 +105,11 @@ class ResourceSymbolAcceptance(unittest.TestCase):
                 incidence=(ObjectIncidence(object_id='res-designer', effect='produces', state_after='draft'),),
                 executed_by=(CapabilityBinding(resource_id='res-designer', resource_role='designer'),))
 
-    @unittest.skipUnless(importlib.util.find_spec('app.application.lsys'),
-                         'grammar loader not implemented; acceptance gate for app.application.lsys.load_profile')
     def test_grammar_loader_rejects_resource_symbols(self):
+        # Formerly skipped until the loader existed; it now always runs and CI forbids skips here.
         from app.application.lsys import load_profile
         for c in CASES['reject']:
-            with self.subTest(case=c['case']), self.assertRaises(ValueError):
+            with self.subTest(case=c['case']), self.assertRaisesRegex(ValueError, 'resource symbol rejected'):
                 load_profile(c['profile'])
         for c in CASES['accept']:
             with self.subTest(case=c['case']):
