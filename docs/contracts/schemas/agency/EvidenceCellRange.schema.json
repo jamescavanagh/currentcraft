@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "description": "One-based inclusive rectangular range; sheet identity is opaque.",
+  "properties": {
+    "first_column": {
+      "description": "First included column, one-based.",
+      "minimum": 1,
+      "title": "First Column",
+      "type": "integer"
+    },
+    "first_row": {
+      "description": "First included row, one-based.",
+      "minimum": 1,
+      "title": "First Row",
+      "type": "integer"
+    },
+    "last_column": {
+      "description": "Last included column, not before first_column.",
+      "minimum": 1,
+      "title": "Last Column",
+      "type": "integer"
+    },
+    "last_row": {
+      "description": "Last included row, not before first_row.",
+      "minimum": 1,
+      "title": "Last Row",
+      "type": "integer"
+    },
+    "sheet_id": {
+      "description": "Opaque worksheet handle, never its original name.",
+      "pattern": "^[A-Za-z0-9_-]{1,200}$",
+      "title": "Sheet Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "sheet_id",
+    "first_row",
+    "last_row",
+    "first_column",
+    "last_column"
+  ],
+  "title": "EvidenceCellRange",
+  "type": "object"
+}

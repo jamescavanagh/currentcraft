@@ -1,0 +1,238 @@
+{
+  "$defs": {
+    "EvidenceCellRange": {
+      "additionalProperties": false,
+      "description": "One-based inclusive rectangular range; sheet identity is opaque.",
+      "properties": {
+        "first_column": {
+          "description": "First included column, one-based.",
+          "minimum": 1,
+          "title": "First Column",
+          "type": "integer"
+        },
+        "first_row": {
+          "description": "First included row, one-based.",
+          "minimum": 1,
+          "title": "First Row",
+          "type": "integer"
+        },
+        "last_column": {
+          "description": "Last included column, not before first_column.",
+          "minimum": 1,
+          "title": "Last Column",
+          "type": "integer"
+        },
+        "last_row": {
+          "description": "Last included row, not before first_row.",
+          "minimum": 1,
+          "title": "Last Row",
+          "type": "integer"
+        },
+        "sheet_id": {
+          "description": "Opaque worksheet handle, never its original name.",
+          "pattern": "^[A-Za-z0-9_-]{1,200}$",
+          "title": "Sheet Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sheet_id",
+        "first_row",
+        "last_row",
+        "first_column",
+        "last_column"
+      ],
+      "title": "EvidenceCellRange",
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "additionalProperties": false,
+      "description": "Internal provenance descriptors, not an HTTP projection or source content.",
+      "properties": {
+        "cells": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvidenceCellRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Inclusive worksheet range, mutually exclusive with offsets."
+        },
+        "config_sha256": {
+          "description": "SHA-256 of the extractor configuration.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Sha256",
+          "type": "string"
+        },
+        "extractor_name": {
+          "description": "Extractor implementation name, not a source identifier.",
+          "maxLength": 200,
+          "minLength": 1,
+          "pattern": ".*\\S.*",
+          "title": "Extractor Name",
+          "type": "string"
+        },
+        "extractor_version": {
+          "description": "Exact extractor version that produced the located output.",
+          "maxLength": 200,
+          "minLength": 1,
+          "pattern": ".*\\S.*",
+          "title": "Extractor Version",
+          "type": "string"
+        },
+        "offsets": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EvidenceTextOffsets"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Half-open span in the declared extractor output."
+        },
+        "page_number": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "One-based page number, for page chunks only.",
+          "title": "Page Number"
+        },
+        "source_locator": {
+          "description": "Opaque locator for an immutable source unit; resolves privately server-side.",
+          "pattern": "^[A-Za-z0-9_-]{1,200}$",
+          "title": "Source Locator",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_locator",
+        "extractor_name",
+        "extractor_version",
+        "config_sha256"
+      ],
+      "title": "EvidenceProvenance",
+      "type": "object"
+    },
+    "EvidenceTextOffsets": {
+      "additionalProperties": false,
+      "description": "A nonempty half-open span in the declared extractor output.",
+      "properties": {
+        "end": {
+          "description": "Exclusive end, strictly greater than start.",
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "description": "Zero-based inclusive start in the declared unit.",
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "unit": {
+          "description": "Offset unit in the exact extractor output.",
+          "enum": [
+            "unicode_codepoints",
+            "bytes"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "unit"
+      ],
+      "title": "EvidenceTextOffsets",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One located evidence unit. Presence or relevance is never approval.",
+  "properties": {
+    "chunk_id": {
+      "description": "Opaque evaluation item handle; supplied unchanged, not generated here.",
+      "pattern": "^[A-Za-z0-9_-]{1,200}$",
+      "title": "Chunk Id",
+      "type": "string"
+    },
+    "file_id": {
+      "description": "Explicit opaque source file identity; companion PDF identity for drawing content.",
+      "pattern": "^[A-Za-z0-9_-]{1,200}$",
+      "title": "File Id",
+      "type": "string"
+    },
+    "kind": {
+      "description": "Source-unit kind, not an approval or document lifecycle state.",
+      "enum": [
+        "page",
+        "sheet",
+        "bom_row",
+        "email",
+        "chat_thread"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "parent_chunk_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_-]{1,200}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Containing sheet chunk for a BOM row; absent on roots.",
+      "title": "Parent Chunk Id"
+    },
+    "project_id": {
+      "description": "Explicit opaque project binding; never inferred from source content.",
+      "pattern": "^[A-Za-z0-9_-]{1,200}$",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/EvidenceProvenance",
+      "description": "Source locator, coordinates and exact extractor version/configuration."
+    },
+    "revision_id": {
+      "description": "Opaque immutable revision reference supplied by the document identity lane.",
+      "pattern": "^[A-Za-z0-9_-]{1,200}$",
+      "title": "Revision Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "currentcraft-evidence/v1",
+      "default": "currentcraft-evidence/v1",
+      "description": "Evidence payload schema version.",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "chunk_id",
+    "kind",
+    "file_id",
+    "revision_id",
+    "project_id",
+    "provenance"
+  ],
+  "title": "EvidenceChunk",
+  "type": "object"
+}
