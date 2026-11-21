@@ -42,4 +42,5 @@ def create_app(
     app.include_router(health.router)
     app.include_router(auth.router, prefix="/v1")
     app.include_router(documents.router, prefix="/v1")
+    from .routes.intake import router; app.include_router(router, prefix="/v1")
     return app
