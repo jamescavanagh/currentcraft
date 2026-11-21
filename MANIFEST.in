@@ -19,3 +19,4 @@ include .gitignore requirements-ci.txt
 include .github/workflows/public-ci.yml
 
 include references/public/enterprise.synthetic.v1.1.json
+include references/public/framework.synthetic.v1.json

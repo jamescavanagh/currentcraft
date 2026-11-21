@@ -3,7 +3,7 @@ from pathlib import Path
 import re,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1]
 TOP={'README.md','CHANGELOG.md','SECURITY.md','DATA_POLICY.md','LICENSE.txt','pyproject.toml','MANIFEST.in','requirements-ci.txt','.gitignore','PUBLIC_RELEASE_MANIFEST.json','.dockerignore'}
-REF={'references/README.md','references/public/manifest.example.json','references/public/enterprise.synthetic.v1.json','references/public/enterprise.synthetic.v1.1.json'}
+REF={'references/README.md','references/public/manifest.example.json','references/public/enterprise.synthetic.v1.json','references/public/enterprise.synthetic.v1.1.json','references/public/framework.synthetic.v1.json'}
 
 def allowed(rel):
     p=Path(rel)
@@ -17,18 +17,18 @@ def allowed(rel):
     if rel.startswith('src/app/application/queries/'):
         return p.suffix == '.py'
     if rel.startswith('src/'):
-        return rel.startswith(('src/app/application/enterprise/','src/app/infrastructure/enterprise/','src/app/application/gauge/','src/app/application/simulation/','src/app/application/process/','src/app/application/p4/','src/app/application/plate/','src/app/application/messaging/','src/app/application/enrichment/','src/app/application/probe/','src/app/application/ingest/','src/app/application/persistence/','src/app/application/splice/','src/app/application/common/','src/app/application/hfgt/','src/app/application/ladder/','src/app/application/evaluation/','src/app/application/grammar/','src/app/domain/','src/app/infrastructure/gauge/','src/app/infrastructure/tensors/','src/app/infrastructure/plate/','src/app/infrastructure/messaging/','src/app/infrastructure/enrichment/','src/app/infrastructure/probe/','src/app/infrastructure/ingest/','src/app/infrastructure/persistence/','src/app/infrastructure/splice/','src/app/infrastructure/hfgt/','src/app/interfaces/http/')) and p.suffix=='.py' or rel in {'src/app/__init__.py','src/app/_version.py','src/app/application/__init__.py','src/app/infrastructure/__init__.py','src/app/interfaces/__init__.py'}
+        return rel.startswith(('src/app/application/enterprise/','src/app/infrastructure/enterprise/','src/app/application/gauge/','src/app/application/simulation/','src/app/application/process/','src/app/application/p4/','src/app/application/plate/','src/app/application/messaging/','src/app/application/enrichment/','src/app/application/probe/','src/app/application/ingest/','src/app/application/persistence/','src/app/application/splice/','src/app/application/common/','src/app/application/hfgt/','src/app/application/ladder/','src/app/application/evaluation/','src/app/application/grammar/','src/app/application/evidence/','src/app/application/operand_compression/','src/app/application/feature_graph/','src/app/domain/','src/app/infrastructure/gauge/','src/app/infrastructure/tensors/','src/app/infrastructure/plate/','src/app/infrastructure/messaging/','src/app/infrastructure/enrichment/','src/app/infrastructure/probe/','src/app/infrastructure/ingest/','src/app/infrastructure/persistence/','src/app/infrastructure/splice/','src/app/infrastructure/hfgt/','src/app/infrastructure/operand_compression/','src/app/infrastructure/feature_graph/','src/app/interfaces/http/')) and p.suffix=='.py' or rel in {'src/app/__init__.py','src/app/_version.py','src/app/application/__init__.py','src/app/infrastructure/__init__.py','src/app/interfaces/__init__.py'}
     return (rel == 'examples/domain_bootstrap.py' or rel.startswith(('tests/','scripts/')) and p.suffix in {'.py','.sh'} or
             rel.startswith('tests/fixtures/') and p.suffix=='.json' or
             rel.startswith('docs/') and p.suffix in {'.md','.json'} or
             rel=='.github/workflows/public-ci.yml')
 
 PATTERNS={
- 'internal URL':re.compile(r'https?://[^\s<>\)"\x27]*(?:clickup\.com|sharepoint\.com)|https://(?:task|doc|attachment|comment|chat|space|list|folder)-\d+',re.I),
+ 'internal URL':re.compile(r'https?://[^\s<>\)\"\x27]*(?:clickup\.com|sharepoint\.com)|https://(?:task|doc|attachment|comment|chat|space|list|folder)-\d+',re.I),
  'email address':re.compile(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b',re.I),
  'private key':re.compile(r'-----BEGIN [A-Z ]*PRIVATE KEY-----'),
  'known credential prefix':re.compile(r'\b(?:ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|AKIA[A-Z0-9]{16})\b'),
- 'credential assignment':re.compile(r'(?:password|api_key|access_token|client_secret)\s*[=:]\s*["\x27][^"\x27]{8,}["\x27]',re.I),
+ 'credential assignment':re.compile(r'(?:password|api_key|access_token|client_secret)\s*[=:]\s*[\"\x27][^\"\x27]{8,}[\"\x27]',re.I),
 }
 
 def candidates(root=ROOT):
