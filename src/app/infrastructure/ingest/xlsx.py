@@ -15,6 +15,7 @@ import re
 from typing import Mapping, Optional
 
 from app.application.ingest.contracts import DomainObject, TypedRelation
+from app.application.ingest.identity import document_id, subject_reference_id
 from app.application.ingest.workbook import CatalogSpec, LineTableSpec, RoleMatrixSpec, RowRule, VocabularySpec, WorkbookProfile
 
 from .adapters import _Base, _clip, _key, _Reject
@@ -75,9 +76,9 @@ class _Run:
         self.diag: list[DomainObject] = []
         self.rev_id = self.oid("workbook_revision")
         # Source document identity: platform + source id, stable across revisions (hash + locator is per revision).
-        self.doc_id = f"{raw.platform}:xlsx:project_document:{_key(raw.platform, raw.source_id)}" if profile.document_type else None
+        self.doc_id = document_id(raw.platform, raw.source_id) if profile.document_type else None
         b = raw.binding
-        self.subject_id = f"ref:{b.subject_kind}:{_key(b.subject_namespace, b.subject_ref)}" if b else None
+        self.subject_id = subject_reference_id(b.subject_kind, b.subject_namespace, b.subject_ref) if b else None
         self.vocab: dict[tuple[str, str], str] = {}
         self.catalog: dict[str, list[DomainObject]] = {}
         self.role_codes: dict[str, str] = {}             # block total column -> role code
