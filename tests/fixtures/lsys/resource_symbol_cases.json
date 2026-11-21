@@ -1,0 +1,33 @@
+{
+  "version": "0.1.0",
+  "status": "proposed",
+  "note": "Synthetic grammar-profile fragments. Every reject case uses a resource class as a grammar symbol; every accept case uses only non-resource objects. Shape is the proposed profile shape in docs/domain/LSYS_DOMAIN_VOCABULARY.md.",
+  "reject": [
+    {"case": "resource_as_axiom", "offender": "Employee",
+     "profile": {"axiom": "Employee", "productions": []}},
+    {"case": "resource_as_predecessor", "offender": "Contributor",
+     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Contributor", "successor": ["Task"]}]}},
+    {"case": "resource_as_terminal_in_successor", "offender": "Agent",
+     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Subsystem", "successor": ["o", "Agent"]}]}},
+    {"case": "resource_base_class", "offender": "Resource",
+     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["Resource"]}]}},
+    {"case": "resource_in_verb_argument", "offender": "Employee",
+     "profile": {"axiom": "Project", "productions": [], "expectations": [{"verb": "impedance_match", "args": ["Subsystem", "Employee"]}]}},
+    {"case": "resource_as_incidence_object", "offender": "Contributor",
+     "profile": {"axiom": "Project", "productions": [], "expectations": [{"verb": "produces", "args": ["Contributor"]}]}},
+    {"case": "case_variant", "offender": "employee",
+     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["employee"]}]}},
+    {"case": "whitespace_variant", "offender": " Agent ",
+     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": [" Agent "]}]}}
+  ],
+  "accept": [
+    {"case": "project_to_locations",
+     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["Location"]}]}},
+    {"case": "subsystem_to_objects",
+     "profile": {"axiom": "Project", "productions": [{"id": "p3", "predecessor": "Subsystem", "successor": ["o"]}]}},
+    {"case": "document_to_bom",
+     "profile": {"axiom": "Project", "productions": [{"id": "p5", "predecessor": "Document", "successor": ["BOM"]}]}},
+    {"case": "impedance_match_between_objects",
+     "profile": {"axiom": "Project", "productions": [], "expectations": [{"verb": "impedance_match", "args": ["Subsystem", "ProductDefinition"]}]}}
+  ]
+}
