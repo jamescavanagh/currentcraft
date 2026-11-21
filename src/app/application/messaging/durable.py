@@ -8,7 +8,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 from datetime import datetime, timezone
-from typing import Callable, Optional, Protocol
+from typing import Callable, Literal, Optional, Protocol
 
 from pydantic import Field, model_validator
 
@@ -78,7 +78,7 @@ class TransactionalWorker:
     Persistent inbox deduplication is scoped by handler_id (change it deliberately for a new projection generation).
     """
     def __init__(self, broker: DurableBrokerPort, uow_factory: UnitOfWorkFactory, spec: DurableConsumerSpec,
-                 handler_id: str, handler: Callable[[UnitOfWork, EventEnvelope], None], max_attempts: int = 5,
+                 handler_id: str, handler: Callable[[UnitOfWork, EventEnvelope], Literal["applied", "rejected"] | None], max_attempts: int = 5,
                  retry_delay: float = 5.0):
         if not handler_id or max_attempts < 1 or retry_delay < 0:
             raise ValueError("needs handler identity, positive max_attempts, nonnegative delay")
@@ -92,6 +92,7 @@ class TransactionalWorker:
             if uow.commands.get(key) is not None:
                 return
             at = datetime.now(timezone.utc)
+            outcome = "rejected" if terminal_reason else "applied"
             if terminal_reason:
                 # A durable quarantine event is committed BEFORE the source delivery is acknowledged.
                 event = make_event(topic="quarantine/broker/" + self.spec.durable, kind="ingest.rejection",
@@ -102,9 +103,15 @@ class TransactionalWorker:
                                             "handler_id": self.handler_id, "attempt": delivery.attempt})
                 uow.outbox.add(event, at)
             else:
-                self.handler(uow, delivery.event)
+                result = self.handler(uow, delivery.event)
+                # None preserves existing handlers. Rejection events are staged
+                # by the handler in this same UoW, never re-created by the worker.
+                if result not in (None, "applied", "rejected"):
+                    raise ValueError("invalid durable handler outcome")
+                if result == "rejected":
+                    outcome = "rejected"
             uow.commands.record(CommandRecord(command_id=key, command_type="broker.inbox", recorded_at=at,
-                                               outcome="rejected" if terminal_reason else "applied",
+                                               outcome=outcome,
                                                detail=terminal_reason))
             uow.commit()
 
