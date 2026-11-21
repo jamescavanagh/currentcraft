@@ -38,6 +38,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Probe](pipelines/PROBE.md) | `app.application.probe`, `app.infrastructure.probe` | implemented 0.7.0 (backend only) |
 | [Domain scaffold](domain/DOMAIN_SCAFFOLD.md) | `app.domain` | remaining placeholders plus V1.1 capture proposals |
 | [L-system domain vocabulary](domain/LSYS_DOMAIN_VOCABULARY.md) | expectation grammar alphabet over `app.domain` objects | proposed; candidate symbols only, no grammar code |
+| [Framework profiles over domain objects](domain/FRAMEWORK_PROFILES.md) | framework profiles, `app.infrastructure.enterprise` loader pattern | proposed; synthetic standard example only; real profiles private |
 | [Enterprise review corrections](domain/V1_REVIEW_CORRECTIONS.md) | `app.application.enterprise`, `app.domain` | confirmed requirements, proposed encodings and validation matrix |
 | [P4 design contracts](domain/P4_DESIGN_CONTRACTS.md) | `app.application.p4`, `app.domain` (workflow, quality) | reviewable domain contracts and reuse map; no orchestration or production publication |
 | [P4 integration plan](architecture/P4_INTEGRATION.md) | `app.application.p4`, persistence, messaging | planned only: transaction boundaries, delivery and recovery |
