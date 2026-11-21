@@ -14,7 +14,7 @@ establish source identity. Existing document, subject-reference and revision
 identities must remain unchanged.
 
 Application helpers in `ingest.identity` preserve the existing SHA-256 formulas.
-The compatibility tests compare these helpers with the current XLSX adapter.
+The regression tests check those formulas and reuse the synthetic binding fixture.
 This groundwork does not yet change the adapter or implement document endpoints.
 
 A shared local bearer token authenticates possession only, not personal identity

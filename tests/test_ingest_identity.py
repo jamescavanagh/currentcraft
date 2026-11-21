@@ -4,7 +4,7 @@ import unittest
 from pydantic import ValidationError
 
 from app.application.ingest.identity import document_id, subject_reference_id
-from tests.test_xlsx_workbook import WorkbookTest, BINDING
+from tests.test_xlsx_workbook import BINDING
 
 
 class IdentityFormulas(unittest.TestCase):
