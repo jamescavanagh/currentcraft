@@ -77,4 +77,36 @@ DATAMESH_BINDING_FILE=binding.json \
 
 ## Acceptance status
 
+### Real HTTP upload-and-poll smoke
+
+`smoke` and `api-smoke` first retain the existing shell/auth probes, then submit
+one fresh synthetic text document over authenticated multipart HTTP to
+`POST /v1/intake/documents`. A random source ID on every invocation prevents
+old inbox markers from satisfying a new run. Require a 202 durable-queue
+receipt with the expected digest, DM_RAW stream and strictly validated opaque
+receipt/source handles. Only the exact relative intake status path derived
+from that opaque receipt may be polled; never follow a server-supplied origin.
+
+Poll authenticated HTTP status until the real worker has committed `processed`.
+Pending is not failure or proof of queue membership; quarantined, malformed
+JSON/receipt/status, unexpected HTTP status and transport errors fail closed.
+The upload, polling and final identical-upload retry share one 60-second
+monotonic deadline, four-second maximum per request and bounded response bodies.
+Host proxies and redirects are disabled. Never print tokens, source IDs,
+receipt handles, body contents, response error details or raw exceptions.
+
+Repeat the same upload within that deadline and require the same opaque event,
+source and status handles, digest and stream sequence, with broker duplicate
+confirmation; status remains processed. This is retry behavior within the broker
+deduplication window, not exactly-once or restoration. Queued means not extracted;
+processed means committed source occurrences, never approved work.
+
+The existing compose-smoke workflow already invokes `local_stack.py smoke`
+before and after restarting PostgreSQL, NATS and worker. Both invocations must
+now run this HTTP smoke against the real stack, with a fresh source each time.
+No workflow-file edits, weakened checks, private profiles or host HTTP packages
+are required. Static/mocked helper tests are not live execution evidence.
+API-process restart, fault injection, full read-route live acceptance and a
+production-readiness or release claim remain outside this smoke.
+
 Static Compose structure, first-run/rerun secret handling, nonroot/image boundaries, shell syntax and Python compilation are tested locally. The `compose-smoke` CI job builds/starts the actual stack, runs the integration smoke and repeats after container restarts. **It has not run in the sandbox, which has no Docker daemon or internet access.** Shipping a runnable stack definition is not an executed deployment claim.
