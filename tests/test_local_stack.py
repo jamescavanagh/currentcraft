@@ -366,6 +366,7 @@ class LocalCompose(unittest.TestCase):
                     patch.object(stack, 'provision_api_secrets') as provision, \
                     patch.object(stack, 'api_smoke') as smoke, \
                     patch.object(stack, 'api_upload_smoke') as upload, \
+                    patch.object(stack, 'release_evidence') as evidence, \
                     patch('sys.argv', ['local_stack.py', action]):
                 stack.main()
                 self.assertEqual(compose.call_args_list[0], call('build', 'prepare'))
@@ -374,9 +375,11 @@ class LocalCompose(unittest.TestCase):
                 if action in ('smoke', 'api-smoke'):
                     smoke.assert_called_once_with()
                     upload.assert_called_once_with()
+                    evidence.assert_called_once_with()
                 else:
                     smoke.assert_not_called()
                     upload.assert_not_called()
+                    evidence.assert_not_called()
                 if action == 'smoke':
                     self.assertIn(call('--profile', 'tools', 'run', '--rm', 'smoke'), compose.call_args_list)
                 else:
@@ -622,3 +625,146 @@ class HttpUploadSmoke(unittest.TestCase):
         self.assertEqual(len(polls), 3)
         self.assertIn('PASS: real HTTP upload', output.getvalue())
         self.assertNotIn(self.token, output.getvalue())
+
+
+class ReleaseEnvironmentEvidence(unittest.TestCase):
+    """Synthetic command controls; exact live versions come only from hosted runs."""
+
+    def setUp(self):
+        import re
+        self.version = re.search(r'__version__ = "([^"]+)"', (ROOT / 'src/app/_version.py').read_text()).group(1)
+        self.versions = {'datamesh-agency-toolkit': self.version, 'psycopg': '3.2.9',
+                         'nats-py': '2.11.0', 'fastapi': '0.115.14', 'uvicorn': '0.34.0',
+                         'starlette': '0.46.2', 'pydantic': '2.13.4', 'python-multipart': '0.0.20'}
+        self.runtime = {'python': '3.12.16', 'packages': self.versions}
+        self.outputs = {'git': 'a' * 40, 'runtime': json.dumps(self.runtime),
+                        'postgres': 'postgres (PostgreSQL) 18.1 (Debian synthetic)',
+                        'nats': 'nats-server: v2.11.11',
+                        'postgres-digests': json.dumps(['postgres@sha256:' + '4' * 64]),
+                        'nats-digests': json.dumps(['nats@sha256:' + '5' * 64]),
+                        'api-digests': '[]'}
+
+    def command(self, argv, **kwargs):
+        if argv[0] == 'git':
+            self.assertEqual(argv, ['git', 'rev-parse', 'HEAD'])
+            value = self.outputs['git']
+        elif argv[1:3] == ['image', 'inspect']:
+            self.assertEqual(argv[3:5], ['--format', '{{json .RepoDigests}}'])
+            name = {'1': 'postgres', '2': 'nats', '3': 'api'}[argv[-1][-1]]
+            value = self.outputs[name + '-digests']
+        elif argv[1] == 'inspect':
+            self.assertEqual(argv[2:4], ['--format', '{{.Image}}'])
+            value = 'sha256:' + argv[-1]
+        elif 'exec' in argv:
+            self.assertEqual(argv[:6], ['docker', 'compose', '-f', str(stack.COMPOSE), 'exec', '-T'])
+            name = argv[6]
+            if name == 'api':
+                self.assertEqual(argv[7:9], ['python', '-c'])
+                self.assertNotIn('environ', argv[-1])
+                self.assertNotIn('secret', argv[-1])
+                value = self.outputs['runtime']
+            else:
+                value = self.outputs[name]
+        else:
+            self.assertEqual(argv[:6], ['docker', 'compose', '-f', str(stack.COMPOSE), 'ps', '-q'])
+            value = {'postgres': '1' * 64, 'nats': '2' * 64, 'api': '3' * 64}[argv[-1]]
+        return subprocess.CompletedProcess(argv, 0, value + '\n', '')
+
+    def collect(self):
+        output = io.StringIO()
+        with patch.object(stack.subprocess, 'run', side_effect=self.command) as run, \
+                contextlib.redirect_stdout(output):
+            result = stack.release_evidence()
+        return result, output.getvalue(), run
+
+    def test_allowlist_exact_versions_image_ids_and_no_registry_digest_invention(self):
+        result, output, run = self.collect()
+        self.assertEqual(result['checkout_sha'], 'a' * 40)
+        self.assertEqual(result['package_version'], self.version)
+        self.assertEqual(result['servers'], {'postgresql': '18.1', 'nats': '2.11.11'})
+        self.assertEqual(result['runtime'], self.runtime)
+        self.assertEqual(result['images']['api']['repository_digests'], [])
+        self.assertEqual(result['images']['api']['image_id'], 'sha256:' + '3' * 64)
+        self.assertEqual(result['schema'], 'currentcraft-release-evidence/v1')
+        self.assertEqual(json.loads(output.removeprefix('RELEASE_EVIDENCE ')), result)
+        self.assertEqual(len(output.splitlines()), 1)
+        for called in run.call_args_list:
+            self.assertTrue(called.kwargs['capture_output'])
+            self.assertTrue(called.kwargs['text'])
+            self.assertTrue(called.kwargs['check'])
+            self.assertGreater(called.kwargs['timeout'], 0)
+            self.assertLessEqual(called.kwargs['timeout'], 20)
+            self.assertNotIn('{{.Config.Env}}', called.args[0])
+
+    def test_missing_or_untrusted_server_digest_fails_without_partial_output(self):
+        for key, value in (('postgres-digests', '[]'), ('nats-digests', 'null'),
+                           ('api-digests', '["https://example.invalid/private"]'),
+                           ('postgres-digests', '["private.example.invalid/image@sha256:' + '4' * 64 + '"]')):
+            original = dict(self.outputs)
+            self.outputs[key] = value
+            output = io.StringIO()
+            with self.subTest(key=key, value=value), patch.object(stack.subprocess, 'run', side_effect=self.command), \
+                    contextlib.redirect_stdout(output), self.assertRaisesRegex(RuntimeError, '^release environment evidence collection failed$'):
+                stack.release_evidence()
+            self.assertEqual(output.getvalue(), '')
+            self.outputs = original
+
+    def test_null_local_digest_is_reported_as_empty_not_fabricated(self):
+        self.outputs['api-digests'] = 'null'
+        result, _, _ = self.collect()
+        self.assertEqual(result['images']['api']['repository_digests'], [])
+
+    def test_command_errors_and_output_limits_are_sanitized(self):
+        for error in (subprocess.CalledProcessError(1, ['docker'], output='SYNTH-PRIVATE-CANARY'),
+                      subprocess.TimeoutExpired(['docker'], 20, output='SYNTH-PRIVATE-CANARY')):
+            output = io.StringIO()
+            with patch.object(stack.subprocess, 'run', side_effect=error), contextlib.redirect_stdout(output):
+                with self.assertRaisesRegex(RuntimeError, '^release environment evidence collection failed$'):
+                    stack.release_evidence()
+            self.assertEqual(output.getvalue(), '')
+        with patch.object(stack.subprocess, 'run', return_value=Mock(stdout='x' * 65537)):
+            with self.assertRaisesRegex(RuntimeError, '^release environment evidence collection failed$'):
+                stack.release_evidence()
+
+    def test_invalid_revision_runtime_and_server_line_are_not_printed(self):
+        for key, value in (('git', 'SYNTH-PRIVATE-CANARY'), ('runtime', 'not-json'),
+                           ('runtime', json.dumps({'python': '3.12.16', 'packages': {}})),
+                           ('postgres', 'postgres (PostgreSQL) 17.9'), ('nats', 'nats-server: v2.12.0')):
+            original = dict(self.outputs)
+            self.outputs[key] = value
+            output = io.StringIO()
+            with self.subTest(key=key), patch.object(stack.subprocess, 'run', side_effect=self.command), \
+                    contextlib.redirect_stdout(output), self.assertRaisesRegex(RuntimeError, '^release environment evidence collection failed$'):
+                stack.release_evidence()
+            self.assertEqual(output.getvalue(), '')
+            self.outputs = original
+
+    def test_invalid_deadline_and_exhausted_budget_run_no_commands(self):
+        for value in (0, -1, float('inf'), float('nan'), True, '120'):
+            with self.subTest(value=value), patch.object(stack.subprocess, 'run') as run:
+                with self.assertRaises(RuntimeError):
+                    stack.release_evidence(value)
+                run.assert_not_called()
+        with patch.object(stack.time, 'monotonic', side_effect=[0, 121]), patch.object(stack.subprocess, 'run') as run:
+            with self.assertRaises(RuntimeError):
+                stack.release_evidence()
+            run.assert_not_called()
+
+    def test_standalone_evidence_cli_does_not_initialize_or_start_services(self):
+        with patch.object(stack, 'release_evidence') as evidence, patch.object(stack, 'initialize') as init, \
+                patch.object(stack, 'start_stack') as start, patch('sys.argv', ['local_stack.py', 'evidence']):
+            stack.main()
+        evidence.assert_called_once_with()
+        init.assert_not_called()
+        start.assert_not_called()
+
+    def test_candidate_versions_and_compose_image_tags_agree(self):
+        import tomllib
+        project = tomllib.loads((ROOT / 'pyproject.toml').read_text())
+        self.assertEqual(project['project']['version'], self.version)
+        compose = json.loads((ROOT / 'deploy/local/compose.json').read_text())
+        for name in ('prepare', 'bootstrap', 'worker', 'smoke', 'publisher', 'api', 'api-secrets'):
+            self.assertEqual(compose['services'][name]['image'], 'datamesh-local-app:' + self.version)
+        self.assertIn('`' + self.version + '`', (ROOT / 'README.md').read_text())
+        self.assertIn('version: ' + self.version, (ROOT / 'docs/README.md').read_text())
+        self.assertEqual(json.loads((ROOT / 'docs/contracts/OPENAPI.json').read_text())['info']['version'], self.version)

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "datamesh-agency-toolkit"
-version = "0.9.9"
+version = "0.10.0"
 description = "Currentcraft: an open-source agency platform for complex systems-integration projects, making situation, alternatives, readiness and decision rights legible so people can act on evidence."
 readme = "README.md"
 requires-python = ">=3.11"
