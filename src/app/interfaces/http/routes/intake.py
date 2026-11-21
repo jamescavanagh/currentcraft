@@ -10,6 +10,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.datastructures import UploadFile
 from starlette.formparsers import MultiPartException, MultiPartParser
 from python_multipart.multipart import parse_options_header
+from python_multipart.exceptions import MultipartParseError
 
 from app.application.ingest.contracts import BlobRef, IntakeBinding, RawItem
 from app.application.ingest.services import raw_item_event
@@ -122,6 +123,16 @@ async def _form(request: Request):
         if exc.message == "Request size exceeded.":
             raise HTTPException(413) from None
         raise HTTPException(422) from None
+    except MultipartParseError as exc:
+        # Newer python-multipart enforces its own limits before callbacks run.
+        # Classify only its fixed limit categories, never echo parser text.
+        for handle in parser._files_to_close_on_error:
+            handle.close()
+        limited = exc.args in (
+            ("Maximum header size exceeded",),
+            ("Maximum header count exceeded",),
+        )
+        raise HTTPException(413 if limited else 422) from None
     except BaseException:
         # Also close files on malformed parser input, cancellation and disconnect.
         for handle in parser._files_to_close_on_error:
