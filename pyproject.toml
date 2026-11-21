@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "datamesh-agency-toolkit"
-version = "0.9.9"
+version = "0.10.0"
 description = "Currentcraft: an open-source agency platform for complex systems-integration projects, making situation, alternatives, readiness and decision rights legible so people can act on evidence."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,7 +23,7 @@ api = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["app", "app.domain*", "app.application", "app.application.gauge*", "app.application.simulation*", "app.application.process*", "app.application.plate*", "app.application.messaging*", "app.application.enrichment*", "app.application.probe*", "app.application.ingest*", "app.application.persistence*", "app.infrastructure", "app.infrastructure.gauge*", "app.infrastructure.tensors*", "app.infrastructure.plate*", "app.infrastructure.messaging*", "app.infrastructure.enrichment*", "app.infrastructure.probe*", "app.infrastructure.ingest*", "app.infrastructure.persistence*", "app.application.splice*", "app.infrastructure.splice*", "app.application.enterprise*", "app.infrastructure.enterprise*", "app.application.common*","app.application.p4*","app.application.hfgt*","app.infrastructure.hfgt*","app.interfaces*", "app.application.queries*", "app.application.ladder*", "app.application.evaluation*", "app.application.grammar*", "app.application.evidence*"]
+include = ["app", "app.domain*", "app.application", "app.application.gauge*", "app.application.simulation*", "app.application.process*", "app.application.p4*", "app.application.plate*", "app.application.messaging*", "app.application.enrichment*", "app.application.probe*", "app.application.ingest*", "app.application.persistence*", "app.infrastructure", "app.infrastructure.gauge*", "app.infrastructure.tensors*", "app.infrastructure.plate*", "app.infrastructure.messaging*", "app.infrastructure.enrichment*", "app.infrastructure.probe*", "app.infrastructure.ingest*", "app.infrastructure.persistence*", "app.application.splice*", "app.infrastructure.splice*", "app.application.enterprise*", "app.infrastructure.enterprise*", "app.application.common*","app.application.p4*","app.application.hfgt*","app.infrastructure.hfgt*","app.interfaces*", "app.application.queries*", "app.application.ladder*", "app.application.evaluation*", "app.application.grammar*", "app.application.evidence*"]
 namespaces = false
 
 [tool.setuptools]
