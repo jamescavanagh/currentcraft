@@ -3,6 +3,9 @@
 Secrets are generated locally, never printed or bundled. `down` retains named volumes; no delete-volumes command.
 """
 import argparse
+import hashlib
+import math
+import re
 import json
 import os
 import secrets
@@ -118,7 +121,7 @@ def shell_status(url, token, timeout):
         return None
 
 
-def api_smoke(directory=SECRET_DIR, environ=None, timeout=60):
+def _api_target(directory, environ):
     env = configuration_environment(environ)
     try:
         port = int(env.get('DATAMESH_API_PORT', '8000'))
@@ -129,9 +132,13 @@ def api_smoke(directory=SECRET_DIR, environ=None, timeout=60):
     token = (directory / 'api_token').read_text().strip()
     if len(token) != 64 or any(c not in '0123456789abcdef' for c in token):
         raise ValueError('invalid local API token file')
+    return "http://127.0.0.1:" + str(port), token
+
+
+def api_smoke(directory=SECRET_DIR, environ=None, timeout=60):
+    base, token = _api_target(directory, environ)
     wrong = ('0' if token[0] != '0' else '1') + token[1:]
     deadline = time.monotonic() + timeout
-    base = 'http://127.0.0.1:' + str(port)
     checks = (('/healthz', None, 200), ('/readyz', None, 200),
               ('/v1/auth/check', None, 401), ('/v1/auth/check', wrong, 401),
               ('/v1/auth/check', token, 200))
@@ -147,6 +154,105 @@ def api_smoke(directory=SECRET_DIR, environ=None, timeout=60):
             return
         time.sleep(min(0.5, max(0, deadline - time.monotonic())))
     raise RuntimeError('API shell smoke timed out; inspect API/bootstrap status')
+
+
+def _smoke_json(opener, base, token, path, deadline, *, body=None, boundary=None):
+    """Bound response bytes/time and never include HTTP bodies or exceptions in errors."""
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise RuntimeError('HTTP intake smoke timed out')
+    headers = {'Authorization': 'Bearer ' + token}
+    if body is not None:
+        headers['Content-Type'] = 'multipart/form-data; boundary=' + boundary
+    request = Request(base + path, data=body, headers=headers)
+    try:
+        with opener.open(request, timeout=min(4, remaining)) as response:
+            if response.status != (202 if body is not None else 200):
+                raise ValueError('unexpected status')
+            raw = response.read(8193)
+        if len(raw) > 8192:
+            raise ValueError('response too large')
+        result = json.loads(raw)
+        if not isinstance(result, dict) or token in raw.decode('utf-8'):
+            raise ValueError('invalid response')
+        return result
+    except HTTPError as error:
+        error.close()
+        raise RuntimeError('HTTP intake smoke request failed') from None
+    except Exception:
+        raise RuntimeError('HTTP intake smoke request failed') from None
+
+
+def api_upload_smoke(directory=SECRET_DIR, environ=None, timeout=60):
+    """Real loopback HTTP -> durable queue -> worker -> processed, never a stand-in."""
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError('invalid HTTP smoke timeout')
+    base, token = _api_target(directory, environ)
+    opener = build_opener(ProxyHandler({}), NoRedirect())
+    deadline = time.monotonic() + timeout
+    source = 'synthetic-http-smoke-' + secrets.token_hex(16)
+    content = b'Currentcraft synthetic HTTP upload smoke. Source record, not approved work.\n'
+    digest = hashlib.sha256(content).hexdigest()
+    boundary = 'currentcraft-smoke-' + secrets.token_hex(16)
+    parts = []
+    for name, value in (('format', 'text'), ('source_id', source)):
+        parts.append(('--' + boundary + '\r\nContent-Disposition: form-data; name="' + name +
+                      '"\r\n\r\n' + value + '\r\n').encode('ascii'))
+    parts.append(('--' + boundary + '\r\nContent-Disposition: form-data; name="file"; '
+                  'filename="synthetic.txt"\r\nContent-Type: text/plain\r\n\r\n').encode('ascii') +
+                 content + ('\r\n--' + boundary + '--\r\n').encode('ascii'))
+    body = b''.join(parts)
+
+    def upload():
+        receipt = _smoke_json(opener, base, token, '/v1/intake/documents', deadline,
+                              body=body, boundary=boundary)
+        if (set(receipt) != {'event_id', 'stream', 'sequence', 'duplicate', 'source_id',
+                             'content_sha256', 'status_url', 'detail'} or
+                not isinstance(receipt['event_id'], str) or
+                re.fullmatch(r'intake_[0-9a-f]{32}', receipt['event_id']) is None or
+                not isinstance(receipt['source_id'], str) or
+                re.fullmatch(r'source_[0-9a-f]{32}', receipt['source_id']) is None or
+                receipt['status_url'] != '/v1/intake/' + receipt['event_id'] or
+                receipt['stream'] != 'DM_RAW' or receipt['content_sha256'] != digest or
+                type(receipt['sequence']) is not int or receipt['sequence'] < 1 or
+                type(receipt['duplicate']) is not bool or
+                not isinstance(receipt['detail'], str) or 'not extracted' not in receipt['detail'] or
+                source in json.dumps(receipt)):
+            raise RuntimeError('HTTP intake smoke received an invalid durable receipt')
+        return receipt
+
+    def status(receipt):
+        # Never follow an unvalidated status URL, even to another loopback endpoint.
+        result = _smoke_json(opener, base, token,
+                             '/v1/intake/' + receipt['event_id'], deadline)
+        if (set(result) != {'event_id', 'status', 'detail'} or
+                result['event_id'] != receipt['event_id'] or
+                result['status'] not in ('pending', 'processed', 'quarantined') or
+                not isinstance(result['detail'], str) or 'not approved work' not in result['detail'] or
+                source in json.dumps(result)):
+            raise RuntimeError('HTTP intake smoke received an invalid worker status')
+        if result['status'] == 'quarantined':
+            raise RuntimeError('HTTP intake smoke was quarantined by the worker')
+        return result['status']
+
+    first = upload()
+    if first['duplicate']:
+        raise RuntimeError('HTTP intake smoke did not create a fresh submission')
+    while time.monotonic() < deadline:
+        if status(first) == 'processed':
+            break
+        time.sleep(min(0.25, max(0, deadline - time.monotonic())))
+    else:
+        raise RuntimeError('HTTP intake smoke timed out waiting for worker processing')
+    retry = upload()
+    if (not retry['duplicate'] or any(retry[key] != first[key] for key in
+            ('event_id', 'source_id', 'status_url', 'stream', 'sequence', 'content_sha256')) or
+            status(retry) != 'processed'):
+        raise RuntimeError('HTTP intake smoke retry did not preserve the processed receipt')
+    if time.monotonic() >= deadline:
+        raise RuntimeError('HTTP intake smoke timed out')
+    print('PASS: real HTTP upload -> durable queue -> worker -> processed; identical retry retained receipt. '
+          'Source occurrences, not approved work.')
 
 
 def main():
@@ -166,9 +272,11 @@ def main():
         start_stack()
         compose('--profile', 'tools', 'run', '--rm', 'smoke')
         api_smoke()
+        api_upload_smoke()
     elif args.action == 'api-smoke':
         start_stack()
         api_smoke()
+        api_upload_smoke()
     elif args.action == 'status':
         compose('ps', '-a')
     elif args.action == 'logs':
