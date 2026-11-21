@@ -1,3 +1,29 @@
+# Unreleased (0.10.0 read-endpoint slice)
+
+- Implemented a standalone allowlist DTO/projection module before read routes.
+  Opaque domain-separated HMAC handles use a random server-only process key,
+  never the shared bearer secret. Source titles, fields, evidence, provenance,
+  references, mapping names and paths are withheld. Source occurrences never
+  assert approved work.
+- Implemented token-protected document heads, current/all-revision tasks,
+  WBS JSON/CSV and opaque subject lookup over existing committed-state queries.
+  Every repository read runs in the threadpool; no query writes or commits.
+  The container exposes the existing UoW factory without new infrastructure
+  imports outside wiring. Unknown/wrong-kind handles fail with safe 404.
+- WBS retains OUTLINE_COLUMNS, opaque structural codes, bounded levels and
+  fixed labels; other cells are withheld. CSV additionally escapes formula
+  prefixes. Application error logs omit raw paths and exceptions; slash
+  redirects are disabled to prevent identifier reflection in Location.
+- Updated the HTTP documents design first, aligned HTTP API frontmatter to
+  the 0.10.0 slice, indexed the design page, and regenerated OpenAPI with its
+  generator. Package/release version remains 0.9.9 pending release acceptance.
+- Limits/not claimed: process-local handles rotate on restart and initial
+  discovery requires a private server-side integration; lookup is linear and
+  fails closed at 10,001 candidates. No persistent handle index, intake route,
+  retry storage, PostgreSQL snapshot guarantee, live API/database/broker or
+  Docker acceptance, third-party access-log sanitization, private-term
+  certification, production readiness, merge or deployment is implied.
+
 # 0.9.9 (2026-11-16)
 
 - **HFGT capability graph (`datamesh-hfgt/v1`, new).** `app.application.hfgt` translates process-first records into hetero-functional graph theory (Farid, Thompson & Schoonenberg 2022): resources, buffers, operands (`kind:state`), transformation and refined transport processes, capabilities. `NumpyHfgtGraphAdapter` builds M-/M+, `A_rho = M+^T M-`, K_S masking (`mask` or `drop`), readiness (`reachable`, `blocked: constraints`, `unknown: translation gaps`, `unreachable`), dead ends, and a PyG-style `CapabilityGraphSample` (x N x 12, edge_index, edge_attr E x 5, edge_type by input-operand-set layer, candidate edges kept apart). Readiness is a structural reading, never a release.
