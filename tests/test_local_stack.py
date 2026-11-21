@@ -66,7 +66,7 @@ class LocalCompose(unittest.TestCase):
         self.assertNotIn('pg_admin', services['worker']['secrets'])
         self.assertEqual(services['bootstrap']['restart'], 'no')
         self.assertIn('blob_data:/srv/datamesh/blobs', services['worker']['volumes'])
-        self.assertEqual(set(config['volumes']), {'postgres_data','nats_data','blob_data'})
+        self.assertEqual(set(config['volumes']), {'postgres_data','nats_data','blob_data','api_secrets'})
 
     def test_image_explicit_copies_exclude_secrets_and_private_references(self):
         dockerfile = (ROOT / 'deploy/local/Dockerfile').read_text()
@@ -74,6 +74,7 @@ class LocalCompose(unittest.TestCase):
         self.assertNotIn('COPY references', dockerfile)
         self.assertNotIn('COPY local', dockerfile)
         self.assertIn("'.[postgres,nats,api]'", dockerfile)
+        self.assertIn('install -d -o 10001 -g 10001 -m 0700 /run/currentcraft-secrets', dockerfile)
         ignore = (ROOT / '.dockerignore').read_text()
         self.assertTrue(ignore.startswith('**\n'))
         self.assertNotIn('!references', ignore)
@@ -91,19 +92,23 @@ class LocalCompose(unittest.TestCase):
         self.assertEqual(config['name'], 'datamesh-local')
         self.assertEqual(api['image'], config['services']['worker']['image'])
         self.assertEqual(api['command'], ['api'])
-        self.assertEqual(api['user'], '0:0')  # staging only; launch_api drops privileges
-        self.assertEqual(set(api['secrets']), {'pg_app', 'nats_token', 'api_token'})
-        self.assertEqual(api['volumes'], ['blob_data:/srv/datamesh/blobs'])
+        helper = config['services']['api-secrets']
+        for service in (api, helper):
+            self.assertEqual(service['user'], '10001:10001')
+            self.assertEqual(service['cap_drop'], ['ALL'])
+            self.assertEqual(service['security_opt'], ['no-new-privileges:true'])
+            self.assertNotIn('cap_add', service)
+            self.assertNotIn('secrets', service)
+        self.assertEqual(api['volumes'], ['blob_data:/srv/datamesh/blobs',
+                                         'api_secrets:/run/currentcraft-secrets:ro'])
+        self.assertEqual(helper['volumes'], ['api_secrets:/run/currentcraft-secrets'])
+        self.assertEqual(helper['command'], ['provision-api-secrets'])
+        self.assertEqual(helper['network_mode'], 'none')
         self.assertEqual(api['depends_on'], {'bootstrap': {'condition': 'service_completed_successfully'}})
         self.assertEqual(api['ports'], ['127.0.0.1:${CURRENTCRAFT_API_PORT-${DATAMESH_API_PORT:-8000}}:8000'])
-        self.assertEqual(api['cap_drop'], ['ALL'])
-        self.assertEqual(set(api['cap_add']), {'CHOWN', 'SETUID', 'SETGID', 'DAC_OVERRIDE'})
-        self.assertEqual(api['security_opt'], ['no-new-privileges:true'])
-        self.assertTrue(api['tmpfs'][0].startswith('/run/currentcraft:'))
-        self.assertIn('noexec,nosuid,nodev', api['tmpfs'][0])
         self.assertIn('/readyz', api['healthcheck']['test'][-1])
         self.assertIn('assert r.status == 200', api['healthcheck']['test'][-1])
-        self.assertEqual(config['secrets']['api_token']['file'], '../../local/compose-secrets/api_token')
+        self.assertNotIn('api_token', config['secrets'])
         self.assertEqual(api['environment']['CURRENTCRAFT_PG_DATABASE'], 'datamesh')
         self.assertEqual(api['environment']['CURRENTCRAFT_PG_USER'], 'datamesh_app')
         self.assertEqual(api['environment']['CURRENTCRAFT_PG_PORT'], '5432')
@@ -165,59 +170,150 @@ class LocalCompose(unittest.TestCase):
                 self.assertTrue(name.startswith('CURRENTCRAFT_'))
                 self.assertIn('${' + name + '-${DATAMESH_', expression)
 
-    def test_staged_secrets_are_private_and_owned_by_api_uid(self):
+    def test_nonroot_provisioning_is_private_atomic_and_idempotent(self):
+        # Exercise real files under the test runner's nonroot identity.
+        values = dict(zip(runtime.API_SECRETS, ('a' * 64, 'b' * 64, 'c' * 64)))
         with tempfile.TemporaryDirectory() as temp, \
-                patch.object(runtime, 'secret', return_value='a' * 64), \
-                patch.object(runtime.os, 'fchown') as owner, \
-                patch.object(runtime.os, 'chown') as directory_owner:
-            stage = runtime.stage_api_secrets(temp)
-            self.assertEqual(stage.stat().st_mode & 0o777, 0o700)
-            self.assertEqual(owner.call_count, 3)
-            for args in owner.call_args_list:
-                self.assertEqual(args.args[1:], (10001, 10001))
-            directory_owner.assert_called_once_with(stage, 10001, 10001)
-            for name in ('api_token', 'pg_app', 'nats_token'):
-                self.assertEqual((stage / name).stat().st_mode & 0o777, 0o400)
-                self.assertEqual((stage / name).read_text(), 'a' * 64 + '\n')
+                patch.object(runtime, 'API_UID', os.getuid()), \
+                patch.object(runtime, 'API_GID', os.getgid()):
+            directory = Path(temp)
+            payload = json.dumps(values).encode()
+            runtime.provision_api_secrets(payload, directory)
+            before = {p.name: p.stat().st_ino for p in directory.iterdir()}
+            runtime.provision_api_secrets(payload, directory)
+            self.assertEqual(before, {p.name: p.stat().st_ino for p in directory.iterdir()})
+            self.assertEqual(set(before), set(runtime.API_SECRETS))
+            for name, value in values.items():
+                self.assertEqual((directory / name).read_text(), value + '\n')
+                self.assertEqual((directory / name).stat().st_mode & 0o777, 0o400)
 
-    def test_api_launch_stages_then_drops_privilege_before_exec(self):
-        order = Mock()
-        with patch.object(runtime.os, 'geteuid', side_effect=[0, 10001]), \
-                patch.object(runtime.os, 'getuid', return_value=10001), \
-                patch.object(runtime.os, 'getgid', return_value=10001), \
+    def test_nonroot_provisioning_refuses_malformed_input_before_any_write(self):
+        valid = dict.fromkeys(runtime.API_SECRETS, 'a' * 64)
+        invalid = (b'x' * 4097, b'not-json', b'[]', b'{}',
+                   json.dumps(dict(valid, extra='a' * 64)).encode(),
+                   json.dumps(dict(valid, api_token='bad')).encode())
+        with tempfile.TemporaryDirectory() as temp, \
+                patch.object(runtime, 'API_UID', os.getuid()), \
+                patch.object(runtime, 'API_GID', os.getgid()):
+            for payload in invalid:
+                with self.assertRaisesRegex(RuntimeError, 'provisioning failed'):
+                    runtime.provision_api_secrets(payload, Path(temp))
+                self.assertEqual(list(Path(temp).iterdir()), [])
+
+    def test_nonroot_provisioning_refuses_rotation_symlinks_and_bad_permissions(self):
+        values = dict.fromkeys(runtime.API_SECRETS, 'a' * 64)
+        with tempfile.TemporaryDirectory() as temp, \
+                patch.object(runtime, 'API_UID', os.getuid()), \
+                patch.object(runtime, 'API_GID', os.getgid()):
+            directory = Path(temp)
+            payload = json.dumps(values).encode()
+            runtime.provision_api_secrets(payload, directory)
+            with self.assertRaises(RuntimeError):
+                runtime.provision_api_secrets(json.dumps(dict(values, api_token='b' * 64)).encode(), directory)
+            token = directory / 'api_token'
+            self.assertEqual(token.read_text().strip(), 'a' * 64)
+            token.chmod(0o644)
+            with self.assertRaises(RuntimeError):
+                runtime.provision_api_secrets(payload, directory)
+            token.unlink()
+            token.symlink_to(directory / 'pg_app')
+            with self.assertRaises(RuntimeError):
+                runtime.provision_api_secrets(payload, directory)
+            self.assertEqual((directory / 'pg_app').read_text().strip(), 'a' * 64)
+
+    def test_api_launch_validates_nonroot_and_execs_without_privilege_calls(self):
+        values = dict.fromkeys(runtime.API_SECRETS, 'a' * 64)
+        with tempfile.TemporaryDirectory() as temp, \
+                patch.object(runtime, 'API_UID', os.getuid()), \
+                patch.object(runtime, 'API_GID', os.getgid()), \
+                patch.object(runtime, 'API_SECRET_DIR', Path(temp)), \
                 patch.object(runtime.os, 'environ', {}), \
-                patch.object(runtime, 'stage_api_secrets', order.stage), \
-                patch.object(runtime.os, 'setgroups', order.groups), \
-                patch.object(runtime.os, 'setgid', order.gid), \
-                patch.object(runtime.os, 'setuid', order.uid), \
-                patch.object(runtime.os, 'execv', order.execute):
-            order.stage.return_value = Path('/run/currentcraft/api-synthetic')
+                patch.object(runtime.os, 'execv') as execute, \
+                patch.object(runtime.os, 'setuid') as setuid, \
+                patch.object(runtime.os, 'setgid') as setgid, \
+                patch.object(runtime.os, 'chown') as chown:
+            runtime.provision_api_secrets(json.dumps(values).encode(), Path(temp))
             runtime.launch_api()
-            self.assertEqual([c[0] for c in order.mock_calls], ['stage', 'groups', 'gid', 'uid', 'execute'])
-            order.groups.assert_called_once_with([])
-            order.gid.assert_called_once_with(10001)
-            order.uid.assert_called_once_with(10001)
-            argv = order.execute.call_args.args[1]
+            argv = execute.call_args.args[1]
             self.assertIn('0.0.0.0', argv)
             self.assertIn('--no-access-log', argv)
-            self.assertNotIn('/run/secrets', ' '.join(argv))
-            self.assertEqual(runtime.os.environ['DATAMESH_API_TOKEN_FILE'],
-                             '/run/currentcraft/api-synthetic/api_token')
+            self.assertEqual(runtime.os.environ['DATAMESH_API_TOKEN_FILE'], str(Path(temp) / 'api_token'))
+            setuid.assert_not_called()
+            setgid.assert_not_called()
+            chown.assert_not_called()
 
-    def test_api_launch_fails_closed_without_secret_or_privilege(self):
-        for error in (OSError('synthetic-sensitive-detail'), ValueError('synthetic-sensitive-detail')):
-            with patch.object(runtime.os, 'geteuid', return_value=0), \
-                    patch.object(runtime, 'stage_api_secrets', side_effect=error), \
+    def test_api_and_provisioner_fail_closed_with_root_or_wrong_identity(self):
+        for uid in (0, 12345):
+            with patch.object(runtime.os, 'geteuid', return_value=uid), \
                     patch.object(runtime.os, 'execv') as execute:
-                with self.assertRaises(RuntimeError) as raised:
+                with self.assertRaises(RuntimeError):
                     runtime.launch_api()
-                self.assertNotIn('synthetic-sensitive-detail', str(raised.exception))
+                with self.assertRaises(RuntimeError):
+                    runtime.provision_api_secrets(b'{}', Path('/nonexistent'))
                 execute.assert_not_called()
-        with patch.object(runtime.os, 'geteuid', return_value=10001), \
-                patch.object(runtime, 'stage_api_secrets') as stage:
-            with self.assertRaises(RuntimeError):
-                runtime.launch_api()
-            stage.assert_not_called()
+
+    def test_host_provisioner_streams_secrets_only_on_stdin(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = stack.initialize(Path(temp))
+            output = io.StringIO()
+            with patch.object(stack.subprocess, 'run') as run, \
+                    patch.object(stack, 'configuration_environment', return_value={}), \
+                    contextlib.redirect_stdout(output):
+                stack.provision_api_secrets(directory)
+            args, kwargs = run.call_args
+            self.assertEqual(args[0][-4:], ['--rm', '--no-deps', '-T', 'api-secrets'])
+            self.assertEqual(kwargs['timeout'], 60)
+            self.assertTrue(kwargs['capture_output'])
+            values = json.loads(kwargs['input'])
+            self.assertEqual(set(values), {'api_token', 'pg_app', 'nats_token'})
+            for name, value in values.items():
+                self.assertEqual(value, (directory / name).read_text().strip())
+                self.assertNotIn(value, ' '.join(args[0]))
+                self.assertNotIn(value, str(kwargs['env']))
+                self.assertNotIn(value, output.getvalue())
+
+    def test_provisioning_failure_prevents_api_start_and_sanitizes_output(self):
+        for error in (subprocess.CalledProcessError(1, ['docker'], output=b'synthetic-sensitive-detail'),
+                      subprocess.TimeoutExpired(['docker'], 60, output=b'synthetic-sensitive-detail')):
+            with patch.object(stack, 'compose') as compose, \
+                    patch.object(stack, 'provision_api_secrets', side_effect=RuntimeError('provision failed')):
+                with self.assertRaises(RuntimeError):
+                    stack.start_stack()
+                self.assertEqual(compose.call_args_list, [call('build', 'prepare')])
+            with tempfile.TemporaryDirectory() as temp:
+                directory = stack.initialize(Path(temp))
+                with patch.object(stack.subprocess, 'run', side_effect=error):
+                    with self.assertRaises(RuntimeError) as raised:
+                        stack.provision_api_secrets(directory)
+                    self.assertNotIn('synthetic-sensitive-detail', str(raised.exception))
+
+    def test_host_provisioner_refuses_bad_source_before_container_start(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = stack.initialize(Path(temp))
+            (directory / 'api_token').write_text('invalid')
+            with patch.object(stack.subprocess, 'run') as run:
+                with self.assertRaises(RuntimeError):
+                    stack.provision_api_secrets(directory)
+                run.assert_not_called()
+
+    def test_provisioner_stdin_is_bounded(self):
+        stdin = Mock()
+        stdin.buffer.read.return_value = b'{}'
+        with patch.object(runtime, 'require_api_identity'), \
+                patch.object(runtime.sys, 'stdin', stdin), \
+                patch.object(runtime, 'provision_api_secrets') as provision:
+            import asyncio
+            asyncio.run(runtime.main('provision-api-secrets'))
+            stdin.buffer.read.assert_called_once_with(4097)
+            provision.assert_called_once_with(b'{}')
+
+    def test_root_prepare_and_unrelated_runtime_behavior_stay_unchanged(self):
+        source = (ROOT / 'deploy/local/runtime.py').read_text()
+        api_source = source[source.index('def require_api_identity'):source.index('def secret(')]
+        for forbidden in ('os.chown(', 'os.fchown(', 'os.setuid(', 'os.setgid(', 'os.setgroups('):
+            self.assertNotIn(forbidden, api_source)
+        config = json.loads((ROOT / 'deploy/local/compose.json').read_text())
+        self.assertEqual(config['services']['prepare']['user'], '0:0')
 
     def test_shell_smoke_checks_both_auth_failures_and_success_without_output(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -267,10 +363,13 @@ class LocalCompose(unittest.TestCase):
     def test_cli_up_smoke_and_api_smoke_start_separate_api_service(self):
         for action in ('up', 'smoke', 'api-smoke'):
             with patch.object(stack, 'initialize'), patch.object(stack, 'compose') as compose, \
+                    patch.object(stack, 'provision_api_secrets') as provision, \
                     patch.object(stack, 'api_smoke') as smoke, \
                     patch('sys.argv', ['local_stack.py', action]):
                 stack.main()
-                self.assertIn(call('up', '-d', '--build', 'worker', 'api'), compose.call_args_list)
+                self.assertEqual(compose.call_args_list[0], call('build', 'prepare'))
+                provision.assert_called_once_with()
+                self.assertIn(call('up', '-d', 'worker', 'api'), compose.call_args_list)
                 if action in ('smoke', 'api-smoke'):
                     smoke.assert_called_once_with()
                 else:
