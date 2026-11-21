@@ -28,3 +28,4 @@ dist/
 
 !/references/public/enterprise.synthetic.v1.1.json
 !/references/public/framework.meta.synthetic.v1.json
+!/references/public/framework.synthetic.v1.json
