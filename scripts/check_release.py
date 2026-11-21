@@ -10,6 +10,8 @@ def allowed(rel):
     if any(x in {'__pycache__','.git','.venv','private','build','dist'} or x.endswith('.egg-info') for x in p.parts):return False
     if rel in TOP or rel in REF:return True
     if rel in {'deploy/local/compose.json','deploy/local/Dockerfile','deploy/local/runtime.py','deploy/local/init_postgres.sh'}:return True
+    if rel.startswith('src/app/application/queries/'):
+        return p.suffix == '.py'
     if rel.startswith('src/'):
         return rel.startswith(('src/app/application/enterprise/','src/app/infrastructure/enterprise/','src/app/application/gauge/','src/app/application/simulation/','src/app/application/process/','src/app/application/p4/','src/app/application/plate/','src/app/application/messaging/','src/app/application/enrichment/','src/app/application/probe/','src/app/application/ingest/','src/app/application/persistence/','src/app/application/splice/','src/app/application/common/','src/app/application/hfgt/','src/app/domain/','src/app/infrastructure/gauge/','src/app/infrastructure/tensors/','src/app/infrastructure/plate/','src/app/infrastructure/messaging/','src/app/infrastructure/enrichment/','src/app/infrastructure/probe/','src/app/infrastructure/ingest/','src/app/infrastructure/persistence/','src/app/infrastructure/splice/','src/app/infrastructure/hfgt/','src/app/interfaces/http/')) and p.suffix=='.py' or rel in {'src/app/__init__.py','src/app/_version.py','src/app/application/__init__.py','src/app/infrastructure/__init__.py','src/app/interfaces/__init__.py'}
     return (rel == 'examples/domain_bootstrap.py' or rel.startswith(('tests/','scripts/')) and p.suffix in {'.py','.sh'} or
