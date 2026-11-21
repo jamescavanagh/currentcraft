@@ -1,0 +1,275 @@
+{
+  "fixture_schema": "synthetic-meta-framework-test-envelope/v1",
+  "fixture_id": "fictional-meta-framework",
+  "synthetic": true,
+  "intended_visibility": "public synthetic test data",
+  "source": "Original fictional examples informed by public standards-drafting concepts; no source clauses reproduced.",
+  "repository_commit_under_test": "3bd875cf6adeb8211ee884156981dde1e9ea8d00",
+  "authority": "none; cannot confer approval, compatibility or conformance",
+  "scope": "Prototype TEST envelope for fictional structure and typed provisions; NOT a new runtime schema, parser for arbitrary standards, or accepted standards domain implementation.",
+  "records": [
+    {
+      "test_label": "framework-vocabulary",
+      "object_type": "ReferenceSet",
+      "payload": {
+        "entity_id": "d42a5660-d5d5-5dbf-aac3-33a3f9b9e3cc",
+        "dictionary_id": "synthetic-framework-only",
+        "dictionary_version": "0.1.0",
+        "source_owner": {
+          "value": "Fictional Test Council",
+          "epistemic_status": "observed",
+          "evidence_ids": [
+            "5baea675-8737-5ee7-9179-3804e48a0438"
+          ]
+        }
+      }
+    },
+    {
+      "test_label": "fictional-concept-one",
+      "object_type": "ReferenceValue",
+      "payload": {
+        "entity_id": "b3cfa59d-6017-572e-b650-6e12e8b91f22",
+        "reference_set_id": "d42a5660-d5d5-5dbf-aac3-33a3f9b9e3cc",
+        "code": {
+          "value": "SYNTHETIC-ALPHA",
+          "epistemic_status": "observed",
+          "evidence_ids": [
+            "5baea675-8737-5ee7-9179-3804e48a0438"
+          ]
+        }
+      }
+    },
+    {
+      "test_label": "fictional-concept-two",
+      "object_type": "ReferenceValue",
+      "payload": {
+        "entity_id": "8b412d8c-9176-5e9d-8840-44bdbae2bc36",
+        "reference_set_id": "d42a5660-d5d5-5dbf-aac3-33a3f9b9e3cc",
+        "code": {
+          "value": "SYNTHETIC-BETA",
+          "epistemic_status": "observed",
+          "evidence_ids": [
+            "5baea675-8737-5ee7-9179-3804e48a0438"
+          ]
+        }
+      }
+    },
+    {
+      "test_label": "identity-only-StandardsOrganization",
+      "object_type": "StandardsOrganization",
+      "payload": {
+        "entity_id": "177d5e74-26cc-5f86-aea0-0b211f5efd82"
+      }
+    },
+    {
+      "test_label": "identity-only-Standard",
+      "object_type": "Standard",
+      "payload": {
+        "entity_id": "58814ac5-7cd7-502b-b4ad-6b12e545dc10"
+      }
+    },
+    {
+      "test_label": "identity-only-StandardEdition",
+      "object_type": "StandardEdition",
+      "payload": {
+        "entity_id": "7cf20203-1a8a-51b4-bed1-a16173e9fe52"
+      }
+    },
+    {
+      "test_label": "identity-only-StandardClause",
+      "object_type": "StandardClause",
+      "payload": {
+        "entity_id": "d0d9e230-3022-5ea0-a177-b4a74967a22a"
+      }
+    },
+    {
+      "test_label": "identity-only-SpecificationReference",
+      "object_type": "SpecificationReference",
+      "payload": {
+        "entity_id": "5e221dc0-323b-5744-a168-b9d9666f3ec9"
+      }
+    }
+  ],
+  "expected_scaffold_rejections": [
+    {
+      "object_type": "StandardsOrganization",
+      "field": "name",
+      "value": "Fictional Test Council"
+    },
+    {
+      "object_type": "Standard",
+      "field": "title",
+      "value": "Synthetic Reference Exercise"
+    },
+    {
+      "object_type": "StandardEdition",
+      "field": "edition",
+      "value": "TEST-ONLY-0.1"
+    },
+    {
+      "object_type": "StandardClause",
+      "field": "clause_number",
+      "value": "SYNTHETIC-1"
+    },
+    {
+      "object_type": "SpecificationReference",
+      "field": "standard_edition_id",
+      "value": "7cf20203-1a8a-51b4-bed1-a16173e9fe52"
+    }
+  ],
+  "not_included": [
+    "real nine-framework catalogue",
+    "private mappings",
+    "licensed standards clauses",
+    "inventory dictionaries",
+    "production loader or privacy policy implementation",
+    "ISO conformity assessment",
+    "real framework domain mappings",
+    "metadata-registry conformity or ISO11179 implementation"
+  ],
+  "basis": [
+    {
+      "source": "ISO/IEC Directives, Part 2",
+      "url": "https://www.iso.org/sites/directives/current/part2/",
+      "inspected_page": "Page fetched 2026-11-21 identifies ninth edition, 2021; dynamic current URL is not an edition pin",
+      "concepts_used": [
+        "document structure",
+        "normative versus informative elements",
+        "provision types",
+        "dated references"
+      ],
+      "rights": "Citation only; no source manual text included; no ISO endorsement or conformity claimed"
+    },
+    {
+      "source": "ISO/IEC Guide 2:2004",
+      "url": "https://www.iso.org/standard/39976.html",
+      "inspection": "Official catalogue and definitions attributed by Directives inspected; full Guide not acquired",
+      "concepts_used": [
+        "standardization vocabulary"
+      ],
+      "rights": "Citation only; full text not reproduced"
+    }
+  ],
+  "meta_content": {
+    "identity": {
+      "designation": "SYNTH-META-001",
+      "title": "Fictional marker exchange exercise",
+      "edition": "TEST-1",
+      "publication_status": "synthetic_test_only",
+      "scope": "Toy exchange of fictional markers only; no business process or safety requirement."
+    },
+    "normative_references": [
+      {
+        "reference_id": "toy-marker-alphabet",
+        "edition": "TEST-1",
+        "binding": "dated",
+        "status": "resolved",
+        "source": "synthetic_inline",
+        "definition": {
+          "symbols": [
+            "ALPHA",
+            "BETA"
+          ]
+        }
+      }
+    ],
+    "informative_references": [
+      {
+        "reference_id": "toy-background-note",
+        "status": "unresolved",
+        "reason": "Not needed to run normative toy tests"
+      }
+    ],
+    "terms": [
+      {
+        "term": "marker",
+        "definition": "An invented label selected from the toy alphabet."
+      }
+    ],
+    "clauses": [
+      {
+        "id": "T1",
+        "element_kind": "normative",
+        "provision_kind": "requirement",
+        "text": "The toy record shall carry a marker identifier.",
+        "verbal_form": "shall",
+        "test_predicate": "marker_present",
+        "reference_ids": [
+          "toy-marker-alphabet"
+        ]
+      },
+      {
+        "id": "T2",
+        "element_kind": "normative",
+        "provision_kind": "prohibition",
+        "text": "The toy record shall not contain a marker outside its selected alphabet.",
+        "verbal_form": "shall not",
+        "test_predicate": "marker_allowed",
+        "reference_ids": [
+          "toy-marker-alphabet"
+        ]
+      },
+      {
+        "id": "T3",
+        "element_kind": "normative",
+        "provision_kind": "recommendation",
+        "text": "A toy display should show a descriptive caption.",
+        "verbal_form": "should",
+        "test_predicate": null,
+        "reference_ids": []
+      },
+      {
+        "id": "T4",
+        "element_kind": "normative",
+        "provision_kind": "permission",
+        "text": "A toy display may hide its optional caption.",
+        "verbal_form": "may",
+        "test_predicate": null,
+        "reference_ids": []
+      },
+      {
+        "id": "T5",
+        "element_kind": "normative",
+        "provision_kind": "possibility",
+        "text": "A toy channel can deliver markers out of order.",
+        "verbal_form": "can",
+        "test_predicate": null,
+        "reference_ids": []
+      },
+      {
+        "id": "T6",
+        "element_kind": "normative",
+        "provision_kind": "capability",
+        "text": "The example reader can retain two markers.",
+        "verbal_form": "can",
+        "test_predicate": null,
+        "reference_ids": []
+      },
+      {
+        "id": "T7",
+        "element_kind": "informative",
+        "provision_kind": "statement",
+        "text": "This fictional example illustrates a structure, not a release approval.",
+        "verbal_form": null,
+        "test_predicate": null,
+        "reference_ids": []
+      }
+    ],
+    "annexes": [
+      {
+        "id": "A",
+        "element_kind": "informative",
+        "title": "Toy explanatory examples",
+        "text": "Example records are illustrative, not normative decisions."
+      }
+    ],
+    "notes": [
+      {
+        "type": "statement",
+        "text": "The words shall and should in this note are examples, not executable requirements."
+      }
+    ],
+    "mapping_status": "Content remains in test-envelope extension data; existing standards scaffolds cannot yet capture these fields."
+  },
+  "meta_content_sha256": "c234ee20de50d648a8a8a29b2b8eb8f379280a5aab4a4f01e6bf4f30509438e4"
+}
