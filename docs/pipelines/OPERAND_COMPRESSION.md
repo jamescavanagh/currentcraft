@@ -14,19 +14,31 @@ this slice references them rather than creating replacement aggregates.
 
 ## Domain boundaries
 
-| Context | Design reference | Configuration link |
-| --- | --- | --- |
-| Projects | ISO 21502 and ISO 21511 | Selected baseline |
-| Working Docs | ISO 15489/23081 and W3C PROV | Evidence/revision lineage |
-| Commercial Orders | ISO/IEC 15944-4 and OASIS UBL | Requested configuration, not fulfillment |
-| Subsystems | ISO/IEC/IEEE 42010 | Architecture mapping, not inferred equivalence |
-| Site Acceptance Testing | IEC 62381, within its process-industry scope | Exact test basis, not acceptance authority |
-| Feature Compatibility | ISO/IEC 26580 | Versioned definitions and constraints |
+| Context | Configuration link |
+| --- | --- |
+| Projects | Selected baseline |
+| Working Docs | Evidence/revision lineage |
+| Commercial Orders | Requested configuration, not fulfillment |
+| Subsystems | Architecture mapping, not inferred equivalence |
+| Site Acceptance Testing | Exact test basis, not acceptance authority |
+| Feature Compatibility | Versioned definitions and constraints |
 
-These are translation aids, not certification or claims that one standard covers
-every integrator's work. The respective mathematical lenses are state/decomposition,
-provenance graphs, transaction state machines, typed architecture graphs,
-criterion-based testing, and constraint satisfaction. No shared physics is assumed.
+These are candidate domain descriptions, not certification or operational authority.
+No shared physics is assumed.
+
+## Private reference boundary
+
+Standards names/editions, source links, clauses, domain crosswalks and enterprise
+interpretations belong in the private server-side `REF` layer, not public design
+pages, fixtures or generated examples. Proprietary mappings, business rules and
+adapter implementations remain private too.
+
+Authorized server-side adapters are intended to hydrate version-pinned references
+into the private graph. Public code exposes only generic contracts, opaque
+references and synthetic fixtures, and must work without private packages.
+
+This page records the boundary; it does not implement REF storage, access control
+or graph hydration, and does not claim that private sources have been moved.
 
 ## Contract rules
 
@@ -88,16 +100,3 @@ adoption-lag estimation, feature-group/SAT encodings, labeling, three-body mappi
 L-system productions, vocabulary promotion, simulation V3, merge and deployment.
 This is unreleased 0.11 groundwork, not completion of 0.11 or upstream acceptance.
 Package version stays 0.9.9; contract versions change independently.
-
-## Sources
-
-- ISO 21502: https://www.iso.org/standard/74947.html
-- ISO 21511: https://www.iso.org/standard/69702.html
-- ISO 15489: https://committee.iso.org/sites/tc46sc11/home/projects/published/iso-15489-records-management.html
-- ISO 23081: https://www.iso.org/standard/81600.html
-- W3C PROV-O: https://www.w3.org/TR/prov-o/
-- ISO/IEC 15944-4: https://www.iso.org/standard/67199.html
-- OASIS UBL: https://docs.oasis-open.org/ubl/os-UBL-2.4/UBL-2.4.html
-- ISO/IEC/IEEE 42010: https://www.iso.org/standard/74393.html
-- IEC 62381: https://webstore.iec.ch/en/publication/67572
-- ISO/IEC 26580: https://www.iso.org/standard/43139.html
