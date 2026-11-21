@@ -1,3 +1,10 @@
+# Unreleased: drawing lifecycle design correction (docs only)
+
+- Implemented in documentation only: superseded the earlier facet proposal with the accepted requirement that Drawing is separate from Document and Revision and Submittal are Document subtypes. Historical proposal retained; Decision 4 source-file never-lock rules unchanged.
+- Added option 2 controlled-release design with described proposed fields, exact-native-revision rendition and acknowledgment, separate authorization/sending/acknowledgment/PM visibility evidence, and clearance of only the drawing prerequisite.
+- Not implemented or claimed: lifecycle contracts, workflow execution, operational authority/recipient/escalation policy, installation readiness, or completion of 0.11.0. Drawing-revision type composition remains undecided; work-package-specific release is deferred.
+- Phase 2 requires the 0.10.0 read-endpoints PR #25 merge and separate coordinator go-ahead. Package/runtime version remains 0.9.9 because this slice changes design documents only; no generated contracts or runtime files changed.
+
 # Unreleased: scoped local API integration
 
 - Added a separate Compose API service with loopback-only host publishing, bootstrap completion dependency, shared blob storage, readiness healthcheck and the API installation extra. The API and its new secret-provisioning helper both start as UID/GID 10001 with all capabilities dropped and no-new-privileges; the earlier privileged API staging design is replaced.
@@ -36,7 +43,7 @@
   - Space: block 0 phase-free, block 1+b per bin; same signed blake2b hash as the ingest tensorizer; slot tokens for declared fields and non-provenance relation types (never targets). Cosine factorises exactly as content x coupling; unit norm; zero-based indices persisted through the existing pgvector `sparsevec` conversion. Profile digest (chart included) pins `EmbeddingSpace.model_version`, so a parameter change is a new space.
   - Junctions: cross-phase candidates with content similarity, phase coupling, spliced similarity, chart distance and shared words; kind filter, content threshold, minimum shared words and cap. Always `candidate`; no relation, dependency, approval or allocation is written.
   - `store_splice` persists the sparse records in one unit of work. No messaging events and no write to the probe or plate.
-- Tests: 26 synthetic splice tests (analytic chart controls, evidence rules, factorisation, layout, persistence, junction semantics) plus a gated private acceptance check; layering and release allowlist extended.
+- Tests: 26 synthetic splice tests (analytic chart controls, factorisation, layout, persistence, junction semantics) plus a gated private acceptance check; layering and release allowlist extended.
 - Private references: PEW splice profile and acceptance results ship under git-ignored `references/private/`.
 
 # 0.9.6 (2026-11-12)
@@ -61,7 +68,7 @@
 
 # 0.9.3 (2026-11-12)
 
-- **Durable broker adapter architecture**: separate async `DurableBrokerPort`, `PublishReceipt`, `DurableConsumerSpec`, `DurableDelivery`; synchronous simulation API retained unchanged. Design: `docs/architecture/JETSTREAM.md`.
+- **Durable broker adapter architecture**: separate async `DurableBrokerPort`, `PublishReceipt`, `DurableConsumerSpec`, `PublishReceipt`, `DurableConsumerSpec`, `DurableDelivery`; synchronous simulation API retained unchanged. Design: `docs/architecture/JETSTREAM.md`.
 - NATS JetStream infrastructure adapter (optional `nats` extra), lazy connection, explicit stream provisioning, file-backed Limits retention with DiscardNew, independent RAW/EVENTS/TELEMETRY/QUARANTINE capacities, confirmed publishing with event-id dedup header, bounded durable pull consumers, explicit ack/retry/progress and durable replay start.
 - Reversible per-level hex encoding preserves slash topics and dotted source IDs; final # maps to parent + descendant filters.
 - Transactional worker: persistent per-handler inbox deduplication, commit-before-ack, lease heartbeats, rollback and delayed retry, transactional quarantine before terminal acknowledgment. Async outbox relay marks only confirmed publications. No end-to-end exactly-once promise.
@@ -76,9 +83,7 @@
 - **Persistence layer** (repository pattern), design source `docs/architecture/PERSISTENCE.md`.
   - `app.application.persistence`: Pydantic contracts (`StoreResult`, `EdgeRecord`, `VersionedRecord`, `CommandRecord`, `StockPosition`, `Reservation`, `EmbeddingSpace`, `EmbeddingRecord`, `OutboxEntry`), `Protocol` repository ports, `UnitOfWork`, and use cases `persist_objects`, `save_aggregate` / `load_aggregate`, `run_once`, `reserve_stock`, `relay_outbox`, `documents_for`, `tasks_of`. No drivers, SQL or `json`; never imported by `app.domain`.
   - `app.infrastructure.persistence`: PostgreSQL 18 dialect, ordered idempotent migrations (001-005, opt-in 101 pgvector), SQL repositories with bound parameters only, `SqlUnitOfWork` (explicit READ COMMITTED transactions), in-memory repositories with snapshot rollback, and wiring (`build_postgres`, lazy psycopg 3; `build_duckdb_standin`; `build_memory`).
-  - Source occurrences version by digest (same digest = no-op); edges are stored per source version and read through the current head; recursive traversal depth 1-6. Aggregates use compare-and-swap with full history. Commands apply at most once. Reservations use one conditional update plus `CHECK (reserved <= on_hand)` so competing claims cannot overcommit. Embeddings keep masks and model identity; sparse indices convert zero-based to one-based only in `vectors.py`. Outbox events (`domain.stored`) commit with the change and relay at least once.
   - Project documents from 0.9.1 persist unchanged: `tasks_of` returns tasks of the document's current revision by default.
-- Shared contract suite `tests/test_persistence.py` runs on memory and a DuckDB stand-in; `PostgresContract` runs only with `DATAMESH_PG_DSN` and psycopg 3. New CI job `postgres-18` (service container) is the only evidence of PostgreSQL compatibility; it has not run for this release yet.
 - Generated `docs/contracts/PERSISTENCE_SCHEMA.md` (`scripts/gen_persistence_docs.py --check` in CI); persistence slice added to the agency contract docs. Optional extra `postgres`.
 - Messaging: event kind `domain.stored`, topic `stored/<kind>/<object_id>`.
 - Private references: `/references/private/` is git-ignored explicitly; `scripts/export_public.py --with-private` builds a coordinator bundle that includes it, listed separately in the manifest, and refuses if Git would track any of it.
@@ -105,7 +110,6 @@
 # 0.8.0 (2026-11-12)
 
 - **Ingestion** (`app.application.ingest`, `app.infrastructure.ingest`), design source `docs/architecture/INGESTION.md`. External data reaches tensors in five explicit transforms: raw topic, adapter, domain object, IngestRing, tensor plan.
-- **Hierarchical raw topics** `raw/<platform>/<format>/<source_id>`: subscribe by platform (`raw/sharepoint/#`), by format (`raw/+/pdf/#`) or both. Raw bytes stay in a blob store; envelopes carry key, SHA-256, size and media type only.
 - **Adapters** (anti-corruption layer, deterministic): email (stdlib, reply links from `In-Reply-To`), docx (zip + XML, size-guarded), pdf (optional `pdf` extra, pypdf), json via declared `JsonMapping`, data contracts via a registry (`ProcessExecution` becomes a `process_execution` object whose incidence becomes typed relations), plain text. People become salted pseudonymous `ResourceRef` tokens (`res-<16 hex>`); objects stay things.
 - **Quarantine**: malformed input becomes a `Rejection` on `quarantine/...`, never a partial object.
 - **IngestRing** (not the simulator's BufferRing): bounded, per-consumer cursors, at-least-once redelivery, kind-aware trimming, `RingFull` backpressure turned into ordered deferral with `retry_deferred()`, idempotent versions (digest excludes intake time), exact lag gauge.
