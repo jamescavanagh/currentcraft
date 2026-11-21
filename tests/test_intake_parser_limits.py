@@ -14,6 +14,22 @@ from tests import test_http_intake as fixtures
 
 
 class ParserLimitTests(unittest.TestCase):
+    def test_framework_wrapped_native_header_limit_is_413(self):
+        class Request:
+            headers = Headers({"content-type": "multipart/form-data; boundary=synthetic"})
+        for message, status in [("Maximum header size exceeded", 413),
+                                ("Maximum header count exceeded", 413),
+                                ("synthetic invalid input", 422)]:
+            async def fail(parser):
+                try:
+                    raise MultipartParseError(message)
+                except MultipartParseError as cause:
+                    raise intake.MultiPartException("Invalid multipart data.") from cause
+            with self.subTest(message=message), patch.object(intake.BoundedParser, "parse", new=fail):
+                with self.assertRaises(HTTPException) as raised:
+                    asyncio.run(intake._form(Request()))
+                self.assertEqual(raised.exception.status_code, status)
+
     def test_parser_native_header_limits_are_safe_413_and_close_spools(self):
         fixture = fixtures.HttpIntakeTests()
         fixture.setUp()

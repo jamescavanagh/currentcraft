@@ -120,7 +120,14 @@ async def _form(request: Request):
     except MultiPartException as exc:
         for handle in parser._files_to_close_on_error:
             handle.close()
-        if exc.message == "Request size exceeded.":
+        # Starlette 1.10 wraps native parser errors; inspect the typed cause
+        # for fixed limit categories without returning/logging its message.
+        cause = exc.__cause__
+        native_limit = isinstance(cause, MultipartParseError) and cause.args in (
+            ("Maximum header size exceeded",),
+            ("Maximum header count exceeded",),
+        )
+        if exc.message == "Request size exceeded." or native_limit:
             raise HTTPException(413) from None
         raise HTTPException(422) from None
     except MultipartParseError as exc:
