@@ -14,3 +14,4 @@ class Subsystem(VersionedEntity):
     project_id: ProjectId
     name: Fact[Text] = Field(default_factory=unknown)
     system_id: Fact[UUID] = Field(default_factory=unknown)
+    location_id: Fact[UUID] = Field(default_factory=unknown, description="Explicit project-scoped Location, or an explicit unknown; never inferred.")
