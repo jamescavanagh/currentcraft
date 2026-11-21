@@ -74,7 +74,7 @@ flowchart LR
   PX["ProcessExecution<br/>process-first records"] -->|"object births, deaths, states"| EV["Object event chain"]
   PX -->|"participation projection"| GA["Gauge: participation null"]
   PL["Plate run<br/>simulated"] -->|"plate/+/crossing"| BR["Message broker"]
-  PL -->|"plate/+/intake: candidate handoff"| PL2["Next plate"]
+  BR -->|"plate/+/intake: candidate handoff"| PL2["Next plate"]
   PX -->|"gate/+/decision: release with authority"| BR
   PL -->|"field samples + arc bounds"| VW["Velocity winding: certified or sampled_only"]
   PL -->|"object body = ionizing ray"| EN["Enrichment chamber<br/>sparse code + shortcut candidates"]
