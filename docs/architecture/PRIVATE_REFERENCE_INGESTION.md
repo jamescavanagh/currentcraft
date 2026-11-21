@@ -21,7 +21,7 @@ pinned source bytes + private extraction profile
 
 The root represents the source document. A private, reviewed profile may identify headings with a trusted regular expression; numbered headings form nested sections, and bounded passages retain exact offsets into the extracted page text. Unrecognized lines remain passages. There is no standards-specific vocabulary, crosswalk, rule execution, semantic mapping or automatic clause interpretation in public code. A section boundary is a parser candidate, not evidence that the source is complete, authoritative, current, applicable or approved.
 
-The private JSON preserves extracted page text, source-relative name, source and profile digests, extractor version, node order, parent handles and Unicode-codepoint spans. Graph objects preserve those spans and source hashes; each child has a typed `part_of` edge. All six-type/canonical business records remain unchanged. The graph entries are labeled `source_literal_candidate` and create no decision authority.
+The private JSON preserves extracted page text, source-relative name, source and profile digests, extractor version, node order, parent handles and Unicode-codepoint spans. The source/revision handle comes from an explicit private REF manifest; IDs are never inferred from filenames or content hashes. Graph objects preserve those spans and source hashes; each child has a typed `part_of` edge. All six-type/canonical business records remain unchanged. The graph entries are labeled `source_literal_candidate` and create no decision authority.
 
 ## Privacy and integrity boundary
 
@@ -37,6 +37,6 @@ PDF text extraction uses the optional `pypdf` extra in strict, read-only mode; e
 
 ## Composition
 
-`app.infrastructure.ingest.reference_documents.ingest_and_hydrate` accepts an absolute private root, explicit relative source/output paths, a separately configured expected source SHA-256, a reviewed `ReferenceIngestProfile`, the application's existing `UnitOfWorkFactory`, and an aware recording time. It returns the private bundle and a receipt containing opaque graph handles only. A production caller must pass its already configured durable UoW; the in-memory UoW is for tests only.
+`app.infrastructure.ingest.reference_documents.ingest_and_hydrate` accepts an absolute private root, explicit relative source/output paths, a manifest-supplied opaque source/revision handle, a separately configured expected source SHA-256, a reviewed `ReferenceIngestProfile`, the application's existing `UnitOfWorkFactory`, and an aware recording time. It returns the private bundle and a receipt containing opaque graph handles only. A production caller must pass its already configured durable UoW; the in-memory UoW is for tests only.
 
 Synthetic acceptance tests exercise extraction, nested boundaries, JSON verification, path containment, repeat-safe graph writes and the in-memory UoW. They do not ingest or publish real standards. Real-source acceptance still requires approved source files and a private runtime composition.

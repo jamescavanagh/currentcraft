@@ -12,7 +12,7 @@ from pydantic import Field, PositiveInt, model_validator
 from app.application.common.contracts import _Frozen
 
 SCHEMA_VERSION = "currentcraft-ref-document/v1"
-_ID = r"^ref_[0-9a-f]{32}$"
+_ID = r"^ref_[A-Za-z0-9_-]{1,120}$"
 _MAX_PAGE_CHARS = 2_000_000
 _MAX_NODES = 100_000
 
@@ -25,7 +25,7 @@ class ReferenceIngestProfile(_Frozen):
     max_file_bytes: PositiveInt = Field(default=32 * 1024 * 1024, le=64 * 1024 * 1024, description="Maximum source-file size.")
     max_pages: PositiveInt = Field(default=2_000, le=20_000, description="Maximum extracted page count.")
     max_extracted_chars: PositiveInt = Field(default=20_000_000, le=100_000_000, description="Maximum total extracted characters.")
-    max_chunk_chars: PositiveInt = Field(default=18_000, le=20_000, description="Maximum passage length per graph node.")
+    max_chunk_chars: PositiveInt = Field(default=18_000, ge=256, le=20_000, description="Maximum passage length per graph node.")
 
     @model_validator(mode="after")
     def valid_heading_rule(self):
@@ -51,7 +51,7 @@ class ReferencePage(_Frozen):
 
 class ReferenceNode(_Frozen):
     """One source-literal tree node with offsets into an exact extracted page."""
-    node_id: str = Field(pattern=_ID, description="Opaque stable node handle.")
+    node_id: str = Field(pattern=_ID, description="Opaque node handle; the document root reuses its manifest-supplied source handle.")
     kind: Literal["document", "section", "passage"] = Field(description="Structural source unit, not interpreted meaning.")
     parent_node_id: str | None = Field(default=None, pattern=_ID, description="Containing node; null only for the document root.")
     ordinal: PositiveInt = Field(strict=True, description="Stable order within the emitted tree.")
@@ -86,7 +86,7 @@ class ReferenceNode(_Frozen):
 class ReferenceDocumentBundle(_Frozen):
     """Closed source-plus-tree snapshot. It is not a policy interpretation or approval record."""
     schema_version: Literal["currentcraft-ref-document/v1"] = Field(default=SCHEMA_VERSION, description="Private reference document bundle schema.")
-    document_id: str = Field(pattern=_ID, description="Opaque stable document handle derived from source bytes.")
+    document_id: str = Field(pattern=_ID, description="Opaque source/revision handle supplied by the private REF manifest; never inferred from filename or bytes.")
     source_name: str = Field(min_length=1, max_length=1024, description="Private source-relative locator label.")
     source_format: Literal["pdf", "text", "markdown"] = Field(description="Read-only source format.")
     source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", description="SHA-256 of the exact source bytes.")

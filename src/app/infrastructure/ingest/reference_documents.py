@@ -106,8 +106,8 @@ def _extract(raw: bytes, suffix: str, profile: ReferenceIngestProfile) -> tuple[
     return pages, fmt, extractor, extractor_version
 
 
-def _node_id(source_sha: str, kind: str, page: int | None, start: int | None, end: int | None, ordinal: int) -> str:
-    material = f"{source_sha}|{kind}|{page}|{start}|{end}|{ordinal}".encode()
+def _node_id(document_id: str, source_sha: str, kind: str, page: int | None, start: int | None, end: int | None, ordinal: int) -> str:
+    material = f"{document_id}|{source_sha}|{kind}|{page}|{start}|{end}|{ordinal}".encode()
     return "ref_" + hashlib.sha256(material).hexdigest()[:32]
 
 
@@ -117,9 +117,9 @@ def _heading_level(key: str) -> int:
     return 1
 
 
-def _make_tree(source_sha: str, source_name: str, pages: tuple[str, ...], profile: ReferenceIngestProfile) -> tuple[ReferenceNode, ...]:
+def _make_tree(document_id: str, source_sha: str, source_name: str, pages: tuple[str, ...], profile: ReferenceIngestProfile) -> tuple[ReferenceNode, ...]:
     nodes: list[ReferenceNode] = []
-    doc_id = _node_id(source_sha, "document", None, None, None, 1)
+    doc_id = document_id
     nodes.append(ReferenceNode(node_id=doc_id, kind="document", ordinal=1, depth=0, title=source_name))
     heading_rule = re.compile(profile.heading_pattern) if profile.heading_pattern else None
     # Active heading stack contains (numbering depth, node id, tree depth).
@@ -129,9 +129,11 @@ def _make_tree(source_sha: str, source_name: str, pages: tuple[str, ...], profil
     def add_span(kind: str, page_no: int, start: int, end: int, title: str,
                  parent_id: str, parent_depth: int, key: str | None = None, level: int | None = None):
         nonlocal ordinal
+        if len(nodes) >= 100_000:
+            raise ValueError("source exceeds the maximum node count")
         ordinal += 1
         nodes.append(ReferenceNode(
-            node_id=_node_id(source_sha, kind, page_no, start, end, ordinal), kind=kind,
+            node_id=_node_id(document_id, source_sha, kind, page_no, start, end, ordinal), kind=kind,
             parent_node_id=parent_id, ordinal=ordinal, depth=parent_depth + 1,
             page_number=page_no, start_offset=start, end_offset=end,
             section_key=key, title=title, section_level=level,
@@ -194,15 +196,17 @@ def _make_tree(source_sha: str, source_name: str, pages: tuple[str, ...], profil
     return tuple(nodes)
 
 
-def build_bundle(root: Path, source_relative: str, expected_source_sha256: str,
+def build_bundle(root: Path, source_relative: str, source_handle: str, expected_source_sha256: str,
                  profile: ReferenceIngestProfile) -> ReferenceDocumentBundle:
-    base, source_path = _safe_path(root, source_relative, must_exist=True)
+    _, source_path = _safe_path(root, source_relative, must_exist=True)
     if source_path.suffix.lower() not in {".pdf", ".txt", ".md"}:
         raise ValueError("supported source formats are PDF, UTF-8 text and Markdown")
     size = source_path.stat().st_size
     if size > profile.max_file_bytes:
         raise ValueError("source file exceeds the configured byte limit")
     raw = source_path.read_bytes()
+    if len(raw) > profile.max_file_bytes:
+        raise ValueError("source file exceeds the configured byte limit")
     if not raw:
         raise ValueError("source document is empty")
     source_sha = _sha(raw)
@@ -212,9 +216,9 @@ def build_bundle(root: Path, source_relative: str, expected_source_sha256: str,
     if not any(page.strip() for page in page_texts):
         raise ValueError("source has no extractable text; OCR is not included")
     pages = tuple(ReferencePage(page_number=i, text=text) for i, text in enumerate(page_texts, start=1))
-    nodes = _make_tree(source_sha, source_relative, page_texts, profile)
+    nodes = _make_tree(source_handle, source_sha, source_relative, page_texts, profile)
     provisional = ReferenceDocumentBundle(
-        document_id=nodes[0].node_id,
+        document_id=source_handle,
         source_name=source_relative, source_format=fmt, source_sha256=source_sha,
         extractor_name=extractor, extractor_version=extractor_version,
         profile_sha256=profile.digest(), pages=pages, nodes=nodes, payload_sha256="0" * 64,
@@ -328,11 +332,10 @@ def _domain_objects(loaded: LoadedReferenceDocument, recorded_at: datetime) -> t
         parent = by_id.get(node.parent_node_id or "")
         relations = (TypedRelation(type="part_of", target_id=parent.node_id,
                                    evidence="reference_tree.parent_node_id"),) if parent else ()
-        title = node.title
         result.append(DomainObject(
             object_id=node.node_id,
             kind={"document": "reference_document", "section": "reference_section", "passage": "reference_passage"}[node.kind],
-            title=title, text=_source_text(bundle, node), fields=fields,
+            title=node.title, text=_source_text(bundle, node), fields=fields,
             relations=relations, provenance=provenance,
         ))
     return tuple(result)
@@ -353,7 +356,7 @@ def hydrate_bundle(loaded: LoadedReferenceDocument, uow_factory: Callable, recor
         for obj in objects:
             uow.objects.put(obj)
         uow.commands.record(CommandRecord(
-            command_id=command_id, command_type="private_ref_document_hydration/v1",
+            command_id=command_id, command_type="private_ref_document_hydration.v1",
             outcome="applied", result_ref=bundle.document_id,
             recorded_at=recorded_at,
         ))
@@ -362,11 +365,11 @@ def hydrate_bundle(loaded: LoadedReferenceDocument, uow_factory: Callable, recor
                            tuple(o.object_id for o in objects), False)
 
 
-def ingest_and_hydrate(root: Path, source_relative: str, output_relative: str,
+def ingest_and_hydrate(root: Path, source_relative: str, source_handle: str, output_relative: str,
                        expected_source_sha256: str, profile: ReferenceIngestProfile,
                        uow_factory: Callable, recorded_at: datetime) -> tuple[ReferenceDocumentBundle, HydrationResult]:
     """One explicit-source run: verify source, extract -> private JSON, verify JSON, then graph hydrate."""
-    bundle = build_bundle(root, source_relative, expected_source_sha256, profile)
+    bundle = build_bundle(root, source_relative, source_handle, expected_source_sha256, profile)
     json_sha = write_bundle(root, output_relative, bundle)
     loaded = load_bundle(root, output_relative, json_sha, recorded_at)
     result = hydrate_bundle(loaded, uow_factory, recorded_at)

@@ -15,6 +15,7 @@ from app.infrastructure.ingest.reference_documents import (
 from app.infrastructure.persistence.memory import MemoryStore
 
 WHEN = datetime(2026, 11, 21, 12, 0, tzinfo=timezone.utc)
+SOURCE_HANDLE = "ref_synthetic_doc_001"
 PROFILE = ReferenceIngestProfile(
     profile_id="synthetic-profile", version="1",
     heading_pattern=r"(?P<key>\d+(?:\.\d+)*)\s+(?P<title>.+)",
@@ -35,7 +36,7 @@ class ReferenceDocumentIngestionTests(unittest.TestCase):
         self.temp.cleanup()
 
     def test_extracts_exact_text_and_nested_candidate_tree(self):
-        bundle = build_bundle(self.root, "source.txt", self.digest, PROFILE)
+        bundle = build_bundle(self.root, "source.txt", SOURCE_HANDLE, self.digest, PROFILE)
         self.assertEqual(bundle.pages[0].text, TEXT)
         self.assertEqual(bundle.document_id, bundle.nodes[0].node_id)
         sections = [node for node in bundle.nodes if node.kind == "section"]
@@ -50,7 +51,7 @@ class ReferenceDocumentIngestionTests(unittest.TestCase):
     def test_end_to_end_private_json_to_graph_is_atomic_and_idempotent(self):
         store = MemoryStore()
         bundle, first = ingest_and_hydrate(
-            self.root, "source.txt", "derived/source.json", self.digest, PROFILE, store, WHEN)
+            self.root, "source.txt", SOURCE_HANDLE, "derived/source.json", self.digest, PROFILE, store, WHEN)
         self.assertFalse(first.replayed)
         self.assertEqual(len(first.object_ids), len(bundle.nodes))
         private_json = self.root / "derived/source.json"
@@ -69,8 +70,8 @@ class ReferenceDocumentIngestionTests(unittest.TestCase):
 
     def test_source_and_json_hashes_are_pinned(self):
         with self.assertRaisesRegex(ValueError, "source document SHA-256 mismatch"):
-            build_bundle(self.root, "source.txt", "0" * 64, PROFILE)
-        bundle = build_bundle(self.root, "source.txt", self.digest, PROFILE)
+            build_bundle(self.root, "source.txt", SOURCE_HANDLE, "0" * 64, PROFILE)
+        bundle = build_bundle(self.root, "source.txt", SOURCE_HANDLE, self.digest, PROFILE)
         write_bundle(self.root, "derived/source.json", bundle)
         with self.assertRaisesRegex(ValueError, "bundle file SHA-256 mismatch"):
             load_bundle(self.root, "derived/source.json", "0" * 64, WHEN)
@@ -80,7 +81,7 @@ class ReferenceDocumentIngestionTests(unittest.TestCase):
             ReferenceIngestProfile(profile_id="x", version="1", heading_pattern="(broken")
         with self.assertRaises(ValidationError):
             ReferenceIngestProfile(profile_id="x", version="1", heading_pattern=r"(?P<key>x)(?P<other>y)")
-        bundle = build_bundle(self.root, "source.txt", self.digest, PROFILE)
+        bundle = build_bundle(self.root, "source.txt", SOURCE_HANDLE, self.digest, PROFILE)
         data = bundle.model_dump(mode="json")
         data["nodes"][1]["parent_node_id"] = "ref_" + "0" * 32
         with self.assertRaises(ValidationError):
@@ -89,11 +90,11 @@ class ReferenceDocumentIngestionTests(unittest.TestCase):
     def test_private_root_and_path_escape_are_enforced(self):
         for relative in ("../outside.txt", "/tmp/outside.txt", "nested\\escape.txt"):
             with self.subTest(relative=relative), self.assertRaises(ValueError):
-                build_bundle(self.root, relative, self.digest, PROFILE)
+                build_bundle(self.root, relative, SOURCE_HANDLE, self.digest, PROFILE)
         public_root = Path(self.temp.name) / "public"
         public_root.mkdir()
         with self.assertRaisesRegex(ValueError, "private directory"):
-            write_bundle(public_root, "leak.json", build_bundle(self.root, "source.txt", self.digest, PROFILE))
+            write_bundle(public_root, "leak.json", build_bundle(self.root, "source.txt", SOURCE_HANDLE, self.digest, PROFILE))
 
     def test_duplicate_json_keys_are_rejected(self):
         duplicate = self.root / "duplicate.json"
@@ -103,7 +104,7 @@ class ReferenceDocumentIngestionTests(unittest.TestCase):
             load_bundle(self.root, "duplicate.json", raw_hash, WHEN)
 
     def test_json_payload_tampering_and_naive_selection_time_fail_closed(self):
-        bundle = build_bundle(self.root, "source.txt", self.digest, PROFILE)
+        bundle = build_bundle(self.root, "source.txt", SOURCE_HANDLE, self.digest, PROFILE)
         write_bundle(self.root, "derived/source.json", bundle)
         path = self.root / "derived/source.json"
         payload = json.loads(path.read_text(encoding="utf-8"))
