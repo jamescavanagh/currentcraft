@@ -164,4 +164,5 @@ async def build_container(settings: Settings) -> Container:
         database_ready=database_ready,
         broker_ready=broker_ready,
         close=close,
+        uow_factory=uow_factory,
     )
