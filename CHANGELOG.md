@@ -7,6 +7,8 @@
 
 # Unreleased: scoped local API integration
 
+- Evidence contracts (`currentcraft-evidence/v1`): pure hierarchical page, sheet, BOM row, email and chat-thread values in `app.application.evidence`, opaque file/revision/project links, provenance, synthetic boundary tests and generated schemas. Not claimed: extraction, persistence, ingest integration, embeddings, source authorization or semantic/process validation. No release/version bump; existing identities unchanged.
+
 - Added a separate Compose API service with loopback-only host publishing, bootstrap completion dependency, shared blob storage, readiness healthcheck and the API installation extra. The API and its new secret-provisioning helper both start as UID/GID 10001 with all capabilities dropped and no-new-privileges; the earlier privileged API staging design is replaced.
 - Local initialization exclusively generates and retains a 64-hex API token with owner-only host permissions. The host streams three validated secrets over stdin to the nonroot provisioner, which installs mode-0400 files in a UID-10001-owned mode-0700 named volume initialized by the image at build time. The API mounts it read-only; no host secret mounts, root helper, secret argv/environment values, or world-readable API token workaround. Provisioning failure blocks launch. Existing database, broker, data-volume and persisted object identities are unchanged.
 - Local launch configuration prefers `CURRENTCRAFT_*`; `DATAMESH_*` remains a fallback for one release. Explicit preferred values win. A runtime bridge leaves HTTP and ingestion implementation paths unchanged.

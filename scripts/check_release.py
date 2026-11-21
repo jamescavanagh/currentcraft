@@ -10,6 +10,8 @@ def allowed(rel):
     if any(x in {'__pycache__','.git','.venv','private','build','dist'} or x.endswith('.egg-info') for x in p.parts):return False
     if rel in TOP or rel in REF:return True
     if rel in {'deploy/local/compose.json','deploy/local/Dockerfile','deploy/local/runtime.py','deploy/local/init_postgres.sh'}:return True
+    if rel.startswith('src/app/application/evidence/'):
+        return p.suffix == '.py'
     if rel.startswith('src/app/application/queries/'):
         return p.suffix == '.py'
     if rel.startswith('src/'):

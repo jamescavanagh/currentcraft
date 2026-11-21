@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "description": "A nonempty half-open span in the declared extractor output.",
+  "properties": {
+    "end": {
+      "description": "Exclusive end, strictly greater than start.",
+      "exclusiveMinimum": 0,
+      "title": "End",
+      "type": "integer"
+    },
+    "start": {
+      "description": "Zero-based inclusive start in the declared unit.",
+      "minimum": 0,
+      "title": "Start",
+      "type": "integer"
+    },
+    "unit": {
+      "description": "Offset unit in the exact extractor output.",
+      "enum": [
+        "unicode_codepoints",
+        "bytes"
+      ],
+      "title": "Unit",
+      "type": "string"
+    }
+  },
+  "required": [
+    "start",
+    "end",
+    "unit"
+  ],
+  "title": "EvidenceTextOffsets",
+  "type": "object"
+}

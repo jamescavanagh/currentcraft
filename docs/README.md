@@ -25,6 +25,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 
 | Page | Slice | Status |
 | --- | --- | --- |
+| [Hierarchical evidence chunks](architecture/EVIDENCE_CHUNKS.md) | `app.application.evidence` | contracts only; extraction and persistence not implemented |
 | [Process-first domain](domain/PROCESS_FIRST.md) | `app.application.process` | implemented 0.5.0 |
 | [Plate and spatial isosceles](pipelines/PLATE_ISOSCELES.md) | `app.application.plate`, `app.infrastructure.plate` | implemented 0.5.0 |
 | [Embedding enrichment](pipelines/EMBEDDING_ENRICHMENT.md) | `app.application.enrichment`, `app.infrastructure.enrichment` | implemented 0.6.0; geometry-only rays |
@@ -55,6 +56,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Velocity winding](pipelines/VELOCITY_WINDING.md) | `app.application.gauge.winding` | sampled vs certified |
 
 ## Generated references (never edit by hand)
+
+- [Evidence contracts](contracts/EVIDENCE_CONTRACTS.md): hierarchical chunks and provenance
 
 - [Agency contracts](contracts/AGENCY_CONTRACTS.md): process, plate, messaging, enrichment, probe, ingestion, persistence, splice, hfgt
 - [Readiness contracts](contracts/READINESS_CONTRACTS.md): evaluation, release ladder
