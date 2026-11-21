@@ -36,6 +36,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Drawing and document lifecycle](domain/DOCUMENT_LIFECYCLE.md) | `app.domain.document` | proposed decision record for 0.11.0; no code yet |
 | [Evaluation harness](architecture/EVALUATION.md) | `app.application.evaluation` | contracts and metrics 0.11.0; benchmark runner not implemented |
 | [Release ladder](domain/RELEASE_LADDER.md) | `app.application.ladder` | contracts and transition table 0.13.0; authority verification and persistence not implemented |
+| [Challenge and appeal route](architecture/CHALLENGE_APPEAL.md) | agency review and release consequences | proposed 0.15.0 design only; identity, authority and canonical decision integration remain open |
 | [Domain boundary](architecture/DOMAIN_BOUNDARY.md) | all layers | Pydantic approved; deterministic domain |
 | [XLSX workbook](pipelines/XLSX_WORKBOOK.md) | `app.application.ingest.workbook`, `app.infrastructure.ingest.xlsx` | implemented 0.9.1; source occurrences, reviewed promotion |
 | [Sparse phase splice](pipelines/SPARSE_PHASE_SPLICE.md) | `app.application.splice`, `app.infrastructure.splice` | implemented 0.9.7; hashing features, junctions are candidates |
