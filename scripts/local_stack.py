@@ -72,6 +72,33 @@ def compose(*args):
                    env=configuration_environment(), check=True)
 
 
+def provision_api_secrets(directory=SECRET_DIR):
+    """Stream only validated secrets to the nonroot helper; never echo container output."""
+    try:
+        values = {}
+        for name in ('api_token', 'pg_app', 'nats_token'):
+            path = directory / name
+            if path.is_symlink() or not path.is_file():
+                raise ValueError('invalid source secret')
+            value = path.read_text().strip()
+            if len(value) != 64 or any(c not in '0123456789abcdef' for c in value):
+                raise ValueError('invalid source secret')
+            values[name] = value
+        payload = json.dumps(values).encode()
+        subprocess.run(['docker', 'compose', '-f', str(COMPOSE), '--profile', 'tools',
+                        'run', '--rm', '--no-deps', '-T', 'api-secrets'],
+                       cwd=ROOT, env=configuration_environment(), input=payload,
+                       capture_output=True, timeout=60, check=True)
+    except Exception:
+        raise RuntimeError('local API secret provisioning failed; API startup not attempted') from None
+
+
+def start_stack():
+    compose('build', 'prepare')
+    provision_api_secrets()
+    compose('up', '-d', 'worker', 'api')
+
+
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
@@ -133,14 +160,14 @@ def main():
     elif args.action == 'config':
         compose('config', '--quiet')
     elif args.action == 'up':
-        compose('up', '-d', '--build', 'worker', 'api')
+        start_stack()
         compose('ps', '-a')
     elif args.action == 'smoke':
-        compose('up', '-d', '--build', 'worker', 'api')
+        start_stack()
         compose('--profile', 'tools', 'run', '--rm', 'smoke')
         api_smoke()
     elif args.action == 'api-smoke':
-        compose('up', '-d', '--build', 'worker', 'api')
+        start_stack()
         api_smoke()
     elif args.action == 'status':
         compose('ps', '-a')

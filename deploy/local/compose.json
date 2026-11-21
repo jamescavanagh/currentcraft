@@ -160,22 +160,30 @@
         }
       }
     },
+    "api-secrets": {
+      "image": "datamesh-local-app:0.9.9",
+      "user": "10001:10001",
+      "command": ["provision-api-secrets"],
+      "profiles": ["tools"],
+      "cap_drop": ["ALL"],
+      "security_opt": ["no-new-privileges:true"],
+      "network_mode": "none",
+      "volumes": ["api_secrets:/run/currentcraft-secrets"],
+      "restart": "no"
+    },
     "api": {
       "image": "datamesh-local-app:0.9.9",
-      "user": "0:0",
+      "user": "10001:10001",
       "command": ["api"],
       "init": true,
       "restart": "unless-stopped",
-      "secrets": ["pg_app", "nats_token", "api_token"],
-      "volumes": ["blob_data:/srv/datamesh/blobs"],
-      "tmpfs": ["/run/currentcraft:rw,noexec,nosuid,nodev,mode=0755,size=1m"],
+      "volumes": ["blob_data:/srv/datamesh/blobs", "api_secrets:/run/currentcraft-secrets:ro"],
       "cap_drop": ["ALL"],
-      "cap_add": ["CHOWN", "SETUID", "SETGID", "DAC_OVERRIDE"],
       "security_opt": ["no-new-privileges:true"],
       "environment": {
-        "CURRENTCRAFT_PG_APP_FILE": "/run/secrets/pg_app",
-        "CURRENTCRAFT_NATS_TOKEN_FILE": "/run/secrets/nats_token",
-        "CURRENTCRAFT_API_TOKEN_FILE": "/run/secrets/api_token",
+        "CURRENTCRAFT_PG_APP_FILE": "/run/currentcraft-secrets/pg_app",
+        "CURRENTCRAFT_NATS_TOKEN_FILE": "/run/currentcraft-secrets/nats_token",
+        "CURRENTCRAFT_API_TOKEN_FILE": "/run/currentcraft-secrets/api_token",
         "CURRENTCRAFT_PG_HOST": "postgres",
         "CURRENTCRAFT_PG_PORT": "5432",
         "CURRENTCRAFT_PG_DATABASE": "datamesh",
@@ -212,9 +220,6 @@
     }
   },
   "secrets": {
-    "api_token": {
-      "file": "../../local/compose-secrets/api_token"
-    },
     "pg_admin": {
       "file": "../../local/compose-secrets/pg_admin"
     },
@@ -232,6 +237,7 @@
     }
   },
   "volumes": {
+    "api_secrets": {},
     "postgres_data": {},
     "nats_data": {},
     "blob_data": {}
