@@ -1,0 +1,80 @@
+---
+title: Refinement and power-port harmonization (proposal)
+version: 0.11.0
+status: proposed
+tags: [currentcraft, research, refinement, port-hamiltonian, compatibility, versioned-feature-graph]
+---
+
+# Refinement and power-port harmonization (proposal)
+
+> [!warning] Proposal, coordinator decision pending
+> This page aligns two vocabularies for safe substitution. It defines nothing in code, adds no contract and grants no authority. A refinement verdict is evidence for a human decision, never a release.
+
+## Problem
+
+Two literatures answer "can this version safely replace that one?" in different words:
+
+- **Contract refinement.** An assume-guarantee contract $C = (A, G)$ states what a component assumes about its environment and what it guarantees in return. $C'$ refines $C$ when it accepts every environment $C$ accepts and its implementations satisfy $C$'s guarantees under those environments ([Incer, Benveniste and Sangiovanni-Vincentelli 2023](https://arxiv.org/abs/2309.08875); for dynamical systems, [Shali, van der Schaft and Besselink 2021](https://arxiv.org/abs/2103.12646)).
+- **Port-Hamiltonian interconnection.** Subsystems exchange energy only through declared power ports; a power-preserving interconnection of passive systems stays passive ([van der Schaft 2024](https://arxiv.org/abs/2412.19673)).
+
+A targeted arXiv search did not find a paper that defines contract refinement directly over port-Hamiltonian ports. This page proposes the alignment; it does not claim one exists in the literature.
+
+## Vocabulary collisions in this repository
+
+| Word | Already means here | Proposed name for the research sense |
+| --- | --- | --- |
+| port | array-free Protocol in the hexagonal architecture ([Docs-first](../DOCS_FIRST.md)) | **power port** |
+| contract | Pydantic application contract | **behavioural contract** (assume-guarantee) |
+| gauge | observed, read-only state | not used; no gauge-theory reading |
+| storage | persistence | **storage function** $H$, always with "function" |
+
+## Term alignment
+
+| Behavioural contract | Power-port reading | Proposed shared term |
+| --- | --- | --- |
+| assumption $A$ | admissible environments at the power port | port assumption |
+| guarantee $G$ | output law plus dissipation inequality $\dot H \le y^{\top}u$ | port guarantee |
+| interface | power port $(e, f)$ with declared units | power port |
+| composition $\parallel$ | power-preserving interconnection | interconnection |
+| compatibility | admissible interconnection constraint | compatibility |
+| violation | passivity deficit: stored energy exceeds supplied energy | violation |
+| refinement $\preceq$ | passivity-preserving substitution | refinement |
+| mutual refinement | bisimulation (equivalence both ways) | equivalence |
+
+## Proposed definition
+
+Version $V'$ **refines** version $V$ on power-port set $P$ when all of the following hold:
+
+1. $V'$ exposes the same ports $P$, with the same effort and flow pairing and units.
+2. $V'$ accepts every environment $V$ accepts (assumptions are no stronger).
+3. Under those environments, $V'$ is passive on $P$ and its port behaviour satisfies $V$'s guarantees (guarantees are no weaker).
+4. Stochastic variant: condition 3 holds as weak passivity, with the tolerance and evidence recorded ([stochastic port-Hamiltonian note](../pipelines/STOCHASTIC_PORT_HAMILTONIAN.md)).
+5. Symmetry: if $V$ is equivariant under a declared group (for example the A/B mirror swap of the plate), $V'$ is too.
+
+Three outcomes per version pair: **refines**, **breaks** (a witness is recorded) or **unknown** (evidence missing; not the same as breaks).
+
+## What composes
+
+- Contract refinement is compatible with composition in assume-guarantee theory ([Incer et al. 2023](https://arxiv.org/abs/2309.08875)).
+- Passivity is preserved by power-preserving interconnection.
+- Caveat: geometric composition does not always give trajectory correspondence for state-dependent Dirac structures ([2026](https://arxiv.org/abs/2608.29731)). Any composed refinement claim states which case it is in.
+
+## Recorded coordinator decisions (2026-11-21)
+
+- The constrained spatial isosceles three-body model is retained.
+- Phase space is void as a third term.
+- API interaction snapshots belong in `app.infrastructure` (recorded evidence of what crossed an interface).
+- Impedance matching is a domain term for L-system verbs. As a grammar verb it grows possibilities only; it releases nothing.
+
+## Decisions needed
+
+1. Adopt "power port" and "behavioural contract" as the names, or choose others.
+2. Adopt the five-condition definition, or narrow it (for example drop the symmetry condition).
+3. Whether passivity becomes the third term, or stays the bridge between refinement and power ports.
+4. Whether the 0.11 versioned feature graph stores a refines / breaks / unknown verdict per version pair.
+
+## Not claimed
+
+- No published theorem establishes this definition.
+- No mapping from products, features or project records to ports, energy or passivity.
+- No implementation, contract, test or generated reference.
