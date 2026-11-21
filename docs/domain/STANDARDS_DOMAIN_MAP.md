@@ -1,6 +1,6 @@
 ---
 title: Seven frameworks over eleven domains
-version: 0.2.0
+version: 0.3.0
 status: proposed
 tags: [currentcraft, domain, standards, infrastructure, references]
 ---
@@ -90,8 +90,8 @@ flowchart LR
 
 | Concern | Placement | Rule |
 | --- | --- | --- |
-| Framework profile | one JSON reference file per framework, under `references/` | carries `framework_id`, framework edition, `profile_version`, `source_digest`, concept-to-domain-object mappings and coverage labels |
-| Loading | infrastructure, reusing the hash-pinned pattern in `app.infrastructure.enterprise.references` | explicit absolute root, path inside root, size limit, SHA-256 match, closed JSON, timezone-aware `as_of` inside the validity window |
+| Framework profile | one JSON reference file per framework, under `references/`, in a dedicated framework-profile schema (not the enterprise reference dictionary) | carries `framework_id`, framework edition, `profile_version`, `source_digest`, concept-to-domain-object mappings and coverage labels |
+| Loading | infrastructure, following the hash-pinned pattern in `app.infrastructure.enterprise.references` with its own schema and digest semantics | explicit absolute root, path inside root, size limit, SHA-256 match, closed JSON, timezone-aware `as_of` inside the validity window |
 | Provenance | the loader's selection record travels with every mapped result | dictionary id, version, file and payload digests, `as_of` |
 | Mapping | application | concepts map only into allowlisted domain classes; no class name in a profile is imported or executed |
 | Domain | `app.domain` | Pydantic only, no file access, no NumPy or Torch |
@@ -109,16 +109,17 @@ flowchart LR
 
 ## Decisions needed
 
-1. Whether framework profiles reuse the existing reference dictionary schema or get their own schema. The existing dictionary and the path-rule projection already keep distinct schemas and digest semantics; a third schema needs the same separation.
-2. Whether Drawings (geometric model structure) and Estimation (class thresholds) stay recorded gaps or justify dedicated frameworks.
-3. Whether Timecards' valid-versus-recorded time needs more than reference validity windows.
-4. The ranking criteria and weights for substitutes (none are set here).
+1. Whether Drawings (geometric model structure) and Estimation (class thresholds) stay recorded gaps or justify dedicated frameworks.
+2. Whether Timecards' valid-versus-recorded time needs more than reference validity windows.
+3. The ranking criteria and weights for substitutes (none are set here).
 
 ## Coordinator decisions (2026-11-21)
 
 1. Employees and Contributors: F1 primary.
 2. Drawings: F4 primary.
 3. Estimation / Needs Analysis: F3 primary, with the substitute-ranking caveats above.
+4. Framework profiles get a dedicated schema, kept separate from the enterprise reference dictionary and the path-rule projection, each with its own digest semantics. The loader pattern (explicit root, SHA-256, validity window) is reused.
+5. Term three for the three-body mapping is impedance matching (keyword 591). It is distinct from the `impedance_match` grammar verb: the verb only proposes possible connections; the term is the analytical bridge. Neither is a compatibility verdict; interface compatibility still needs typed F4 evidence.
 
 ## Not claimed
 
