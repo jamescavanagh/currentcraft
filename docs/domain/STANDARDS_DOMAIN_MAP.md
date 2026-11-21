@@ -1,22 +1,22 @@
 ---
-title: Seven frameworks over eleven domains
-version: 0.3.0
+title: Nine frameworks over eleven domains
+version: 0.4.0
 status: proposed
 tags: [currentcraft, domain, standards, infrastructure, references]
 ---
 
-# Seven frameworks over eleven domains
+# Nine frameworks over eleven domains
 
 > [!warning] Status: proposed
 > A mapping proposal for infrastructure and vocabulary. It claims no conformity, compliance or certification against any standard, and it adds no domain classes. Coverage labels describe how far a framework's concepts reach a domain, not how well the system implements the standard.
 
-## Why seven, not eleven
+## Why nine, not eleven
 
-The soil-science lens (USDA pedon, profile, horizon, formation processes) was rated a design aid, not a schema, and was ruled out for Drawings. Each domain was then given a purpose-built framework. Seven frameworks are enough: four domains are reached by mapping onto frameworks that already serve another domain. One profile per framework, not one per domain, keeps the reference surface at seven.
+The soil-science lens (USDA pedon, profile, horizon, formation processes) was rated a design aid, not a schema, and was ruled out for Drawings. Each domain was then given a purpose-built framework. Seven frameworks reach all eleven domains: four domains are reached by mapping onto frameworks that already serve another domain. Two gaps those seven could not fill (digital drawing models, estimate classes) each get a dedicated framework, F8 and F9. One profile per framework, not one per domain, keeps the reference surface at nine.
 
 Soil-derived analogies stay a separate, unresolved lens. They are not domain classes and are not encoded here.
 
-## The seven frameworks
+## The nine frameworks
 
 | ID | Framework | Mathematical lens | Native domain |
 | --- | --- | --- | --- |
@@ -27,31 +27,33 @@ Soil-derived analogies stay a separate, unresolved lens. They are not domain cla
 | F5 | IEC 62381 FAT/FIT/SAT/SIT | test basis and conditions, expected versus observed result, criterion | Site Acceptance Testing |
 | F6 | ISO/IEC 26580 feature-based product-line engineering (ISO/IEC DIS 26581 for time, draft only) | feature model; a configuration is valid when it satisfies the model's constraints | Product Features |
 | F7 | GS1 EPCIS and CBV | typed visibility events: what, when, where, why | Inventory |
+| F8 | ISO 16739-1 IFC with ISO 19650 information management | typed model objects with properties and relationships; container status and revision codes; model views as delivered subsets | gap framework for Drawings |
+| F9 | AACE International Recommended Practice 18R-97 estimate classification | maturity threshold: a class is reached only when every key deliverable meets its maturity level | gap framework for Estimation / Needs Analysis |
 
-Editions are pinned in each framework profile, not here. No standard text is reproduced; profiles carry concept names and clause references only.
+Editions are pinned in each framework profile, not here. No standard or recommended-practice text is reproduced; profiles carry concept names and clause references only. F9 is a recommended practice, not an international standard.
 
-## Eleven domains on seven frameworks
+## Eleven domains on nine frameworks
 
-| Domain | Primary | Secondary | Domain objects | Coverage | Gap left by the seven |
+| Domain | Primary | Secondary | Domain objects | Coverage | Gap and gap framework |
 | --- | --- | --- | --- | --- | --- |
 | Projects | F1 | | `Project`, `Phase`, `WBS`, `Task` | native | none recorded |
 | Inventory | F7 | F3 (custody and exchange) | `ProductDefinition`, `AssetInstance`, `BOM`, `BOMLine`, `Shipment`, `ShipmentLine` | native | stock ledger and reservation policy |
 | Employees and Contributors | F1 (roles, responsibilities, delegated authority) | F2 (PROV agent, delegation chain) | `Employee`, `Contributor` (resources), `CapabilityAssertion` | mapped, partial | skills levels; people stay resources, never operands |
 | Working Docs | F2 | | `Document` | native | none recorded |
-| Drawings | F4 (model kinds, views, correspondences) | F2 (revision and derivation lineage) | `Drawing` (scaffold) | mapped, partial | geometric structure and model constraints |
+| Drawings | F4 (model kinds, views, correspondences) | F2 (revision and derivation lineage) | `Drawing` (scaffold) | mapped, gap filled | geometric structure and model constraints, filled by F8 |
 | Subsystems | F4 | | `Subsystem` | native | none recorded |
 | Product Features | F6 | | none yet | native | objects pending the 0.11 versioned feature graph |
 | Site Acceptance Testing | F5 | F2 (test records as evidence) | none yet | native | test-basis, result and acceptance objects |
 | Commercial Orders | F3 | | `Order` | native | `Contract` remains a scaffold |
 | Clients | F3 (party and agent roles) | | `Client` on `Party` | mapped | registry-sourced legal identity and parent links |
-| Estimation / Needs Analysis | F3 (planning, identification and negotiation phases; pricing) | F6 (configuration validity, for substitutes) | none yet | mapped, partial | estimate class thresholds; see [Estimation and substitute ranking](#estimation-and-substitute-ranking) |
+| Estimation / Needs Analysis | F3 (planning, identification and negotiation phases; pricing) | F6 (configuration validity, for substitutes) | none yet | mapped, gap filled | estimate class thresholds, filled by F9; see [Estimation and substitute ranking](#estimation-and-substitute-ranking) |
 | Timecards (cross-cutting) | F2 (activity start and end, capture) | F3 (time as a consumed resource) | `TimeCard` (scaffold) | mapped | not a domain; recorded-versus-valid time is handled by reference validity windows |
 
-Each domain has exactly one primary framework. A secondary framework is used only where listed. A partial gap is recorded, not filled by an eighth framework, until the coordinator decides otherwise.
+Each domain has exactly one primary framework. A secondary framework is used only where listed. A gap framework fills only its named gap; it does not replace the primary. Employees and Contributors stays a recorded partial gap.
 
 ## Gap coverage matrix
 
-Fit of each framework to the three partial domains: 3 covers the gap, 2 partial structure, 1 vocabulary hint, 0 none. A judgement from each framework's stated scope, not a clause-level assessment.
+Fit of each framework to the three originally partial domains: 3 covers the gap, 2 partial structure, 1 vocabulary hint, 0 none. A judgement from each framework's stated scope, not a clause-level assessment.
 
 | Framework | People: skills and authority | Drawings: model structure and constraints | Estimation: class thresholds |
 | --- | --- | --- | --- |
@@ -62,8 +64,10 @@ Fit of each framework to the three partial domains: 3 covers the gap, 2 partial 
 | F5 | 1 | 0 | 1 |
 | F6 | 0 | 1 | 0 |
 | F7 | 0 | 0 | 0 |
+| F8 | 0 | **3** (gap framework) | 0 |
+| F9 | 0 | 0 | **3** (gap framework) |
 
-No framework reaches 3 on any gap; the three remain partial.
+None of F1 to F7 reaches 3. F8 and F9 are purpose-built for their gaps; people skills and authority remain partial.
 
 ## Estimation and substitute ranking
 
@@ -76,7 +80,8 @@ F3 gives estimation a transaction frame: planning, identification and negotiatio
 5. **Adoption lag is defined, not assumed.** Lag runs from first evidenced availability to first verified adoption by another family; an external precedent is not proof of transfer.
 6. **Sell is not cost.** A ranked substitute's price comes from a priced line with lineage; sell price, cost and actuals stay distinct.
 7. **A rank is a candidate list.** Ranking proposes; evidence disposes; a gate decides. No substitute is released or ordered by its rank.
-8. **Opaque identities only.** Public profiles and outputs never carry actual part numbers or vendor identifiers.
+8. **Estimate class bounds the rank.** A substitute ranked inside an estimate inherits that estimate's F9 class; a rank cannot claim more maturity than the estimate's deliverables support.
+9. **Opaque identities only.** Public profiles and outputs never carry actual part numbers or vendor identifiers.
 
 ## Infrastructure
 
@@ -100,18 +105,18 @@ flowchart LR
 
 ## Proposed acceptance
 
-1. Every domain resolves to exactly one primary framework, and every framework ID is one of F1 to F7.
-2. Coverage labels are limited to `native`, `mapped`, `mapped, partial`.
-3. A profile whose SHA-256 or payload digest differs from the pinned value is rejected.
-4. A profile naming a class outside the allowlist is rejected.
-5. Domains without domain objects produce no grammar symbols.
-6. Public profiles contain no private terms (checked by `dmgov release --terms`).
+1. Every domain resolves to exactly one primary framework, and every framework ID is one of F1 to F9.
+2. A gap framework (F8, F9) is referenced only for its named gap.
+3. Coverage labels are limited to `native`, `mapped`, `mapped, partial`, `mapped, gap filled`.
+4. A profile whose SHA-256 or payload digest differs from the pinned value is rejected.
+5. A profile naming a class outside the allowlist is rejected.
+6. Domains without domain objects produce no grammar symbols.
+7. Public profiles contain no private terms (checked by `dmgov release --terms`).
 
 ## Decisions needed
 
-1. Whether Drawings (geometric model structure) and Estimation (class thresholds) stay recorded gaps or justify dedicated frameworks.
-2. Whether Timecards' valid-versus-recorded time needs more than reference validity windows.
-3. The ranking criteria and weights for substitutes (none are set here).
+1. Whether Timecards' valid-versus-recorded time needs more than reference validity windows.
+2. The ranking criteria and weights for substitutes (none are set here).
 
 ## Coordinator decisions (2026-11-21)
 
@@ -120,6 +125,7 @@ flowchart LR
 3. Estimation / Needs Analysis: F3 primary, with the substitute-ranking caveats above.
 4. Framework profiles get a dedicated schema, kept separate from the enterprise reference dictionary and the path-rule projection, each with its own digest semantics. The loader pattern (explicit root, SHA-256, validity window) is reused.
 5. Term three for the three-body mapping is impedance matching (keyword 591). It is distinct from the `impedance_match` grammar verb: the verb only proposes possible connections; the term is the analytical bridge. Neither is a compatibility verdict; interface compatibility still needs typed F4 evidence.
+6. Drawings and Estimation get dedicated gap frameworks: F8 (ISO 16739-1 IFC with ISO 19650) and F9 (AACE 18R-97). F4 and F3 stay primary.
 
 ## Not claimed
 
