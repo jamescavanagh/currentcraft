@@ -4,7 +4,9 @@ WORKDIR /opt/datamesh
 # Explicit copies: private references and local credentials never enter image layers.
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir '.[postgres,nats]' && useradd --uid 10001 --create-home datamesh
+RUN pip install --no-cache-dir '.[postgres,nats,api]' && useradd --uid 10001 --create-home datamesh
+# Named-volume copy-up retains this build-time ownership; no privileged runtime helper.
+RUN install -d -o 10001 -g 10001 -m 0700 /run/currentcraft-secrets
 COPY deploy/local/runtime.py ./runtime.py
 USER 10001:10001
 ENTRYPOINT ["python", "/opt/datamesh/runtime.py"]

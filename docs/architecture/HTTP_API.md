@@ -1,7 +1,7 @@
 ---
 title: HTTP API
 version: 0.9.9
-status: 0.9.9 shell implemented; 0.10.0 document endpoints planned
+status: shell implemented; nonroot Compose API and secret provisioner; live acceptance pending
 tags: [currentcraft, architecture, http]
 ---
 
@@ -46,7 +46,19 @@ Settings are loaded by `app.interfaces.http.settings.Settings.from_env`. Secret 
 | `DATAMESH_PG_USER` | no | `datamesh_app` | Database user |
 | `DATAMESH_DEPENDENCY_TIMEOUT_SECONDS` | no | `3.0` | Per-dependency readiness timeout |
 
-The `DATAMESH_` prefix and database names predate the Currentcraft rename; renaming them is part of the 0.10.0 release, with the old names accepted for one release.
+The local stack launcher and `deploy/local/runtime.py` accept `CURRENTCRAFT_*` as
+the preferred configuration prefix, with `DATAMESH_*` accepted for one release.
+An explicitly supplied preferred name wins, including an empty value (which
+must not silently revive a legacy value). At process launch, the runtime bridges
+preferred settings into the legacy names still consumed by the HTTP settings
+module. Direct uvicorn invocation does not install this bridge. This is not a
+repository-wide rename: database names, persisted identities, images, volume
+names and protected HTTP/ingestion code remain unchanged.
+
+Compose host port overrides are `CURRENTCRAFT_API_PORT` (8000),
+`CURRENTCRAFT_PG_PORT` (5433), and `CURRENTCRAFT_NATS_PORT` (4222), each with the
+matching legacy fallback. PostgreSQL's container port stays 5432. Configuration
+contains paths, never inline API/NATS/password values.
 
 ## Startup, Lifespan & Failure Semantics
 - **Fail-Fast Startup**: Missing, unreadable, or empty required configuration raises a configuration error that names the setting without its value, and the API does not start.
@@ -56,21 +68,70 @@ The `DATAMESH_` prefix and database names predate the Currentcraft rename; renam
   - **Only** `app.interfaces.http.wiring` may import from `app.infrastructure`.
   - `app.domain` and `app.application` must never import FastAPI, `app.interfaces`, infrastructure drivers, NumPy, or PyTorch.
 
-## Local Launch Instructions (Localhost-Only Binding)
-During local development, always bind strictly to `127.0.0.1`. Keep secret files outside the repository (or under the git-ignored `local/` directory) with owner-only permissions.
+## Local Launch Instructions (Localhost-Only Publishing)
+
+The API is a separate process from the worker. `prepare` initializes shared
+volumes; `bootstrap` alone performs migrations and stream provisioning. The
+API waits for successful bootstrap and starts uvicorn as UID/GID 10001, with
+the API extra installed. Both the API and the new secret-provisioning container
+start as UID/GID 10001, drop all capabilities and enable no-new-privileges.
+Neither starts as root, changes ownership or drops privileges at runtime.
+The API healthcheck requires `/readyz` to return 200.
+
+The container listener binds to `0.0.0.0:8000` so Docker can forward traffic,
+but the published host address is strictly `127.0.0.1`. This is container
+reachability, not permission to expose the API on host network interfaces.
+Non-container listeners must bind to `127.0.0.1`.
 
 ```bash
-# Install with the api extra
-pip install -e ".[api]"
-
-# Point the API at secret files (never put secret values in environment variables)
-export DATAMESH_API_TOKEN_FILE="$PWD/local/compose-secrets/api_token"
-export DATAMESH_NATS_TOKEN_FILE="$PWD/local/compose-secrets/nats_token"
-export DATAMESH_PG_APP_FILE="$PWD/local/compose-secrets/pg_app"
-export DATAMESH_NATS_SERVERS="nats://127.0.0.1:4222"
-
-# Launch uvicorn bound to localhost only
-python -m uvicorn app.interfaces.http.app:create_app --factory --host 127.0.0.1 --port 8000
+python3 scripts/local_stack.py init
+python3 scripts/local_stack.py up
+python3 scripts/local_stack.py api-smoke
 ```
 
-The local Compose stack generates `nats_token` and `pg_app`; it does not yet generate `api_token` (that arrives with the 0.10.0 Compose service). Create it yourself, for example `python -c "import secrets; print(secrets.token_hex(32))" > local/compose-secrets/api_token`, then restrict it with `chmod 600`.
+`init` creates `api_token` exclusively with 64 lowercase hex characters and
+owner-only mode 0600 in git-ignored `local/compose-secrets/`. It retains and
+validates existing secrets, refuses symlinks, and never prints their values.
+Other pre-existing stack secrets keep their existing modes and identities.
+Compose file-backed secrets do not reliably remap file ownership. Instead,
+the host launcher builds the application image, then streams only the three
+validated API dependencies (`api_token`, `pg_app`, `nats_token`) as bounded JSON
+over stdin to the nonroot `api-secrets` provisioning container. No secret
+value goes in argv or environment, and provisioning output is captured rather
+than echoed. Provisioning failure prevents the launcher from starting the API.
+
+The image initializes `/run/currentcraft-secrets` as UID/GID 10001, mode 0700
+at build time. Docker initializes the new `api_secrets` named volume from
+that directory. The provisioner alone mounts it writable; the API mounts it
+read-only and has no host secret mounts. Files are atomically installed with
+mode 0400 and verified owner/group. Existing matching files are retained;
+symlinks, wrong permissions, malformed input and mismatched existing values
+fail closed without silently rotating anything. A partial initial provision
+can be retried: already-installed matching files remain valid.
+
+The API validates its exact runtime UID/GID and private secret directory/files
+before exec. Starting it directly with Compose requires prior provisioning;
+an empty or incorrectly owned volume fails closed. The host API token is
+never made world-readable. The new volume persists with `down`, contains
+secrets and must not be exported or published. Credential rotation/recovery
+needs an explicit operator procedure, not automatic overwrite.
+
+This makes the API and its new provisioner nonroot, not the entire stack:
+the existing root `prepare` service is unchanged. It does not establish
+Docker daemon rootless mode. Actual volume ownership and startup behavior
+still require Docker acceptance evidence.
+
+`api-smoke` starts the stack and polls shell endpoints within a bounded
+deadline: `/healthz` and `/readyz` must return 200; `/v1/auth/check` must reject
+missing and incorrect tokens (401) and accept the generated token (200).
+Only generic results are printed. Credentials stay out of argv, environment
+values, HTTP response output and redirects. `smoke` also retains the existing
+worker-to-PostgreSQL-to-stored-event smoke. POST-and-poll document intake is
+deferred until the intake endpoints land; shell success is not intake acceptance.
+
+Acceptance requires static service/configuration and token-security tests,
+both naming schemes and precedence tests, nonroot provisioning/launch tests, and
+bounded positive/negative shell smoke tests. Actual Docker acceptance and
+live dependency compatibility must be reported separately from static checks.
+The shared-token JetStream connector prerequisite must land before live API
+startup can pass; this integration does not change its protected dependencies.
