@@ -152,3 +152,38 @@ One system's evaluation: envelope, typed metrics and coverage. Never an approval
 | `edges` | `Optional[EdgeMetrics]` | no | Edge metrics; None when no edges were evaluated. |
 | `absence` | `Optional[AbsenceMetrics]` | no | Absence metrics; None when no labels. |
 | `coverage` | `Coverage` | yes | Population counts for interpreting the metrics. |
+
+## Release ladder
+
+Design source: [domain/RELEASE_LADDER.md](../domain/RELEASE_LADDER.md). Schema version: `currentcraft-ladder/v1`.
+
+### `ReadinessReading`
+
+A readiness evaluation at the moment of the move. Structural reading, never a release.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `evaluation_id` | `str` | yes | Identifier of the readiness evaluation this reading summarizes. |
+| `criteria_evaluated` | `int` | yes | Readiness criteria evaluated. |
+| `blocking` | `int` | yes | Criteria that block the transition (missing, stale, conflicting or failed). |
+| `epistemic_status` | `Literal['computed', 'simulated', 'unknown']` | yes | computed, simulated or unknown; only computed can reach ready. |
+
+### `LadderMove`
+
+One requested move for one work package.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `schema_version` | `Literal['currentcraft-ladder/v1']` | no (`'currentcraft-ladder/v1'`) | Payload schema. |
+| `work_package_id` | `str` | yes | Opaque work-package identifier. |
+| `verb` | `Literal['grow', 'hold', 'release', 'return', 'reject', 'reenter']` | yes | grow, hold, release, return, reject or reenter. |
+| `origin` | `Literal['grammar_growth', 'intake', 'hil']` | yes | grammar_growth or intake may only grow; every later move is hil. |
+| `derivation_id` | `Optional[str]` | no | Grammar derivation that grew this work; required for grammar_growth. |
+| `label_event_id` | `Optional[str]` | no | Human-in-the-loop label event; required for every move after creation. |
+| `authority_ref` | `Optional[str]` | no | Opaque authority reference; required to reach executable. Not verified here. |
+| `authority_scope` | `Optional[Literal['release']]` | no | Scope of the authority; release is required for executable. |
+| `verification_evidence_ids` | `tuple[str, ...]` | no (`()`) | Evidence that was read or checked; required for executable. |
+| `readiness` | `Optional[ReadinessReading]` | no | Readiness reading; required to reach ready. |
+| `epistemic_status` | `Literal['computed', 'simulated', 'unknown']` | no (`'unknown'`) | Status of the work; simulated or unknown never becomes executable. |
+| `disposition` | `Optional[Literal['rework', 'rejected']]` | no | rework for return, rejected for reject; otherwise empty. |
+| `reason` | `Optional[str]` | no | Why work was returned or rejected. |
