@@ -69,6 +69,61 @@ Tests and synthetic data are generated from one fictional standard: [`tests/fixt
 
 Acceptance: [`tests/test_synthetic_meta_framework.py`](../../tests/test_synthetic_meta_framework.py). The envelope's `mapping_status` holds: the standards scaffolds cannot capture clause, edition or reference fields yet, so that content stays in the test envelope until reviewed definitions replace the scaffolds.
 
+## Synthetic fixtures and distribution status
+
+This section records the source state at merge `4e1982df8dc9c36fbc352a7a10888c31cf9ac4ab` (PR #42, 2026-11-21). It documents observed coverage, not a packaging fix or acceptance of a later revision.
+
+| Purpose | Source | Consumer |
+| --- | --- | --- |
+| Existing reference-object hydration | `references/public/framework.synthetic.v1.json` | `tests/integration/test_public_framework_fixture.py` |
+| Public meta-framework REF envelope | `references/public/framework.meta.synthetic.v1.json` | `tests/test_synthetic_meta_ref.py` |
+| Concurrent meta-framework test envelope | `tests/fixtures/framework_profiles/framework.meta.synthetic.v1.json` | `tests/test_synthetic_meta_framework.py` |
+| Synthetic primary, secondary and gap mappings | `tests/fixtures/framework_profiles/synthetic_profiles.json` | `tests/test_framework_profiles.py` |
+
+The two meta-framework envelopes have equal `meta_content` at the audited merge. Their `intended_visibility` labels differ. They are separate files, and no cross-copy drift assertion currently ties their content or provenance together. Their identity fields do not establish an authoritative production reference source.
+
+### Concurrent-work preservation
+
+A byte-level comparison with pre-merge main `2601f057ac82a5d570594f917b4b1f85996997da` found no removed files: 668 existing files were unchanged, two were modified (`.gitignore` and `scripts/check_release.py`), and two were added (the public meta envelope and its separate test module). Existing framework documentation, privacy-boundary changes, fixture JSONs, reference hydration tests and the independently added meta-framework test module were preserved.
+
+A focused run on the actual merged snapshot passed 76 tests with zero skips:
+
+```sh
+python -m unittest \
+  tests.test_synthetic_meta_ref \
+  tests.test_synthetic_meta_framework \
+  tests.integration.test_public_framework_fixture \
+  tests.test_framework_profiles -v
+```
+
+This is not a full-suite, runtime, installed-package or conformity claim. The suites also express missing-marker behavior differently: the REF toy evaluator preserves `unknown`, while the concurrent generated-data check records an unsatisfied boolean test. Neither produces approval; the presence of both checks is not a harmonized production evaluation policy.
+
+### Export is not source-distribution acceptance
+
+The fresh public ZIP exporter includes the public meta fixture after its exact release allowlist addition. That does not establish that Python packaging includes the same data.
+
+A real `setuptools.build_meta.build_sdist` build at the audited merge showed:
+
+| File | In source tree | In built source distribution |
+| --- | --- | --- |
+| `references/public/framework.synthetic.v1.json` | yes | yes |
+| `references/public/framework.meta.synthetic.v1.json` | yes | **no** |
+| `tests/fixtures/framework_profiles/framework.meta.synthetic.v1.json` | yes | **no** |
+| `tests/fixtures/framework_profiles/synthetic_profiles.json` | yes | **no** |
+| Both meta-framework test modules | yes | yes |
+
+The consuming tests are shipped without all their required fixture inputs. This is a confirmed source-distribution omission, not evidence that the merge deleted concurrent work. Wheel data coverage and installed-package execution were not checked. `MANIFEST.in` currently names the older public framework fixture, but not the three omitted JSON files.
+
+### Follow-up acceptance, not yet implemented
+
+1. Add exact synthetic fixture entries to the source-distribution manifest without broadening access to private references.
+2. Build and unpack a fresh source distribution, then run the focused tests from that unpacked tree, not from a checkout that can mask missing files.
+3. Add a packaging regression that checks required fixtures and exclusion of private content.
+4. Choose one canonical synthetic envelope with a generated copy, or add explicit cross-copy equality checks for content and an allowlist of intentional provenance differences.
+5. Keep source identity, edition selection, evidence state, test satisfaction and release authority distinct. Decide any difference in missing-data interpretation explicitly; do not silently promote a toy boolean into production policy.
+
+No manifest, fixture, loader or test behavior is changed by this documentation update. The standards scaffolds still cannot capture edition, clause or specification-reference metadata beyond their identity placeholders. Real profiles and mappings remain private server-side; source visibility, successful construction and a clean vocabulary scan do not establish public rights or approval.
+
 ## Profile shape
 
 | Field | Rule |
