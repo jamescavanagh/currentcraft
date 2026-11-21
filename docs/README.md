@@ -33,7 +33,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Process-first domain](domain/PROCESS_FIRST.md) | `app.application.process` | implemented 0.5.0 |
 | [Plate and spatial isosceles](pipelines/PLATE_ISOSCELES.md) | `app.application.plate`, `app.infrastructure.plate` | implemented 0.5.0 |
 | [Stochastic port-Hamiltonian systems](pipelines/STOCHASTIC_PORT_HAMILTONIAN.md) | research note for the plate slice | research only; not implemented |
-| [Refinement and power-port harmonization](domain/REFINEMENT_PORT_HARMONIZATION.md) | 0.11 versioned feature graph vocabulary | proposed; coordinator decisions pending |
+| [Refinement and power-port harmonization](domain/REFINEMENT_PORT_HARMONIZATION.md) | 0.11 versioned feature graph vocabulary | proposed; coordinator decisions recorded 2026-11-21 |
 | [Embedding enrichment](pipelines/EMBEDDING_ENRICHMENT.md) | `app.application.enrichment`, `app.infrastructure.enrichment` | implemented 0.6.0; geometry-only rays |
 | [Probe](pipelines/PROBE.md) | `app.application.probe`, `app.infrastructure.probe` | implemented 0.7.0 (backend only) |
 | [Domain scaffold](domain/DOMAIN_SCAFFOLD.md) | `app.domain` | remaining placeholders plus V1.1 capture proposals |

@@ -1,6 +1,6 @@
 ---
 title: L-system domain vocabulary
-version: 0.1.1
+version: 0.1.2
 status: proposed
 tags: [currentcraft, domain, lsys, grammar, vocabulary]
 ---
@@ -58,7 +58,7 @@ L-system verbs are the process effects already defined in [PROCESS_FIRST.md](PRO
 
 Gate decisions (`hold`, `release`, `reject`, `return`) are not grammar verbs. The grammar may expect that a gate will be entered; entering a gate is not approval.
 
-**`impedance_match`** (candidate grammar verb): proposes that two expected objects could connect through compatible interfaces. It grows a possibility only. It is not a power-port connection, a behavioural contract or a compatibility verdict (see [Refinement and power-port harmonization](REFINEMENT_PORT_HARMONIZATION.md), proposed separately).
+**`impedance_match`** (candidate grammar verb): proposes that two expected objects could connect through compatible interfaces. It grows a possibility only. It is not a power-port connection, a behavioural contract or a compatibility verdict (see [Refinement and power-port harmonization](REFINEMENT_PORT_HARMONIZATION.md)).
 
 ### Relations the grammar may expect
 
@@ -104,11 +104,11 @@ The private register holds five evidenced productions. Their public reading:
 
 | Rule | Domain-object reading | Mapping status |
 | --- | --- | --- |
-| `p1: Project → F[Location] × n` | a project decomposes into locations | `Location` exists as an unreviewed scaffold; no project link yet |
-| `p2: Location → F[Subsystem] × k` | a location decomposes into subsystems | `Subsystem` has a project link only; location link absent |
+| `p1: Project → F[Location] × n` | a project decomposes into locations | candidate: `Location` is an unreviewed scaffold; its project link is recognized as needed, not built |
+| `p2: Location → F[Subsystem] × k` | a location decomposes into subsystems | candidate: `Subsystem` has a project link only; location link absent |
 | `p3: Subsystem → F[o] × m` | a subsystem holds objects | `o` must be a non-resource object |
-| `p4: Need → Document` | a need produces a scope document | `Need` has no domain object; gap |
-| `p5: Document → BOM + Scope` | a scope document produces a BOM and a labor/service scope | `BOM` exists; `Scope` has no domain object; gap |
+| `p4: Need → Document` | a need produces a scope document | blocked: `Need` has no domain object (Estimation / Needs Analysis gap) |
+| `p5: Document → BOM + Scope` | a scope document produces a BOM and a labor/service scope | blocked: `BOM` exists; `Scope` has no domain object |
 
 `F[...] × n` means "grow up to n bracketed children". Counts are parameters from evidence, not defaults. Every production output is *Possible*, carries the grammar profile digest, and is discarded or matched by evidence.
 
@@ -128,11 +128,21 @@ Nine physics symbols in the register (vorticity, divergence, flow compression, d
 | `ProcessExecution` rejects a resource id used as an object id | yes |
 | `app.application.lsys.load_profile` raises `ValueError` on every reject case and accepts every accept case | skipped until the loader exists |
 
-Proposed profile shape used by the fixture: `axiom`, `productions` (`id`, `predecessor`, `successor` list) and optional `expectations` (`verb`, `args`). Symbol matching trims and case-folds, so spelling variants of a resource are rejected too.
+Profile shape: `profile_version` and `source_digest` (both required), `axiom`, `productions` (`id`, `predecessor`, `successor` list) and optional `expectations` (`verb`, `args`). The current fixture predates the two required fields; they are added when the loader is built. Symbol matching trims and case-folds, so spelling variants of a resource are rejected too.
+
+## Coordinator decisions (2026-11-21)
+
+| # | Decision |
+| --- | --- |
+| 1 | The `Location` to `Project` link is recognized as needed. It is a domain change and is not made in this page; p1 and p2 stay candidate until it exists. |
+| 2 | p4 and p5 are kept and marked blocked until `Need` and `Scope` domain objects exist. They are not dropped. |
+| 3 | Resources stay out of the alphabet entirely; the acceptance tests enforce it. |
+| 4 | `impedance_match` is confirmed as the grammar verb name. It grows possibilities only. |
+| 5 | `app.application.lsys.load_profile` is confirmed as the loader name. Profiles must carry `profile_version` and `source_digest`. |
 
 ## Not claimed
 
-- No grammar implementation, profile format or production engine exists in the repo.
+- No grammar implementation or production engine exists in the repo; the profile shape is decided, not implemented.
 - No production is accepted; productions with gaps cannot be implemented until their domain objects exist.
 - Mapping a source concept to a domain object here is a proposal, not an approved field authority.
 - Readout symbols carry no process meaning.
