@@ -7,7 +7,7 @@ tags: [currentcraft, research, refinement, port-hamiltonian, compatibility, vers
 
 # Refinement and power-port harmonization (proposal)
 
-> [!warning] Proposal, coordinator decision pending
+> [!warning] Proposal; names and definition approved, theory unproven
 > This page aligns two vocabularies for safe substitution. It defines nothing in code, adds no contract and grants no authority. A refinement verdict is evidence for a human decision, never a release.
 
 ## Problem
@@ -21,7 +21,7 @@ A targeted arXiv search did not find a paper that defines contract refinement di
 
 ## Vocabulary collisions in this repository
 
-| Word | Already means here | Proposed name for the research sense |
+| Word | Already means here | Name for the research sense (approved 2026-11-21) |
 | --- | --- | --- |
 | port | array-free Protocol in the hexagonal architecture ([Docs-first](../DOCS_FIRST.md)) | **power port** |
 | contract | Pydantic application contract | **behavioural contract** (assume-guarantee; the term follows Shali et al. 2021, who use Willems' behavioural approach) |
@@ -30,7 +30,7 @@ A targeted arXiv search did not find a paper that defines contract refinement di
 
 ## Term alignment
 
-| Behavioural contract | Power-port reading | Proposed shared term |
+| Behavioural contract | Power-port reading | Shared term |
 | --- | --- | --- |
 | assumption $A$ | admissible environments at the power port | port assumption |
 | guarantee $G$ | output law plus dissipation inequality $\dot H \le y^{\top}u$ | port guarantee |
@@ -41,7 +41,7 @@ A targeted arXiv search did not find a paper that defines contract refinement di
 | refinement $\preceq$ | passivity-preserving substitution | refinement |
 | mutual refinement | contract equivalence: same environments and same implementations ([Incer et al. 2023](https://arxiv.org/abs/2309.08875)) | equivalence |
 
-## Proposed definition
+## Definition (approved as a working definition, 2026-11-21)
 
 Version $V'$ **refines** version $V$ on power-port set $P$ when all of the following hold:
 
@@ -52,6 +52,8 @@ Version $V'$ **refines** version $V$ on power-port set $P$ when all of the follo
 5. Symmetry: if $V$ is equivariant under a declared group (for example the A/B mirror swap of the plate), $V'$ is too.
 
 Three outcomes per version pair: **refines**, **breaks** (a witness is recorded) or **unknown** (evidence missing; not the same as breaks).
+
+The page stays `proposed`: the definition is approved for use in design work, but no published theorem establishes it.
 
 ## What composes
 
@@ -65,13 +67,15 @@ Three outcomes per version pair: **refines**, **breaks** (a witness is recorded)
 - Phase space is void as a third term.
 - API interaction snapshots belong in `app.infrastructure` (recorded evidence of what crossed an interface).
 - Impedance matching is a domain term for L-system verbs. As a grammar verb it grows possibilities only; it releases nothing.
+- "Power port" and "behavioural contract" are adopted as the names for the research senses.
+- The five-condition refinement definition is adopted as a working definition; the page remains `proposed`.
+- Passivity is the bridge between refinement and power ports, **not** the third term. The third term remains open.
+- Whether the 0.11 versioned feature graph stores a refines / breaks / unknown verdict per version pair is deferred to the 0.11 versioned-feature-graph task.
 
-## Decisions needed
+## Open
 
-1. Adopt "power port" and "behavioural contract" as the names, or choose others.
-2. Adopt the five-condition definition, or narrow it (for example drop the symmetry condition).
-3. Whether passivity becomes the third term, or stays the bridge between refinement and power ports.
-4. Whether the 0.11 versioned feature graph stores a refines / breaks / unknown verdict per version pair.
+- The third term.
+- The 0.11 verdict-storage question (tracked on the 0.11 task, not here).
 
 ## Not claimed
 
