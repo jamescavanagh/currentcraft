@@ -365,6 +365,7 @@ class LocalCompose(unittest.TestCase):
             with patch.object(stack, 'initialize'), patch.object(stack, 'compose') as compose, \
                     patch.object(stack, 'provision_api_secrets') as provision, \
                     patch.object(stack, 'api_smoke') as smoke, \
+                    patch.object(stack, 'api_upload_smoke') as upload, \
                     patch('sys.argv', ['local_stack.py', action]):
                 stack.main()
                 self.assertEqual(compose.call_args_list[0], call('build', 'prepare'))
@@ -372,9 +373,252 @@ class LocalCompose(unittest.TestCase):
                 self.assertIn(call('up', '-d', 'worker', 'api'), compose.call_args_list)
                 if action in ('smoke', 'api-smoke'):
                     smoke.assert_called_once_with()
+                    upload.assert_called_once_with()
                 else:
                     smoke.assert_not_called()
+                    upload.assert_not_called()
                 if action == 'smoke':
                     self.assertIn(call('--profile', 'tools', 'run', '--rm', 'smoke'), compose.call_args_list)
                 else:
                     self.assertNotIn(call('--profile', 'tools', 'run', '--rm', 'smoke'), compose.call_args_list)
+
+
+class HttpUploadSmoke(unittest.TestCase):
+    """Host-probe controls only; these are not real PostgreSQL/NATS acceptance."""
+
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.directory = stack.initialize(self.root)
+        self.token = (self.directory / 'api_token').read_text().strip()
+        self.event = 'intake_' + 'a' * 32
+        self.source = 'source_' + 'b' * 32
+        self.content = b'Currentcraft synthetic HTTP upload smoke. Source record, not approved work.\n'
+
+    def receipt(self, duplicate=False, **changes):
+        import hashlib
+        return dict({'event_id': self.event, 'stream': 'DM_RAW', 'sequence': 7,
+                     'duplicate': duplicate, 'source_id': self.source,
+                     'content_sha256': hashlib.sha256(self.content).hexdigest(),
+                     'status_url': '/v1/intake/' + self.event,
+                     'detail': 'Durably queued; not extracted. No work approval is implied.'}, **changes)
+
+    def status(self, state='processed', **changes):
+        return dict({'event_id': self.event, 'status': state,
+                     'detail': 'Processed means committed source occurrences, not approved work.'}, **changes)
+
+    def response(self, body, status=200, raw=False):
+        response = Mock()
+        response.status = status
+        response.read.return_value = body if raw else json.dumps(body).encode()
+        response.__enter__ = Mock(return_value=response)
+        response.__exit__ = Mock(return_value=False)
+        return response
+
+    def run_probe(self, responses, *, timeout=2):
+        opener = Mock()
+        opener.open.side_effect = responses
+        output = io.StringIO()
+        with patch.object(stack, 'build_opener', return_value=opener) as build, \
+                patch.object(stack.time, 'sleep'), contextlib.redirect_stdout(output):
+            stack.api_upload_smoke(self.directory, {'CURRENTCRAFT_API_PORT': '8123'}, timeout)
+        return opener, build, output.getvalue()
+
+    def good_responses(self, pending=True):
+        responses = [self.response(self.receipt(), 202)]
+        if pending:
+            responses.append(self.response(self.status('pending')))
+        responses += [self.response(self.status()), self.response(self.receipt(True), 202),
+                      self.response(self.status())]
+        return responses
+
+    def test_real_http_request_shape_polling_retry_and_safe_output(self):
+        responses = self.good_responses()
+        opener, build, output = self.run_probe(responses)
+        self.assertIsInstance(build.call_args.args[0], stack.ProxyHandler)
+        self.assertEqual(build.call_args.args[0].proxies, {})
+        self.assertIsInstance(build.call_args.args[1], stack.NoRedirect)
+        requests = [c.args[0] for c in opener.open.call_args_list]
+        self.assertEqual([r.get_method() for r in requests], ['POST', 'GET', 'GET', 'POST', 'GET'])
+        self.assertEqual([r.full_url for r in requests],
+                         ['http://127.0.0.1:8123' + p for p in
+                          ('/v1/intake/documents', '/v1/intake/' + self.event,
+                           '/v1/intake/' + self.event, '/v1/intake/documents',
+                           '/v1/intake/' + self.event)])
+        self.assertEqual(requests[0].data, requests[3].data)
+        self.assertIn(b'name="source_id"', requests[0].data)
+        self.assertIn(b'name="format"\r\n\r\ntext\r\n', requests[0].data)
+        self.assertIn(self.content, requests[0].data)
+        for request, called in zip(requests, opener.open.call_args_list):
+            self.assertEqual(request.get_header('Authorization'), 'Bearer ' + self.token)
+            self.assertGreater(called.kwargs['timeout'], 0)
+            self.assertLessEqual(called.kwargs['timeout'], 2)
+        for response in responses:
+            response.read.assert_called_once_with(8193)
+            response.__exit__.assert_called_once()
+        self.assertIn('PASS: real HTTP upload', output)
+        for secret in (self.token, self.event, self.source, self.content.decode().strip()):
+            self.assertNotIn(secret, output)
+
+    def test_immediately_processed_is_valid_worker_race(self):
+        opener, _, _ = self.run_probe(self.good_responses(pending=False))
+        self.assertEqual(opener.open.call_count, 4)
+
+    def test_every_invocation_has_fresh_source_bytes(self):
+        first, _, _ = self.run_probe(self.good_responses(False))
+        second, _, _ = self.run_probe(self.good_responses(False))
+        self.assertNotEqual(first.open.call_args_list[0].args[0].data,
+                            second.open.call_args_list[0].args[0].data)
+
+    def test_receipt_validates_digest_stream_handles_sequence_and_fields(self):
+        bad = ({'content_sha256': '0' * 64}, {'stream': 'OTHER'}, {'event_id': 'raw-event'},
+               {'event_id': None}, {'source_id': 'raw-source'}, {'sequence': True},
+               {'sequence': 0}, {'duplicate': 'false'}, {'detail': 'accepted'}, {'extra': 'no'})
+        for values in bad:
+            with self.subTest(values=values), self.assertRaisesRegex(RuntimeError, 'invalid durable receipt'):
+                self.run_probe([self.response(self.receipt(**values), 202)])
+        with self.assertRaisesRegex(RuntimeError, 'fresh submission'):
+            self.run_probe([self.response(self.receipt(True), 202)])
+
+    def test_untrusted_status_urls_are_rejected_before_poll(self):
+        for path in ('https://example.invalid/steal', '//example.invalid/steal',
+                     'http://127.0.0.1:9999/steal', '/v1/intake/' + self.event + '?next=bad',
+                     '/v1/intake/' + self.event + '/elsewhere', '/v1/auth/check'):
+            opener = Mock()
+            opener.open.return_value = self.response(self.receipt(status_url=path), 202)
+            with self.subTest(path=path), patch.object(stack, 'build_opener', return_value=opener):
+                with self.assertRaisesRegex(RuntimeError, 'invalid durable receipt'):
+                    stack.api_upload_smoke(self.directory, {})
+            self.assertEqual(opener.open.call_count, 1)
+
+    def test_quarantine_and_invalid_worker_status_fail_closed(self):
+        for values in ({'status': 'quarantined'}, {'status': 'unknown'},
+                       {'event_id': 'intake_' + 'c' * 32}, {'detail': 'approved'}, {'extra': 1}):
+            with self.subTest(values=values), self.assertRaises(RuntimeError):
+                self.run_probe([self.response(self.receipt(), 202), self.response(self.status(**values))])
+
+    def test_retry_requires_same_receipt_sequence_and_processed_status(self):
+        changes = ({'event_id': 'intake_' + 'c' * 32,
+                    'status_url': '/v1/intake/intake_' + 'c' * 32},
+                   {'source_id': 'source_' + 'c' * 32}, {'sequence': 8}, {'duplicate': False})
+        for values in changes:
+            retry = self.receipt(True)
+            retry.update(values)
+            responses = [self.response(self.receipt(), 202), self.response(self.status()),
+                         self.response(retry, 202)]
+            with self.subTest(values=values), self.assertRaisesRegex(RuntimeError, 'retry'):
+                self.run_probe(responses)
+        with self.assertRaisesRegex(RuntimeError, 'retry'):
+            self.run_probe([self.response(self.receipt(), 202), self.response(self.status()),
+                            self.response(self.receipt(True), 202), self.response(self.status('pending'))])
+
+    def test_pending_polling_has_one_bounded_deadline(self):
+        import itertools
+        ticks = itertools.count(0, 0.25)
+        with patch.object(stack.time, 'monotonic', side_effect=lambda: next(ticks)):
+            with self.assertRaisesRegex(RuntimeError, 'timed out'):
+                self.run_probe([self.response(self.receipt(), 202), self.response(self.status('pending'))],
+                               timeout=1)
+
+    def test_bad_json_oversize_and_reflected_token_never_leak(self):
+        for raw in (b'not-json', b'[]', b'x' * 8193,
+                    json.dumps({'leaked': self.token}).encode()):
+            with self.subTest(kind=raw[:10]), self.assertRaises(RuntimeError) as raised:
+                self.run_probe([self.response(raw, 202, raw=True)])
+            self.assertEqual(str(raised.exception), 'HTTP intake smoke request failed')
+            self.assertNotIn(self.token, str(raised.exception))
+
+    def test_http_errors_redirects_transport_and_non202_fail_safely(self):
+        from urllib.error import HTTPError, URLError
+        for code in (301, 302, 401, 413, 422, 500, 503):
+            error = HTTPError('http://127.0.0.1:8123/private', code, self.token, {}, None)
+            with self.subTest(code=code), self.assertRaisesRegex(RuntimeError, '^HTTP intake smoke request failed$'):
+                self.run_probe([error])
+        with self.assertRaisesRegex(RuntimeError, '^HTTP intake smoke request failed$'):
+            self.run_probe([URLError(self.token)])
+        with self.assertRaisesRegex(RuntimeError, '^HTTP intake smoke request failed$'):
+            self.run_probe([self.response(self.receipt(), 200)])
+
+    def test_invalid_timeout_port_or_token_refused_without_http(self):
+        for timeout in (0, -1, float('nan'), float('inf'), True, '60'):
+            with self.subTest(timeout=timeout), patch.object(stack, 'build_opener') as build:
+                with self.assertRaises(ValueError):
+                    stack.api_upload_smoke(self.directory, {}, timeout)
+                build.assert_not_called()
+        for port in ('', '0', '65536', 'not-a-port'):
+            with self.subTest(port=port), patch.object(stack, 'build_opener') as build:
+                with self.assertRaises(ValueError):
+                    stack.api_upload_smoke(self.directory, {'CURRENTCRAFT_API_PORT': port})
+                build.assert_not_called()
+        (self.directory / 'api_token').write_text('invalid')
+        with patch.object(stack, 'build_opener') as build, self.assertRaises(ValueError):
+            stack.api_upload_smoke(self.directory, {})
+        build.assert_not_called()
+
+    def test_loopback_http_wire_probe_against_controlled_server(self):
+        # Exercises multipart urllib transport, NOT the application/DB/broker stack.
+        import email.parser
+        import email.policy
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+        outer = self
+        uploads = []
+        polls = []
+        errors = []
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def reply(self, code, payload):
+                data = json.dumps(payload).encode()
+                self.send_response(code)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+
+            def do_POST(self):
+                try:
+                    outer.assertEqual(self.path, '/v1/intake/documents')
+                    outer.assertEqual(self.headers['Authorization'], 'Bearer ' + outer.token)
+                    body = self.rfile.read(int(self.headers['Content-Length']))
+                    message = email.parser.BytesParser(policy=email.policy.default).parsebytes(
+                        ('Content-Type: ' + self.headers['Content-Type'] + '\r\nMIME-Version: 1.0\r\n\r\n').encode() + body)
+                    fields = {p.get_param('name', header='content-disposition'): p.get_payload(decode=True)
+                              for p in message.iter_parts()}
+                    outer.assertEqual(fields['format'], b'text')
+                    outer.assertRegex(fields['source_id'].decode(), r'^synthetic-http-smoke-[0-9a-f]{32}$')
+                    outer.assertEqual(fields['file'], outer.content)
+                    uploads.append(body)
+                    self.reply(202, outer.receipt(len(uploads) > 1))
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    self.reply(500, {})
+
+            def do_GET(self):
+                try:
+                    outer.assertEqual(self.path, '/v1/intake/' + outer.event)
+                    outer.assertEqual(self.headers['Authorization'], 'Bearer ' + outer.token)
+                    polls.append(self.path)
+                    self.reply(200, outer.status('pending' if len(polls) == 1 else 'processed'))
+                except Exception as exc:
+                    errors.append(type(exc).__name__)
+                    self.reply(500, {})
+
+        server = ThreadingHTTPServer(('127.0.0.1', 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        output = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(output):
+                stack.api_upload_smoke(self.directory, {'CURRENTCRAFT_API_PORT': str(server.server_port)}, 5)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+        self.assertEqual(errors, [])
+        self.assertEqual(len(uploads), 2)
+        self.assertEqual(uploads[0], uploads[1])
+        self.assertEqual(len(polls), 3)
+        self.assertIn('PASS: real HTTP upload', output.getvalue())
+        self.assertNotIn(self.token, output.getvalue())
