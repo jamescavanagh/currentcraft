@@ -62,8 +62,13 @@ class DurableBrokerPort(Protocol):
     async def close(self) -> None: ...
 
 
-def _inbox_key(handler_id: str, message_key: str) -> str:
+def inbox_key(handler_id: str, message_key: str) -> str:
+    """Persistent worker marker identity, also used by read-only status queries."""
     return "inbox:" + hashlib.sha256(f"{handler_id}:{message_key}".encode()).hexdigest()
+
+
+# Compatibility alias for one release; persisted keys are unchanged.
+_inbox_key = inbox_key
 
 
 class TransactionalWorker:
@@ -82,7 +87,7 @@ class TransactionalWorker:
         self.max_attempts, self.retry_delay = max_attempts, retry_delay
 
     def _apply(self, delivery: DurableDelivery, terminal_reason: Optional[str] = None):
-        key = _inbox_key(self.handler_id, delivery.message_key)
+        key = inbox_key(self.handler_id, delivery.message_key)
         with self.uow_factory() as uow:
             if uow.commands.get(key) is not None:
                 return
