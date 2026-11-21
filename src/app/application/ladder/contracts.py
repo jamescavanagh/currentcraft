@@ -1,4 +1,5 @@
-"""Release-ladder contracts: where a work package stands and the only legal ways it moves.
+"""Release-ladder contracts (design: docs/domain/RELEASE_LADDER.md): where a work package stands and the
+only legal ways it moves.
 
 Pure contracts, no persistence, no policy. Rules:
 
@@ -23,7 +24,8 @@ from pydantic import Field, model_validator
 
 from app.application.common import _Frozen
 
-LADDER_SCHEMA = "currentcraft-ladder/v1"
+SCHEMA_VERSION = "currentcraft-ladder/v1"
+LADDER_SCHEMA = SCHEMA_VERSION  # alias kept for callers of the first draft
 
 Rung = Literal["possible", "conditional", "ready", "executable", "returned"]
 Verb = Literal["grow", "hold", "release", "return", "reject", "reenter"]
@@ -31,7 +33,13 @@ Origin = Literal["grammar_growth", "intake", "hil"]
 Epistemic = Literal["computed", "simulated", "unknown"]
 Disposition = Literal["rework", "rejected"]
 
-Ident = Field(min_length=1, max_length=200)
+
+def _id(description: str):
+    return Field(min_length=1, max_length=200, description=description)
+
+
+def _opt_id(description: str):
+    return Field(default=None, min_length=1, max_length=200, description=description)
 
 # (from_rung, verb) -> to_rung. ``None`` as from_rung means the work package does not exist yet.
 TRANSITIONS: dict[tuple[Optional[str], str], str] = {
@@ -66,10 +74,10 @@ class LadderViolation(ValueError):
 class ReadinessReading(_Frozen):
     """A readiness evaluation at the moment of the move. Structural reading, never a release."""
 
-    evaluation_id: str = Ident
-    criteria_evaluated: int = Field(ge=0)
-    blocking: int = Field(ge=0)
-    epistemic_status: Epistemic
+    evaluation_id: str = _id("Identifier of the readiness evaluation this reading summarizes.")
+    criteria_evaluated: int = Field(ge=0, description="Readiness criteria evaluated.")
+    blocking: int = Field(ge=0, description="Criteria that block the transition (missing, stale, conflicting or failed).")
+    epistemic_status: Epistemic = Field(description="computed, simulated or unknown; only computed can reach ready.")
 
     @model_validator(mode="after")
     def _blocking_within_evaluated(self):
@@ -81,19 +89,19 @@ class ReadinessReading(_Frozen):
 class LadderMove(_Frozen):
     """One requested move for one work package."""
 
-    schema_version: Literal["currentcraft-ladder/v1"] = LADDER_SCHEMA
-    work_package_id: str = Ident
-    verb: Verb
-    origin: Origin
-    derivation_id: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    label_event_id: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    authority_ref: Optional[str] = Field(default=None, min_length=1, max_length=200)
-    authority_scope: Optional[Literal["release"]] = None
-    verification_evidence_ids: tuple[str, ...] = ()
-    readiness: Optional[ReadinessReading] = None
-    epistemic_status: Epistemic = "unknown"
-    disposition: Optional[Disposition] = None
-    reason: Optional[str] = Field(default=None, min_length=1, max_length=500)
+    schema_version: Literal["currentcraft-ladder/v1"] = Field(default=SCHEMA_VERSION, description="Payload schema.")
+    work_package_id: str = _id("Opaque work-package identifier.")
+    verb: Verb = Field(description="grow, hold, release, return, reject or reenter.")
+    origin: Origin = Field(description="grammar_growth or intake may only grow; every later move is hil.")
+    derivation_id: Optional[str] = _opt_id("Grammar derivation that grew this work; required for grammar_growth.")
+    label_event_id: Optional[str] = _opt_id("Human-in-the-loop label event; required for every move after creation.")
+    authority_ref: Optional[str] = _opt_id("Opaque authority reference; required to reach executable. Not verified here.")
+    authority_scope: Optional[Literal["release"]] = Field(default=None, description="Scope of the authority; release is required for executable.")
+    verification_evidence_ids: tuple[str, ...] = Field(default=(), description="Evidence that was read or checked; required for executable.")
+    readiness: Optional[ReadinessReading] = Field(default=None, description="Readiness reading; required to reach ready.")
+    epistemic_status: Epistemic = Field(default="unknown", description="Status of the work; simulated or unknown never becomes executable.")
+    disposition: Optional[Disposition] = Field(default=None, description="rework for return, rejected for reject; otherwise empty.")
+    reason: Optional[str] = Field(default=None, min_length=1, max_length=500, description="Why work was returned or rejected.")
 
     @model_validator(mode="after")
     def _shape(self):
@@ -176,3 +184,6 @@ def replay(moves: list[LadderMove]) -> dict[str, str]:
         elif m.verb == "reenter":
             disposition[m.work_package_id] = None
     return {k: v for k, v in rung.items() if v is not None}
+
+
+CONTRACTS = (ReadinessReading, LadderMove)
