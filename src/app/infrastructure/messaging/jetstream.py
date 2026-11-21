@@ -160,9 +160,13 @@ async def connect_jetstream(
     credentials=None,
     tls=None,
     token=None,
+    connect_timeout=None,
+    max_reconnect_attempts=10,
 ) -> JetStreamBroker:
     """Runtime connection only. Provision streams separately with administrator credentials.
     tls may be an ssl.SSLContext; credentials is a nats credentials file path, never an envelope field.
+    Optional connection-policy overrides let local startup reuse this helper
+    without changing its bounded retry/reconnect behavior.
     """
     if token is not None and credentials is not None:
         raise ValueError(
@@ -172,7 +176,9 @@ async def connect_jetstream(
         import nats
     except ImportError as exc:
         raise RuntimeError("Install datamesh-agency-toolkit[nats]") from exc
-    options = {"servers": list(servers), "allow_reconnect": True, "max_reconnect_attempts": 10}
+    options = {"servers": list(servers), "allow_reconnect": True, "max_reconnect_attempts": max_reconnect_attempts}
+    if connect_timeout is not None:
+        options["connect_timeout"] = connect_timeout
     if credentials:
         options["user_credentials"] = credentials
     if tls:

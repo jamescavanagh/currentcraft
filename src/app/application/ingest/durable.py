@@ -4,7 +4,7 @@ The generic TransactionalWorker wraps this handler with inbox deduplication and 
 """
 from __future__ import annotations
 
-from typing import Mapping
+from typing import Literal, Mapping
 
 from app.application.messaging.contracts import EventEnvelope, make_event
 from app.application.persistence.ports import UnitOfWork
@@ -19,7 +19,7 @@ class DurableIngestHandler:
         self.blobs, self.adapters, self.config = blobs, dict(adapters), config
         self.mappings = {m.name: m for m in mappings}
 
-    def __call__(self, uow: UnitOfWork, event: EventEnvelope) -> None:
+    def __call__(self, uow: UnitOfWork, event: EventEnvelope) -> Literal["applied", "rejected"]:
         if event.kind != "raw.item":
             raise ValueError("durable ingest accepts raw.item only")
         p = event.payload
@@ -40,7 +40,7 @@ class DurableIngestHandler:
                                       source=r.adapter, epistemic_status="computed", occurred_at=raw.received_at,
                                       causation_id=event.event_id,
                                       payload={"reason": r.reason, "content_sha256": r.content_sha256}), raw.received_at)
-            return
+            return "rejected"
         for obj in result.objects:
             stored = uow.objects.put(obj)
             if stored.stored:
@@ -49,3 +49,4 @@ class DurableIngestHandler:
                                           causation_id=event.event_id,
                                           payload={"object_id": obj.object_id, "kind": obj.kind,
                                                    "version_no": stored.version_no, "digest": obj.digest()}), raw.received_at)
+        return "applied"

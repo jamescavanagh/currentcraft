@@ -13,7 +13,7 @@ from app.application.ingest.services import raw_item_event
 from app.application.messaging.durable import DurableConsumerSpec, relay_durable_outbox
 from app.infrastructure.ingest.directory_blobs import DirectoryBlobStore
 from app.infrastructure.ingest.wiring import build_durable_ingest
-from app.infrastructure.messaging.jetstream import JetStreamBroker
+from app.infrastructure.messaging.jetstream import connect_jetstream
 from app.infrastructure.persistence import build_postgres
 
 
@@ -35,9 +35,8 @@ async def broker():
     # Bound retry window includes initial server startup, not just reconnect after a first connection.
     for attempt in range(60):
         try:
-            nc = await nats.connect('nats://nats:4222', token=secret('nats_token'), connect_timeout=2,
-                                    max_reconnect_attempts=2)
-            return JetStreamBroker(nc, nc.jetstream())
+            return await connect_jetstream(('nats://nats:4222',), token=secret('nats_token'), connect_timeout=2,
+                                           max_reconnect_attempts=2)
         except (OSError, nats.errors.Error):
             if attempt == 59:
                 raise RuntimeError('local broker not ready; inspect container logs') from None
