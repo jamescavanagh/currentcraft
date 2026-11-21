@@ -1,33 +1,33 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "proposed",
-  "note": "Synthetic grammar-profile fragments. Every reject case uses a resource class as a grammar symbol; every accept case uses only non-resource objects. Shape is the proposed profile shape in docs/domain/LSYS_DOMAIN_VOCABULARY.md.",
+  "note": "Synthetic grammar-profile fragments. Every reject case uses a resource class as a grammar symbol; every accept case uses only non-resource objects. Shape is the decided profile shape in docs/domain/LSYS_DOMAIN_VOCABULARY.md; profile_version and source_digest are present and every digest matches its content.",
   "reject": [
     {"case": "resource_as_axiom", "offender": "Employee",
-     "profile": {"axiom": "Employee", "productions": []}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Employee", "productions": [], "source_digest": "35bdd478e9033f50cbfed7f7e83219b6a1254b4249471268cfde119585a46cc3"}},
     {"case": "resource_as_predecessor", "offender": "Contributor",
-     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Contributor", "successor": ["Task"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p1", "predecessor": "Contributor", "successor": ["Task"]}], "source_digest": "e22d72780d0931996293927e5c2f350448986b917b0425fdf0b9f822315768bf"}},
     {"case": "resource_as_terminal_in_successor", "offender": "Agent",
-     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Subsystem", "successor": ["o", "Agent"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p1", "predecessor": "Subsystem", "successor": ["o", "Agent"]}], "source_digest": "6608096de1e73a6999f16a9d144fd7e82c9a0209afe6e3f29f3959c4241ded61"}},
     {"case": "resource_base_class", "offender": "Resource",
-     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["Resource"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["Resource"]}], "source_digest": "b62161eec5bb04fc5b656b525eae51038c62e5ef913644ceea6730ba93a13ba0"}},
     {"case": "resource_in_verb_argument", "offender": "Employee",
-     "profile": {"axiom": "Project", "productions": [], "expectations": [{"verb": "impedance_match", "args": ["Subsystem", "Employee"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [], "expectations": [{"verb": "impedance_match", "args": ["Subsystem", "Employee"]}], "source_digest": "a9ed35e7bb3a6faa2e2755a9949d62b3ffed9971a2c90078f273d0f8c5300be3"}},
     {"case": "resource_as_incidence_object", "offender": "Contributor",
-     "profile": {"axiom": "Project", "productions": [], "expectations": [{"verb": "produces", "args": ["Contributor"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [], "expectations": [{"verb": "produces", "args": ["Contributor"]}], "source_digest": "88ea1518747f4dbdd134c2e328814fa80cdc17a0fce0ab3fe79c8cacb55fe47c"}},
     {"case": "case_variant", "offender": "employee",
-     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["employee"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["employee"]}], "source_digest": "02f4bc7bde9d4f066ffe145cc8cf5953b3953827ae2054302b76cdcd428fe847"}},
     {"case": "whitespace_variant", "offender": " Agent ",
-     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": [" Agent "]}]}}
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": [" Agent "]}], "source_digest": "3cca3a9eec53a6b45fd36194c9e8f2d79384adeb44fc3fe2a9ab5b31d9086d82"}}
   ],
   "accept": [
     {"case": "project_to_locations",
-     "profile": {"axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["Location"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p1", "predecessor": "Project", "successor": ["Location"]}], "source_digest": "12ab7e8bd4e0150365b692b2449629092efe83793e5be95f211efcd3a831cc66"}},
     {"case": "subsystem_to_objects",
-     "profile": {"axiom": "Project", "productions": [{"id": "p3", "predecessor": "Subsystem", "successor": ["o"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p3", "predecessor": "Subsystem", "successor": ["o"]}], "source_digest": "9be867c0e17994ac9984321bea914cfbc820a95a154ac366d2129ed3afce2d96"}},
     {"case": "document_to_bom",
-     "profile": {"axiom": "Project", "productions": [{"id": "p5", "predecessor": "Document", "successor": ["BOM"]}]}},
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [{"id": "p5", "predecessor": "Document", "successor": ["BOM"]}], "source_digest": "d3bcedfae920eb82dd78842a0f6ffddaae2ce8206aa7cd4ec1f564f590fc722c"}},
     {"case": "impedance_match_between_objects",
-     "profile": {"axiom": "Project", "productions": [], "expectations": [{"verb": "impedance_match", "args": ["Subsystem", "ProductDefinition"]}]}}
+     "profile": {"profile_version": "0.1.0", "axiom": "Project", "productions": [], "expectations": [{"verb": "impedance_match", "args": ["Subsystem", "ProductDefinition"]}], "source_digest": "f36c179d019154e3aaa48f24222dc2602a155a4590cad5d134c85acafa22c001"}}
   ]
 }

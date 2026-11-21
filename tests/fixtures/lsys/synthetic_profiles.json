@@ -1,0 +1,86 @@
+{
+  "version": "0.1.0",
+  "status": "synthetic",
+  "note": "Synthetic public readings of the five candidate productions (docs/domain/LSYS_DOMAIN_VOCABULARY.md). Candidates only; no production is accepted. No enterprise vocabulary.",
+  "project_profile": {
+    "profile_version": "0.1.0",
+    "axiom": "Project",
+    "productions": [
+      {
+        "id": "p1",
+        "predecessor": "Project",
+        "successor": [
+          "Location"
+        ]
+      },
+      {
+        "id": "p2",
+        "predecessor": "Location",
+        "successor": [
+          "Subsystem"
+        ]
+      },
+      {
+        "id": "p3",
+        "predecessor": "Subsystem",
+        "successor": [
+          "o"
+        ]
+      },
+      {
+        "id": "p4",
+        "predecessor": "Need",
+        "successor": [
+          "Document"
+        ]
+      },
+      {
+        "id": "p5",
+        "predecessor": "Document",
+        "successor": [
+          "BOM",
+          "Scope"
+        ]
+      }
+    ],
+    "expectations": [
+      {
+        "verb": "impedance_match",
+        "args": [
+          "Subsystem",
+          "ProductDefinition"
+        ]
+      },
+      {
+        "verb": "produces",
+        "args": [
+          "Document"
+        ]
+      }
+    ],
+    "source_digest": "05c7dba676c2c195fe2d03c06611a456b0bd0dba3fa46ed142d08de1c4fa96b2"
+  },
+  "need_profile": {
+    "profile_version": "0.1.0",
+    "axiom": "Need",
+    "productions": [
+      {
+        "id": "p4",
+        "predecessor": "Need",
+        "successor": [
+          "Document"
+        ]
+      },
+      {
+        "id": "p5",
+        "predecessor": "Document",
+        "successor": [
+          "BOM",
+          "Scope"
+        ]
+      }
+    ],
+    "expectations": [],
+    "source_digest": "251923039e69fbf0f45f7f11bf079663c9379acf7eb911b5964c3a6c0ce93b2b"
+  }
+}
