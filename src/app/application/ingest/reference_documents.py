@@ -2,12 +2,11 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 from datetime import datetime
 from typing import Literal
 
-from pydantic import Field, PositiveInt, model_validator
+from pydantic import Field, PositiveInt, TypeAdapter, model_validator
 
 from app.application.common.contracts import _Frozen
 
@@ -15,6 +14,15 @@ SCHEMA_VERSION = "currentcraft-ref-document/v1"
 _ID = r"^ref_[A-Za-z0-9_-]{1,120}$"
 _MAX_PAGE_CHARS = 2_000_000
 _MAX_NODES = 100_000
+
+
+def _ordered(value):
+    """Stable contract serialization through Pydantic, not an application-layer JSON parser."""
+    if isinstance(value, dict):
+        return {key: _ordered(value[key]) for key in sorted(value)}
+    if isinstance(value, (list, tuple)):
+        return [_ordered(item) for item in value]
+    return value
 
 
 class ReferenceIngestProfile(_Frozen):
@@ -39,8 +47,8 @@ class ReferenceIngestProfile(_Frozen):
         return self
 
     def digest(self) -> str:
-        raw = json.dumps(self.model_dump(mode="json"), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
-        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        raw = TypeAdapter(dict).dump_json(_ordered(self.model_dump(mode="json")))
+        return hashlib.sha256(raw).hexdigest()
 
 
 class ReferencePage(_Frozen):
@@ -125,8 +133,8 @@ class ReferenceDocumentBundle(_Frozen):
 
     def payload_digest(self) -> str:
         payload = self.model_dump(mode="json", exclude={"payload_sha256"})
-        raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
-        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        raw = TypeAdapter(dict).dump_json(_ordered(payload))
+        return hashlib.sha256(raw).hexdigest()
 
 
 class ReferenceDocumentSelection(_Frozen):
