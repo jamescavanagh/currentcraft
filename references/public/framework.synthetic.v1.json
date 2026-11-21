@@ -1,0 +1,16 @@
+{
+  "schema_version": "synthetic-public-framework/v1",
+  "classification": "synthetic-public-test-fixture",
+  "synthetic": true,
+  "label": "Synthetic Public Framework Fixture",
+  "reference_set": {
+    "dictionary_id": "synthetic.enterprise",
+    "dictionary_version": "1.1"
+  },
+  "values": [
+    {"code": "synthetic.framework.alpha"},
+    {"code": "synthetic.framework.beta"},
+    {"code": "synthetic.framework.gamma"}
+  ],
+  "notice": "Every code and label in this file is invented for tests. It is not an adopted standard, contains no licensed standard text, and grants no policy or authority."
+}

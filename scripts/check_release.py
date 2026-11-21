@@ -3,7 +3,7 @@ from pathlib import Path
 import re,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1]
 TOP={'README.md','CHANGELOG.md','SECURITY.md','DATA_POLICY.md','LICENSE.txt','pyproject.toml','MANIFEST.in','requirements-ci.txt','.gitignore','PUBLIC_RELEASE_MANIFEST.json','.dockerignore'}
-REF={'references/README.md','references/public/manifest.example.json','references/public/enterprise.synthetic.v1.json','references/public/enterprise.synthetic.v1.1.json'}
+REF={'references/README.md','references/public/manifest.example.json','references/public/enterprise.synthetic.v1.json','references/public/enterprise.synthetic.v1.1.json','references/public/framework.synthetic.v1.json'}
 
 def allowed(rel):
     p=Path(rel)
