@@ -7,10 +7,13 @@ from __future__ import annotations
 
 import asyncio
 import math
+from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from app.infrastructure.messaging import connect_jetstream
 from app.infrastructure.persistence import build_postgres
+from app.infrastructure.ingest.directory_blobs import DirectoryBlobStore
+from app.infrastructure.ingest.intake_receipts import SqliteIntakeReceipts
 
 from .container import Container
 from .settings import Settings
@@ -88,6 +91,11 @@ async def build_container(settings: Settings) -> Container:
             ),
             timeout=timeout,
         )
+        blobs = await asyncio.to_thread(DirectoryBlobStore, settings.blob_root)
+        receipts = await asyncio.to_thread(
+            SqliteIntakeReceipts,
+            settings.intake_receipt_db or str(Path(settings.blob_root) / "intake-receipts.sqlite3"),
+        )
     except Exception:
         if broker is not None:
             await _close_broker_safely(broker, timeout=timeout)
@@ -164,5 +172,8 @@ async def build_container(settings: Settings) -> Container:
         database_ready=database_ready,
         broker_ready=broker_ready,
         close=close,
+        intake_broker=broker,
+        blobs=blobs,
+        receipts=receipts,
         uow_factory=uow_factory,
     )

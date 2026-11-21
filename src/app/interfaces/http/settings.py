@@ -106,6 +106,9 @@ class Settings:
     nats_token: str = field(repr=False)
     api_token: str = field(repr=False)
     dependency_timeout_seconds: float = 3.0
+    blob_root: str = field(default="/srv/datamesh/blobs", repr=False)
+    intake_receipt_db: str | None = field(default=None, repr=False)
+    intake_handler_id: str = "ingest-v1"
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> Settings:
@@ -128,10 +131,23 @@ class Settings:
             env.get("DATAMESH_DEPENDENCY_TIMEOUT_SECONDS", "3.0"),
         )
 
+        blob_root = env.get("DATAMESH_BLOB_ROOT", "/srv/datamesh/blobs")
+        receipt_db = env.get("DATAMESH_INTAKE_RECEIPT_DB")
+        handler_id = env.get("DATAMESH_INTAKE_HANDLER_ID", "ingest-v1")
+        for name, value in (("DATAMESH_BLOB_ROOT", blob_root),
+                            ("DATAMESH_INTAKE_HANDLER_ID", handler_id)):
+            if not value.strip():
+                raise SettingsError(f"{name} must not be empty.")
+        if receipt_db is not None and not receipt_db.strip():
+            raise SettingsError("DATAMESH_INTAKE_RECEIPT_DB must not be empty.")
+
         return cls(
             pg_dsn=pg_dsn,
             nats_servers=nats_servers,
             nats_token=nats_token,
             api_token=api_token,
             dependency_timeout_seconds=timeout,
+            blob_root=blob_root,
+            intake_receipt_db=receipt_db,
+            intake_handler_id=handler_id,
         )

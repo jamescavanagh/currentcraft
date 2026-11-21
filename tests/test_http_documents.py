@@ -314,7 +314,9 @@ class ReadWiringTests(unittest.IsolatedAsyncioTestCase):
             async def close(self): pass
         async def connect(**kwargs): return Broker()
         with patch.object(wiring, "build_postgres", return_value=store), \
-             patch.object(wiring, "connect_jetstream", side_effect=connect):
+             patch.object(wiring, "connect_jetstream", side_effect=connect), \
+             patch.object(wiring, "DirectoryBlobStore"), \
+             patch.object(wiring, "SqliteIntakeReceipts"):
             container = await wiring.build_container(_make_settings())
         self.assertIs(container.uow_factory, store)
         self.assertTrue(await container.database_ready())
