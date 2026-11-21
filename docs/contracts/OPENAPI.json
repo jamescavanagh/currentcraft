@@ -114,6 +114,95 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "IntakeReceipt": {
+        "properties": {
+          "content_sha256": {
+            "description": "Digest of the submitted file bytes.",
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "detail": {
+            "description": "Queued does not mean extracted or approved.",
+            "title": "Detail",
+            "type": "string"
+          },
+          "duplicate": {
+            "description": "Broker-window duplicate flag; not exactly-once.",
+            "title": "Duplicate",
+            "type": "boolean"
+          },
+          "event_id": {
+            "description": "Opaque receipt handle, not the internal event ID.",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "sequence": {
+            "description": "Broker sequence, not a business version.",
+            "minimum": 1.0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "source_id": {
+            "description": "Opaque source receipt handle, never the supplied source ID.",
+            "title": "Source Id",
+            "type": "string"
+          },
+          "status_url": {
+            "description": "Authenticated relative status URL with an opaque handle.",
+            "title": "Status Url",
+            "type": "string"
+          },
+          "stream": {
+            "const": "DM_RAW",
+            "description": "Stream confirming durable acceptance.",
+            "title": "Stream",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "stream",
+          "sequence",
+          "duplicate",
+          "source_id",
+          "content_sha256",
+          "status_url",
+          "detail"
+        ],
+        "title": "IntakeReceipt",
+        "type": "object"
+      },
+      "IntakeStatus": {
+        "properties": {
+          "detail": {
+            "description": "Status limitations; never work approval.",
+            "title": "Detail",
+            "type": "string"
+          },
+          "event_id": {
+            "description": "Opaque receipt handle.",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "status": {
+            "description": "Stored inbox outcome.",
+            "enum": [
+              "pending",
+              "processed",
+              "quarantined"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "status",
+          "detail"
+        ],
+        "title": "IntakeStatus",
+        "type": "object"
+      },
       "ReadinessResponse": {
         "properties": {
           "nats": {
@@ -811,6 +900,140 @@
         "summary": "Get Wbs",
         "tags": [
           "documents"
+        ]
+      }
+    },
+    "/v1/intake/documents": {
+      "post": {
+        "operationId": "intake_document_v1_intake_documents_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "document_type": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "format": "binary",
+                    "type": "string"
+                  },
+                  "format": {
+                    "enum": [
+                      "xlsx",
+                      "text"
+                    ],
+                    "type": "string"
+                  },
+                  "mapping": {
+                    "type": "string"
+                  },
+                  "revision_label": {
+                    "type": "string"
+                  },
+                  "source_id": {
+                    "type": "string"
+                  },
+                  "subject_kind": {
+                    "type": "string"
+                  },
+                  "subject_namespace": {
+                    "type": "string"
+                  },
+                  "subject_ref": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "file",
+                  "format",
+                  "source_id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntakeReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "413": {
+            "description": "Upload too large"
+          },
+          "422": {
+            "description": "Invalid intake"
+          },
+          "503": {
+            "description": "Storage or publish unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Intake Document",
+        "tags": [
+          "intake"
+        ]
+      }
+    },
+    "/v1/intake/{event_id}": {
+      "get": {
+        "operationId": "get_intake_status_v1_intake__event_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {
+              "pattern": "^intake_[0-9a-f]{32}$",
+              "title": "Event Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntakeStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "422": {
+            "description": "Invalid handle"
+          },
+          "503": {
+            "description": "Status unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Intake Status",
+        "tags": [
+          "intake"
         ]
       }
     },
