@@ -1,11 +1,72 @@
 ---
 title: HTTP document API
 version: 0.10.0
-status: read projections and routes implemented; intake and live acceptance pending
+status: read and intake routes implemented; live acceptance pending
 tags: [currentcraft, architecture, http, ingestion]
 ---
 
 # HTTP document API
+
+## Intake implementation
+
+The intake router owns POST /v1/intake/documents and GET /v1/intake/{event_id}.
+Only HTTP wiring imports infrastructure. Typed optional broker, blob store and
+receipt store dependencies extend the container; intake reuses the read routes'
+uow_factory field, not a parallel repository factory. The existing read-route
+HandleCodec is retained unchanged. Missing dependencies fail closed with 503.
+
+Existing setting names and secret-file behavior are unchanged. Compose bridges
+preferred CURRENTCRAFT names into DATAMESH names; direct uvicorn uses DATAMESH.
+DATAMESH_BLOB_ROOT defaults to /srv/datamesh/blobs, shared with the worker.
+DATAMESH_INTAKE_RECEIPT_DB defaults beneath that root.
+DATAMESH_INTAKE_HANDLER_ID defaults to the worker's ingest-v1.
+Explicit empty new settings fail closed. No migrations or stream provisioning
+run in the API; secrets never enter argv, errors or application logs.
+
+Authenticate before reading body bytes. Parse one file and at most eight text
+fields, each at most 4 KiB; multipart header bytes total at most 16 KiB and
+overhead at most 64 KiB. Spool at 1 MiB and enforce 64 MiB file bytes
+incrementally while parsing, independently of Content-Length, plus a total
+request cap of 64 MiB + 64 KiB. Require a closing boundary, reject duplicate
+or unknown fields, and close temporary files on errors, cancellation and
+disconnect. Validate IntakeBinding, RawItem and raw_item_event before blob
+writes; never infer identity from filenames/cells. Return 413 for limits,
+422 for invalid input and generic 503 for dependency failures.
+
+Write the blob in the threadpool, then atomically select the first validated
+RawItem in a private SQLite receipt database on the trusted shared local
+volume. BEGIN IMMEDIATE selects one receipt across concurrent connections.
+The submission key includes source/content/format/mapping/complete binding,
+not receipt time. Persist the real first timestamp and random public handles
+before publishing. Connections close after each operation. This local-volume
+store is not a PostgreSQL migration or multi-host storage guarantee; retain
+it across restarts.
+
+Every retry rebuilds the unchanged first raw_item_event and waits for durable
+JetStream confirmation. Publish failure returns 503; retries reuse that event.
+No invented timestamps, weakened hashes, restoration or automatic deletion.
+Changing revision_label makes a distinct submission; broker deduplication is
+not exactly-once.
+
+Receipt event_id and source_id are random opaque receipt handles, never actual
+event or supplied source IDs. These persist independently of the read codec's
+restart-scoped object handles. Return only those receipt handles, fixed DM_RAW
+stream, broker sequence/duplicate, digest, relative opaque status URL and
+"Durably queued; not extracted. No work approval is implied."
+Resolve event handles privately before calling intake_status in the threadpool
+with the worker's inbox_key/handler identity. Unknown well-formed handles are
+pending, not proof of queue membership; processed means committed source
+occurrences, not approved work. Historical-marker limitations remain.
+
+Synthetic acceptance covers auth before body reads, exact 64 MiB limits,
+multipart bounds/completion/cleanup, validation before writes, threadpool
+storage, confirmed publish/failure/retry, concurrent receipt selection,
+restart persistence, revision changes, opaque responses and worker status.
+Shared identity regressions and layering tests stay unchanged. Generate
+OPENAPI.json with scripts/gen_openapi.py, never by hand. Temporary public
+wheels can supply missing sandbox HTTP packages without changing dependency
+declarations. Local stand-ins, hosted checks, real services and the private
+enterprise-term scan are reported separately, never implied by a receipt.
 
 This extends the HTTP shell and the shared identity decision. The API runs
 beside the worker: store bytes -> confirmed JetStream publish -> worker ->
@@ -27,7 +88,7 @@ source occurrences, not approved or executable work.
 
 ## Intended endpoints
 
-Read routes are implemented by this slice; intake routes remain follow-up work:
+Read and intake routes are implemented by their separate slices:
 
 * POST /v1/intake/documents: multipart intake, confirmed publish, then 202.
 * GET /v1/intake/{event_id}: pending, processed or quarantined.
@@ -177,10 +238,10 @@ Stand-ins do not establish PostgreSQL/NATS/Docker compatibility.
 
 The merged prerequisite slice wires shared XLSX identity helpers, aligns
 worker quarantine outcomes and reuses the NATS token connection helper.
-Intake HTTP routes, retry receipt storage and Compose/API smoke remain
-follow-up work. Read routes, safe projections and generated OpenAPI are
-implemented here; live acceptance is pending. Do not weaken layering or
-release checks.
+Intake HTTP routes and retry receipt storage are implemented by the intake
+slice, alongside read routes, safe projections and generated OpenAPI.
+Combined live intake/API smoke remains follow-up work. Do not weaken layering
+or release checks.
 
 Generate OpenAPI via scripts/gen_openapi.py, never hand-edit JSON.
 CI must require API tests, not silently skip dependencies. Run real database,

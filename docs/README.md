@@ -15,6 +15,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 
 ## Start here
 
+- [Document API prerequisites](architecture/API_PREREQUISITES.md): merged identity, inbox and quarantine groundwork.
+
 - [Local NATS + PostgreSQL stack](architecture/LOCAL_COMPOSE.md): Compose setup, smoke test and local file publication.
 
 - [Docs-first design](DOCS_FIRST.md): how a change moves from a page to code.
@@ -46,7 +48,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Persistence](architecture/PERSISTENCE.md) | `app.application.persistence`, `app.infrastructure.persistence` | implemented 0.9.2; PostgreSQL 18 SQL, proven only by the postgres-18 CI job |
 | [Message broker](architecture/MESSAGE_BROKER.md) | `app.application.messaging`, `app.infrastructure.messaging` | in-memory adapter 0.5.0; MQTT/IoT adapter planned |
 | [HTTP API](architecture/HTTP_API.md) | `app.interfaces.http` | shell and 0.10.0 privacy-safe reads; intake/live acceptance pending |
-| [HTTP documents](architecture/HTTP_DOCUMENTS.md) | `app.application.queries`, `app.interfaces.http` | allowlist read projections and opaque handles; intake/live acceptance pending |
+| [HTTP documents](architecture/HTTP_DOCUMENTS.md) | `app.application.queries`, `app.interfaces.http` | allowlist reads, bounded intake and durable opaque receipts; live acceptance pending |
 | [CNN to GNN pipeline](pipelines/CNN_GNN_PIPELINE.md) | `app.application.simulation` | stages 1 to 4 |
 | [Gauge pipeline](pipelines/GAUGE_PIPELINE.md) | `app.application.gauge` | research instrument |
 | [Geodesic probe](pipelines/GEODESIC_PROBE.md) | `app.application.gauge.geodesic` | research instrument |
