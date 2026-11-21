@@ -138,6 +138,44 @@ submittal folder suggests a record issue). That mapping:
 - produces candidate facts with a derivation, never confirmed facts, so a
   misfiled document stays findable and is flagged rather than misclassified.
 
+## Decision 4: Reading a source file never locks it
+
+Capturing a drawing must never change what the people working in the document
+library can do. Drafters keep CAD files (DWG, DXF) and drawing sets open for
+long sessions; an indexer that holds a lock, a check-out or an open handle on
+those files blocks saves and co-authoring.
+
+**Proposed rules for every source adapter, drawings first:**
+
+1. **Read-only by construction.** The adapter's credential has read-only
+   permission on the library, so a write, lock or check-out is impossible rather
+   than merely avoided. The adapter port exposes no write, lock or check-out
+   operation.
+2. **Never open an editing session.** No check-out, exclusive or shared lock,
+   WebDAV lock, co-authoring or editing session, and no sync-client or mapped
+   drive that keeps file handles open.
+3. **Copy once, then let go.** Read the item's content by its stable item and
+   version identifiers through the platform's read API, stream it once into blob
+   storage (the existing raw event: blob key, SHA-256, size, media type) and
+   close the request. Parsing, OCR, rendering and embedding run on that copy,
+   never on the live file.
+4. **No write-backs of any kind.** No metadata or property updates, tags,
+   comments, format conversions that save to the library, or thumbnail and
+   preview generation that writes to the source.
+5. **Respect files in use.** A file that is checked out, locked or mid-upload is
+   captured as exactly that (a captured-state fact naming the condition and, when
+   the source reports it, the holding party). The adapter reads the last
+   available version if the platform serves one without a lock, or skips the
+   item and retries on the next scheduled pass, never in a tight loop. An
+   expected document whose only copy is unavailable resolves to `inaccessible`,
+   not `not_found_in_scope`.
+6. **Be a quiet neighbor.** Honor throttling responses (`Retry-After`), detect
+   change with delta queries and content hashes instead of re-reading unchanged
+   files, and run bulk crawls outside working hours.
+7. **CAD formats are opaque in v1.** DWG content is binary and proprietary.
+   Version 1 records CAD file metadata and hash only and indexes the companion
+   published PDF for content. Any later CAD parsing runs offline on the blob copy.
+
 ## Absence states this enables (for 0.13.0 and 0.14.0)
 
 When the grammar expects a document class for a scope, the match resolves to
@@ -166,7 +204,8 @@ not found within the searched and accessible scope, never "does not exist".
 4. Define `Submittal` as an issue event.
 5. Wire governed transitions through the existing P4 `StateTransition`, failing closed with `policy not defined` until approved.
 6. Add a synthetic folder-convention dictionary and a derivation from path to candidate class and state.
-7. Regenerate contract docs; extend the scaffold generator to mark the new implemented proposals.
+7. Define the read-only source-reader port used by the SharePoint adapter: read by item and version, stream to blob storage, no write, lock or check-out operations.
+8. Regenerate contract docs; extend the scaffold generator to mark the new implemented proposals.
 
 ### Tests required
 
@@ -177,6 +216,9 @@ not found within the searched and accessible scope, never "does not exist".
 - Set and sheet revisions move independently.
 - Folder-derived class and state are always `inferred` candidates with a derivation.
 - A misfiled fixture stays retrievable with a candidate-class conflict flag.
+- A fake source client that fails on any write, lock, check-out or metadata-update call is never tripped by a full capture run.
+- A checked-out or locked fixture yields a captured-state fact and resolves to `inaccessible`; the adapter does not retry within the same pass.
+- Content is read exactly once per version; unchanged hashes are not re-downloaded.
 
 ## Open decisions for reviewers
 
@@ -187,6 +229,7 @@ not found within the searched and accessible scope, never "does not exist".
 | Whether the four ISO 19650 states suffice or a local state is needed | both owners |
 | Submittal response codes | release-policy owner |
 | Sheet-number normalization rules | grammar-profile owner |
+| Crawl window and throttling budget for the document library | library administrator |
 
 Until these are decided, everything above that grants a published state stays
 fail-closed. Capture, candidate classification and absence reporting do not
