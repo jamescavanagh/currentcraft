@@ -5,6 +5,24 @@ tags: [currentcraft, changelog]
 status: candidate implementation, acceptance pending
 ---
 
+# Unreleased: six types as composed extensions with canonical reference resolution
+
+- Replaced canonical-entity inheritance with composition. The six types are now
+  `ProjectExtension`, `WorkingDocumentExtension`, `CommercialOrderExtension`,
+  `SubsystemExtension`, `SiteAcceptanceTestExtension` and `FeatureConfigurationExtension`,
+  each with its own extension identity/version and exact kind-tagged canonical references.
+  Canonical classes and payloads are unchanged. New wire family
+  `currentcraft-six-extensions/v1`; packet `currentcraft-six-type-packet/v2`. The v1
+  subclass family is not upgraded.
+- Added an explicit `CanonicalReferencePort` and `resolve_extensions`, checking kind,
+  exact version, project ownership and document-revision ownership.
+- Ownership rules come from a `framework-ownership/0` profile pinned to the referenced
+  standard's framework profile; real profiles are private REF data. Added a hash-pinned
+  loader, a standard-binding check, a snapshot port adapter and a synthetic SYN-A fixture.
+- Not done: durable canonical-store adapter, multi-hop owner chains, SAT canonical
+  quality-state mapping, line-scoped order configuration, source-distribution manifest
+  entry for the new fixture.
+
 # Unreleased: concrete six-domain types
 
 Implemented six immutable proposal types: ProjectType, WorkingDocumentType,
