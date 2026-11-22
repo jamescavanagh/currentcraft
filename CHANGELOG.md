@@ -1,3 +1,10 @@
+# Unreleased: streaming RDF/XML validation
+
+- Replace full-tree RDF/XML parsing with namespace-aware Expat streaming callbacks and fixed policy `rdfxml-stream/1`: depth 128 (root is one), 100,000 elements including root, 64 attributes per element and 16,384 characters per attribute value.
+- Check source character/page limits before XML parsing. Reject DTDs/entities structurally, disable parameter entities, preserve inert imports/XInclude/stylesheets and permit harmless declaration-like comments/CDATA.
+- Add synthetic limit-boundary, hostile-input, source-free-error, streaming, literal/identity preservation and non-OWL digest compatibility regressions. OWL extractor provenance/payload hashes change deliberately; source/node identities and non-OWL behavior do not.
+- Not claimed: semantic RDF reasoning, process isolation, CPU/wall-clock deadline, OS memory ceiling, runtime patch certification, merge or deployment.
+
 # Unreleased: close six private REF hydration gaps
 
 - Pin exact target versions on new REF parent edges, preserving them through memory/SQL edge and traversal reads; add migration 006. Historical unpinned edges remain null rather than guessed.
