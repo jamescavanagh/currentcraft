@@ -15,6 +15,7 @@ Design source: [Persistence](../architecture/PERSISTENCE.md). Target: PostgreSQL
 | 003 | shared stock and reservations | all dialects |
 | 004 | embeddings | all dialects |
 | 005 | transactional outbox | all dialects |
+| 006 | pin graph target versions | all dialects |
 | 101 | pgvector columns (opt-in) | PostgreSQL only, opt-in |
 
 ## DDL (PostgreSQL 18)
@@ -41,6 +42,8 @@ CREATE TABLE IF NOT EXISTS dm_embeddings ( object_id TEXT NOT NULL, model_name T
 -- 005 transactional outbox
 CREATE TABLE IF NOT EXISTS dm_outbox ( event_id CHAR(64) PRIMARY KEY, topic TEXT NOT NULL, envelope JSONB NOT NULL, enqueued_at TIMESTAMPTZ NOT NULL, published_at TIMESTAMPTZ);
 CREATE INDEX IF NOT EXISTS dm_outbox_pending ON dm_outbox (enqueued_at) WHERE published_at IS NULL;
+-- 006 pin graph target versions
+ALTER TABLE dm_edges ADD COLUMN dst_version INTEGER;
 -- 101 pgvector columns (opt-in)
 CREATE EXTENSION IF NOT EXISTS vector;
 ALTER TABLE dm_embeddings ADD COLUMN IF NOT EXISTS dense_vec vector;

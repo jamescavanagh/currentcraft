@@ -48,8 +48,19 @@ class _Repo:
             raise
 
 
+def _visible(alias):
+    """Fixed internal SQL aliases only; historical rows remain stored and get/history stay unchanged."""
+    return (f"({alias}.adapter <> 'ref_document_tree' OR {alias}.kind = 'reference_document' OR EXISTS ("
+            "SELECT 1 FROM dm_source_object_heads rh JOIN dm_source_objects root "
+            "ON root.object_id = rh.object_id AND root.version_no = rh.version_no "
+            f"WHERE rh.object_id = ({alias}.body -> 'provenance' ->> 'source_id') "
+            "AND root.adapter = 'ref_document_tree' "
+            f"AND (root.body -> 'fields' ->> 'payload_sha256') = ({alias}.body -> 'fields' ->> 'payload_sha256')))")
+
+
 class SqlSourceObjectRepository(_Repo):
-    _CURRENT = ("FROM dm_edges e JOIN dm_source_object_heads hs ON hs.object_id = e.src_id AND hs.version_no = e.src_version ")
+    _CURRENT = ("FROM dm_edges e JOIN dm_source_object_heads hs ON hs.object_id = e.src_id AND hs.version_no = e.src_version "
+                "JOIN dm_source_objects o ON o.object_id = hs.object_id AND o.version_no = hs.version_no AND " + _visible("o") + " ")
 
     def put(self, obj: DomainObject) -> StoreResult:
         digest = obj.digest()
@@ -74,8 +85,8 @@ class SqlSourceObjectRepository(_Repo):
                 if not moved:
                     raise VersionConflict(f"object {obj.object_id} moved past version {prev}")
             for i, r in enumerate(obj.relations):
-                self.ex.run("INSERT INTO dm_edges (src_id, src_version, ordinal, rel_type, dst_id, evidence) VALUES (%s, %s, %s, %s, %s, %s)",
-                            (obj.object_id, v, i, r.type, r.target_id, r.evidence))
+                self.ex.run("INSERT INTO dm_edges (src_id, src_version, ordinal, rel_type, dst_id, evidence, dst_version) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                            (obj.object_id, v, i, r.type, r.target_id, r.evidence, r.target_version))
         return StoreResult(object_id=obj.object_id, version_no=v, stored=True)
 
     @staticmethod
@@ -95,7 +106,7 @@ class SqlSourceObjectRepository(_Repo):
     def by_kind(self, kind: str, limit: int = 1000) -> tuple[DomainObject, ...]:
         return tuple(self._obj(r) for r in self.ex.rows(
             "SELECT o.body FROM dm_source_object_heads h JOIN dm_source_objects o ON o.object_id = h.object_id "
-            "AND o.version_no = h.version_no WHERE h.kind = %s ORDER BY h.object_id LIMIT %s", (kind, int(limit))))
+            "AND o.version_no = h.version_no WHERE h.kind = %s AND " + _visible("o") + " ORDER BY h.object_id LIMIT %s", (kind, int(limit))))
 
     def related(self, node_id: str, rel_type: Optional[str] = None, direction: Literal["out", "in"] = "out",
                 kind: Optional[str] = None) -> tuple[DomainObject, ...]:
@@ -110,7 +121,7 @@ class SqlSourceObjectRepository(_Repo):
         if kind:
             sql += " AND h.kind = %s"
             params.append(kind)
-        return tuple(self._obj(r) for r in self.ex.rows(sql + " ORDER BY h.object_id", params))
+        return tuple(self._obj(r) for r in self.ex.rows(sql + " AND " + _visible("o") + " ORDER BY h.object_id", params))
 
 
 class SqlGraphRepository(_Repo):
@@ -118,7 +129,7 @@ class SqlGraphRepository(_Repo):
 
     def edges(self, node_id: str, direction: Literal["out", "in"] = "out", rel_types: tuple[str, ...] = ()) -> tuple[EdgeRecord, ...]:
         near = "src_id" if direction == "out" else "dst_id"
-        sql = f"SELECT e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version {self._CURRENT}WHERE e.{near} = %s"
+        sql = f"SELECT e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version, e.dst_version {self._CURRENT}WHERE e.{near} = %s"
         params: list = [node_id]
         if rel_types:
             sql += f" AND e.rel_type IN ({placeholders(len(rel_types))})"
@@ -131,15 +142,16 @@ class SqlGraphRepository(_Repo):
             raise ValueError(f"max_depth must be 1..{MAX_DEPTH}")
         near, far = ("src_id", "dst_id") if direction == "out" else ("dst_id", "src_id")
         rel = f" AND e.rel_type IN ({placeholders(len(rel_types))})" if rel_types else ""
-        sql = ("WITH RECURSIVE walk (src_id, rel_type, dst_id, evidence, src_version, depth, frontier) AS ("
-               f" SELECT e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version, 1, e.{far} {self._CURRENT}WHERE e.{near} = %s{rel}"
+        sql = ("WITH RECURSIVE walk (src_id, rel_type, dst_id, evidence, src_version, dst_version, depth, frontier) AS ("
+               f" SELECT e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version, e.dst_version, 1, e.{far} {self._CURRENT}WHERE e.{near} = %s{rel}"
                " UNION ALL"
-               f" SELECT e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version, w.depth + 1, e.{far} FROM walk w"
+               f" SELECT e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version, e.dst_version, w.depth + 1, e.{far} FROM walk w"
                f" JOIN dm_edges e ON e.{near} = w.frontier"
                " JOIN dm_source_object_heads hs ON hs.object_id = e.src_id AND hs.version_no = e.src_version"
+               " JOIN dm_source_objects o ON o.object_id = hs.object_id AND o.version_no = hs.version_no AND " + _visible("o") +
                f" WHERE w.depth < %s{rel})"
-               " SELECT src_id, rel_type, dst_id, evidence, src_version, MIN(depth) AS depth FROM walk"
-               " GROUP BY src_id, rel_type, dst_id, evidence, src_version ORDER BY depth, src_id, rel_type, dst_id")
+               " SELECT src_id, rel_type, dst_id, evidence, src_version, dst_version, MIN(depth) AS depth FROM walk"
+               " GROUP BY src_id, rel_type, dst_id, evidence, src_version, dst_version ORDER BY depth, src_id, rel_type, dst_id")
         params = [start_id, *rel_types, int(max_depth), *rel_types]
         return tuple(EdgeRecord(**r) for r in self.ex.rows(sql, params))
 

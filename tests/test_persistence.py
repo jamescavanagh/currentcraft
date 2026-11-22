@@ -297,11 +297,19 @@ class DuckDbStandInContract(PersistenceContract, unittest.TestCase):
     def make(self):
         return build_duckdb_standin()
 
+    def test_private_ref_hydration_acceptance(self):
+        from tests.test_reference_hydration_acceptance import DuckDbHydrationAcceptance
+        result = unittest.TestResult()
+        unittest.defaultTestLoader.loadTestsFromTestCase(DuckDbHydrationAcceptance).run(result)
+        self.assertGreaterEqual(result.testsRun, 12)
+        self.assertEqual(result.skipped, [], "DuckDB hydration acceptance must not skip")
+        self.assertTrue(result.wasSuccessful(), result.errors + result.failures)
+
     def test_migrations_are_idempotent(self):
         ex = self.uow.executor()
         try:
             self.assertEqual(migrate(ex), [])
-            self.assertEqual([r["version"] for r in ex.rows("SELECT version FROM dm_schema_migrations ORDER BY version")], [1, 2, 3, 4, 5])
+            self.assertEqual([r["version"] for r in ex.rows("SELECT version FROM dm_schema_migrations ORDER BY version")], [1, 2, 3, 4, 5, 6])
         finally:
             self.uow._close(ex.conn)
 
@@ -336,6 +344,16 @@ class PostgresContract(PersistenceContract, unittest.TestCase):
         v = int(ex.rows("SHOW server_version_num")[0]["server_version_num"])
         ex.conn.close()
         self.assertGreaterEqual(v, 180000)
+
+    def test_private_ref_hydration_acceptance(self):
+        # Existing dedicated postgres-18 CI invokes this class. Run the complete
+        # REF store contract here too, so workflow edit permissions are not needed.
+        from tests.test_reference_hydration_acceptance import PostgresHydrationAcceptance
+        result = unittest.TestResult()
+        unittest.defaultTestLoader.loadTestsFromTestCase(PostgresHydrationAcceptance).run(result)
+        self.assertGreaterEqual(result.testsRun, 12)
+        self.assertEqual(result.skipped, [], "PostgreSQL hydration acceptance must not skip")
+        self.assertTrue(result.wasSuccessful(), result.errors + result.failures)
 
 
 class VectorsAndSchema(unittest.TestCase):

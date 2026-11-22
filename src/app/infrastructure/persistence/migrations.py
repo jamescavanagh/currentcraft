@@ -77,6 +77,9 @@ MIGRATIONS = (
         " published_at {TS})",
         "CREATE INDEX IF NOT EXISTS dm_outbox_pending ON dm_outbox (enqueued_at) {PENDING_WHERE}",
     )),
+    Migration(6, "pin graph target versions", (
+        "ALTER TABLE dm_edges ADD COLUMN dst_version INTEGER",
+    )),
     Migration(101, "pgvector columns (opt-in)", (
         "CREATE EXTENSION IF NOT EXISTS vector",
         "ALTER TABLE dm_embeddings ADD COLUMN IF NOT EXISTS dense_vec vector",
