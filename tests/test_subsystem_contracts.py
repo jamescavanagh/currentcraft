@@ -5,9 +5,11 @@ architecture view (port graph) into explicit contract checks. Readings are
 epistemic 'computed'; none of them is an approval.
 Pure Python: no numpy (domain rule).
 """
-import itertools, math, random
+import itertools
+import math
+import random
+import unittest
 from collections import Counter
-import pytest
 
 ALT = {"network": ["avbBase", "danteBase", "aesBase"], "dsp": ["NONE", "dspA", "dspB", "dspC"],
        "codec": ["NONE", "codecX", "codecY"], "camera": ["NONE", "camPTZ", "camFixed", "camAuto"],
@@ -52,63 +54,79 @@ CONSTRAINTS = {frozenset(p): reason for p, reason in [
 BLOCKS = [["dispLCD","dispLED","projector","overflow"],["wireless"],["camera","control","codec","recording"],["dsp","network"]]
 EPS = 1e-9
 
-@pytest.fixture(scope="module")
-def views():
+
+def _views():
     out = {}
     for pol in ("optimistic", "pessimistic"):
         cs = configs(pol)
         out[pol] = (cs, {frozenset(p): mi(cs, *p) for p in itertools.combinations(V, 2)})
     return out
 
-# C1 cable with no coupling under BOTH policies -> must be a declared standard port
-def test_c1_uncoupled_cables_are_standard_ports(views):
-    free = {e for e in ARCH if all(views[p][1][e] < EPS for p in views)}
-    assert free == STANDARD_PORTS, f"undeclared standard ports: {free ^ STANDARD_PORTS}"
 
-# C2 cable uncoupled only if the untested cell is compatible -> contingent port citing the cell
-def test_c2_contingent_ports_cite_untested_cells(views):
-    contingent = {e for e in ARCH if views["optimistic"][1][e] < EPS <= views["pessimistic"][1][e]}
-    assert contingent == set(CONTINGENT_PORTS)
-    assert all(cell in {u["id"] for u in UNTESTED} for cell in CONTINGENT_PORTS.values())
+class SubsystemContractChecks(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.views = _views()
 
-# C3 coupling with no cable -> declared constraint with a reason class, never a connection
-def test_c3_uncabled_couplings_are_declared_constraints(views):
-    for pol in views:
-        coupled = {e for e, m in views[pol][1].items() if m > EPS and e not in ARCH}
-        missing = coupled - set(CONSTRAINTS)
-        assert not missing, f"[{pol}] coupling without cable or constraint: {missing}"
-    assert set(CONSTRAINTS.values()) <= {"requirement", "mode", "indirect"}
-    assert not (set(CONSTRAINTS) & ARCH), "a constraint must not be recorded as a connection"
+    def test_c1_uncoupled_cables_are_standard_ports(self):
+        """C1 cable with no coupling under both counts is a declared standard port."""
+        v = self.views
+        free = {e for e in ARCH if all(v[p][1][e] < EPS for p in v)}
+        self.assertEqual(free, STANDARD_PORTS, f"undeclared standard ports: {free ^ STANDARD_PORTS}")
 
-# C4 coupling that appears only under the pessimistic count -> test-priority item
-def test_c4_unknown_induced_couplings_raise_test_priority(views):
-    induced = {e for e in views["pessimistic"][1] if views["optimistic"][1][e] < EPS <= views["pessimistic"][1][e]}
-    assert induced, "expected at least one unknown-induced coupling in the fixture"
-    priority = {u["id"] for u in UNTESTED}
-    assert priority == {"cell-001"}
+    def test_c2_contingent_ports_cite_untested_cells(self):
+        """C2 cable uncoupled only if the untested cell is compatible cites that cell."""
+        v = self.views
+        contingent = {e for e in ARCH if v["optimistic"][1][e] < EPS <= v["pessimistic"][1][e]}
+        self.assertEqual(contingent, set(CONTINGENT_PORTS))
+        cells = {u["id"] for u in UNTESTED}
+        self.assertTrue(all(c in cells for c in CONTINGENT_PORTS.values()))
 
-# C5 count band: pessimistic <= optimistic; both recorded (never a single number)
-def test_c5_count_band(views):
-    lo, hi = len(views["pessimistic"][0]), len(views["optimistic"][0])
-    assert (lo, hi) == (3952, 4680) and lo <= hi
+    def test_c3_uncabled_couplings_are_declared_constraints(self):
+        """C3 coupling with no cable is a declared constraint, never a connection."""
+        for pol, (_, m) in self.views.items():
+            coupled = {e for e, x in m.items() if x > EPS and e not in ARCH}
+            self.assertFalse(coupled - set(CONSTRAINTS), f"[{pol}] coupling without cable or constraint")
+        self.assertLessEqual(set(CONSTRAINTS.values()), {"requirement", "mode", "indirect"})
+        self.assertFalse(set(CONSTRAINTS) & ARCH, "a constraint must not be recorded as a connection")
 
-# C6 block factorization: independent blocks (cut width 1) multiply exactly
-def test_c6_blocks_factorize_only_when_unknowns_resolve(views):
-    for pol, expect in (("optimistic", True), ("pessimistic", False)):
-        cs = views[pol][0]; n = len(cs)
+    def test_c4_unknown_induced_couplings_raise_test_priority(self):
+        """C4 coupling that appears only under the pessimistic count raises test priority."""
+        v = self.views
+        induced = {e for e in v["pessimistic"][1] if v["optimistic"][1][e] < EPS <= v["pessimistic"][1][e]}
+        self.assertTrue(induced)
+        self.assertEqual({u["id"] for u in UNTESTED}, {"cell-001"})
+
+    def test_c5_count_band(self):
+        """C5 count is a band, pessimistic <= optimistic, never one number."""
+        lo, hi = len(self.views["pessimistic"][0]), len(self.views["optimistic"][0])
+        self.assertEqual((lo, hi), (3952, 4680))
+        self.assertLessEqual(lo, hi)
+
+    def test_c6_blocks_factorize_only_when_unknowns_resolve(self):
+        """C6 conferencing and audio/network multiply only when the unknown resolves."""
         a, b = BLOCKS[2], BLOCKS[3]
-        ja = Counter(tuple(c[v] for v in a) for c in cs); jb = Counter(tuple(c[v] for v in b) for c in cs)
-        jab = Counter((tuple(c[v] for v in a), tuple(c[v] for v in b)) for c in cs)
-        independent = all(abs(jab.get((x, y), 0) / n - ja[x] / n * jb[y] / n) < EPS for x in ja for y in jb)
-        assert independent is expect, f"[{pol}] conferencing vs audio/network independence should be {expect}"
+        for pol, expect in (("optimistic", True), ("pessimistic", False)):
+            cs = self.views[pol][0]; n = len(cs)
+            ja = Counter(tuple(c[x] for x in a) for c in cs)
+            jb = Counter(tuple(c[x] for x in b) for c in cs)
+            jab = Counter((tuple(c[x] for x in a), tuple(c[x] for x in b)) for c in cs)
+            independent = all(abs(jab.get((x, y), 0) / n - ja[x] / n * jb[y] / n) < EPS for x in ja for y in jb)
+            self.assertIs(independent, expect, pol)
 
-# C7 counts do not depend on variable order
-@pytest.mark.parametrize("seed", [1, 2, 3])
-def test_c7_order_invariance(seed):
-    order = V[:]; random.Random(seed).shuffle(order)
-    assert len(configs("pessimistic", order)) == 3952
+    def test_c7_order_invariance(self):
+        """C7 count does not depend on variable order."""
+        for seed in (1, 2, 3):
+            with self.subTest(seed=seed):
+                order = V[:]; random.Random(seed).shuffle(order)
+                self.assertEqual(len(configs("pessimistic", order)), 3952)
 
-# C8 every reading is computed evidence, never an approval
-def test_c8_readings_are_not_approvals():
-    reading = {"kind": "configuration_count", "epistemic": "computed", "band": [3952, 4680], "approval": None}
-    assert reading["epistemic"] == "computed" and reading["approval"] is None
+    def test_c8_readings_are_not_approvals(self):
+        """C8 every reading is computed evidence, never an approval."""
+        reading = {"kind": "configuration_count", "epistemic": "computed", "band": [3952, 4680], "approval": None}
+        self.assertEqual(reading["epistemic"], "computed")
+        self.assertIsNone(reading["approval"])
+
+
+if __name__ == "__main__":
+    unittest.main()
