@@ -6,6 +6,8 @@ import json
 import os
 import re
 import tempfile
+import weakref
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime
 from importlib.metadata import PackageNotFoundError, version
@@ -22,10 +24,13 @@ from app.application.persistence.contracts import CommandRecord
 MAX_JSON_BYTES = 128 * 1024 * 1024
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class LoadedReferenceDocument:
     bundle: ReferenceDocumentBundle
     selection: ReferenceDocumentSelection
+
+
+_ISSUED = weakref.WeakKeyDictionary()
 
 
 @dataclass(frozen=True)
@@ -97,6 +102,20 @@ def _extract(raw: bytes, suffix: str, profile: ReferenceIngestProfile) -> tuple[
         pages = (text,)
         fmt = "markdown" if suffix == ".md" else "text"
         extractor, extractor_version = "utf8", "stdlib-1"
+        if suffix in {".owl", ".rdf"}:
+            # Capture exact RDF/XML source only. No DTDs, entity expansion, imports,
+            # network dereferencing, semantic triples or reasoning are executed.
+            if re.search(r"<!\s*(?:DOCTYPE|ENTITY)\b", text, re.IGNORECASE):
+                raise ValueError("ontology declarations are not permitted")
+            valid = False
+            try:
+                tree = ET.fromstring(text)
+                valid = tree.tag == "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF"
+            except ET.ParseError:
+                pass
+            if not valid:
+                raise ValueError("ontology source must be valid RDF/XML")
+            fmt, extractor = "owl", "rdfxml-source"
     if not pages or len(pages) > profile.max_pages:
         raise ValueError("source page count is outside the configured limit")
     if sum(len(page) for page in pages) > profile.max_extracted_chars:
@@ -120,7 +139,8 @@ def _heading_level(key: str) -> int:
 def _make_tree(document_id: str, source_sha: str, source_name: str, pages: tuple[str, ...], profile: ReferenceIngestProfile) -> tuple[ReferenceNode, ...]:
     nodes: list[ReferenceNode] = []
     doc_id = document_id
-    nodes.append(ReferenceNode(node_id=doc_id, kind="document", ordinal=1, depth=0, title=source_name))
+    nodes.append(ReferenceNode(node_id=doc_id, kind="document", ordinal=1, depth=0,
+                               title=source_name if len(source_name) <= 500 else "Reference document"))
     heading_rule = re.compile(profile.heading_pattern) if profile.heading_pattern else None
     # Active heading stack contains (numbering depth, node id, tree depth).
     stack: list[tuple[int, str, int]] = []
@@ -199,8 +219,8 @@ def _make_tree(document_id: str, source_sha: str, source_name: str, pages: tuple
 def build_bundle(root: Path, source_relative: str, source_handle: str, expected_source_sha256: str,
                  profile: ReferenceIngestProfile) -> ReferenceDocumentBundle:
     _, source_path = _safe_path(root, source_relative, must_exist=True)
-    if source_path.suffix.lower() not in {".pdf", ".txt", ".md"}:
-        raise ValueError("supported source formats are PDF, UTF-8 text and Markdown")
+    if source_path.suffix.lower() not in {".pdf", ".txt", ".md", ".owl", ".rdf"}:
+        raise ValueError("supported source formats are PDF, UTF-8 text, Markdown and RDF/XML")
     size = source_path.stat().st_size
     if size > profile.max_file_bytes:
         raise ValueError("source file exceeds the configured byte limit")
@@ -216,10 +236,12 @@ def build_bundle(root: Path, source_relative: str, source_handle: str, expected_
     if not any(page.strip() for page in page_texts):
         raise ValueError("source has no extractable text; OCR is not included")
     pages = tuple(ReferencePage(page_number=i, text=text) for i, text in enumerate(page_texts, start=1))
-    nodes = _make_tree(source_handle, source_sha, source_relative, page_texts, profile)
+    tree_profile = profile.model_copy(update={"heading_pattern": None}) if fmt == "owl" else profile
+    nodes = _make_tree(source_handle, source_sha, source_relative, page_texts, tree_profile)
     provisional = ReferenceDocumentBundle(
         document_id=source_handle,
         source_name=source_relative, source_format=fmt, source_sha256=source_sha,
+        coverage=profile.coverage, coverage_reason=profile.coverage_reason,
         extractor_name=extractor, extractor_version=extractor_version,
         profile_sha256=profile.digest(), pages=pages, nodes=nodes, payload_sha256="0" * 64,
     )
@@ -284,7 +306,11 @@ def load_bundle(root: Path, json_relative: str, expected_json_sha256: str,
         payload_sha256=actual_payload_sha, json_file_sha256=json_sha,
         selected_at=selected_at.isoformat(),
     )
-    return LoadedReferenceDocument(bundle, selection)
+    loaded = LoadedReferenceDocument(bundle, selection)
+    # Identity-based, process-local loader capability. JSON receipts, direct
+    # constructors and copied wrappers cannot mint it. Reload on process restart.
+    _ISSUED[loaded] = (bundle.payload_sha256, selection.model_dump_json())
+    return loaded
 
 
 def _source_text(bundle: ReferenceDocumentBundle, node: ReferenceNode) -> str:
@@ -301,6 +327,8 @@ def _domain_objects(loaded: LoadedReferenceDocument, recorded_at: datetime) -> t
         raise ValueError("loader selection does not match the exact bundle")
     if selection.method != "private-file-sha256-and-payload/v1":
         raise ValueError("unsupported private selection method")
+    if _ISSUED.get(loaded) != (bundle.payload_sha256, selection.model_dump_json()):
+        raise ValueError("hydration requires a loader-issued selection")
     if recorded_at.tzinfo is None or recorded_at.utcoffset() is None:
         raise ValueError("graph record time must be timezone-aware")
     provenance = Provenance(
@@ -328,6 +356,8 @@ def _domain_objects(loaded: LoadedReferenceDocument, recorded_at: datetime) -> t
             "section_level": node.section_level,
             "source_name": bundle.source_name if node.kind == "document" else None,
             "epistemic_scope": "source_literal_candidate",
+            "coverage": bundle.coverage,
+            "coverage_reason": bundle.coverage_reason,
         }
         parent = by_id.get(node.parent_node_id or "")
         relations = (TypedRelation(type="part_of", target_id=parent.node_id,
@@ -353,8 +383,12 @@ def hydrate_bundle(loaded: LoadedReferenceDocument, uow_factory: Callable, recor
                 raise ValueError("idempotency key conflicts with an earlier command")
             return HydrationResult(bundle.document_id, bundle.payload_sha256,
                                    tuple(o.object_id for o in objects), True)
+        versions = {}
         for obj in objects:
-            uow.objects.put(obj)
+            relations = tuple(relation.model_copy(update={"target_version": versions[relation.target_id]})
+                              for relation in obj.relations)
+            pinned = obj.model_copy(update={"relations": relations})
+            versions[obj.object_id] = uow.objects.put(pinned).version_no
         uow.commands.record(CommandRecord(
             command_id=command_id, command_type="private_ref_document_hydration.v1",
             outcome="applied", result_ref=bundle.document_id,
