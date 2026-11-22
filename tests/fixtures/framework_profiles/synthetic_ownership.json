@@ -1,0 +1,28 @@
+{
+  "schema": "framework-ownership/0",
+  "standard": {
+    "framework_id": "SYN-A",
+    "framework_edition": "synthetic-1",
+    "profile_version": "0.1.0",
+    "source_digest": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "ownership_version": "0.1.0",
+  "valid_from": "2026-01-01T00:00:00+00:00",
+  "valid_to": null,
+  "roots": ["project", "product_definition", "quality_evidence", "gate_decision", "verification_activity"],
+  "rules": [
+    {"rule_id": "SYN-A.O1", "concept_id": "SYN-A.C2", "subject_kind": "document", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O2", "concept_id": "SYN-A.C2", "subject_kind": "revision", "owner_kind": "document", "via": "document_id", "required": true},
+    {"rule_id": "SYN-A.O3", "concept_id": "SYN-A.C1", "subject_kind": "revision", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O4", "concept_id": "SYN-A.C3", "subject_kind": "subsystem", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O5", "concept_id": "SYN-A.C3", "subject_kind": "subsystem", "owner_kind": "system", "via": "system_id", "required": false},
+    {"rule_id": "SYN-A.O6", "concept_id": "SYN-A.C1", "subject_kind": "order", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O7", "concept_id": "SYN-A.C1", "subject_kind": "phase", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O8", "concept_id": "SYN-A.C1", "subject_kind": "wbs", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O9", "concept_id": "SYN-A.C1", "subject_kind": "asset_instance", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O10", "concept_id": "SYN-A.C4", "subject_kind": "asset_instance", "owner_kind": "product_definition", "via": "product_definition_id", "required": true},
+    {"rule_id": "SYN-A.O11", "concept_id": "SYN-A.C1", "subject_kind": "system", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O12", "concept_id": "SYN-A.C1", "subject_kind": "contract", "owner_kind": "project", "via": "project_id", "required": true},
+    {"rule_id": "SYN-A.O13", "concept_id": "SYN-A.C1", "subject_kind": "shipment", "owner_kind": "project", "via": "project_id", "required": true}
+  ]
+}

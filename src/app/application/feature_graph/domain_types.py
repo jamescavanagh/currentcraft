@@ -1,34 +1,40 @@
-"""Six-type consistency checks; not lifecycle, authority or publication services."""
+"""Six-extension consistency checks; not lifecycle, authority or publication services."""
+from datetime import datetime
 from typing import Literal
 from pydantic import Field
 
 from app.application.common.contracts import _Frozen
 from app.domain.operand.feature_graph import FeatureGraphRevision
-from app.domain.operand.types import (CommercialOrderType, ConfigurationBinding, FeatureConfigurationType,
-    ProjectType, SiteAcceptanceTestType, SubsystemType, WorkingDocumentType, record_ref)
+from app.domain.operand.types import (CanonicalRef, CommercialOrderExtension, ConfigurationBinding,
+    FeatureConfigurationExtension, ProjectExtension, SiteAcceptanceTestExtension, SubsystemExtension,
+    WorkingDocumentExtension)
 from app.domain.shared.versioning import VersionRef
 from .contracts import ConfigurationRequest, ConfigurationResult
+from .references import CanonicalReferencePort, OwnershipProfile, ResolutionReport, resolve_extensions
 from .services import validate_configuration
 
 
 class SixTypePacket(_Frozen):
-    """Explicit supplied snapshots; no implicit repository lookup or current-head claim."""
-    schema_version: Literal["currentcraft-six-type-packet/v1"] = Field(default="currentcraft-six-type-packet/v1", description="Independent packet contract; canonical payloads remain unchanged.")
-    project: ProjectType = Field(description="Exact project baseline snapshot.")
-    document: WorkingDocumentType = Field(description="Exact evidence-bearing working-document snapshot.")
-    order: CommercialOrderType = Field(description="Exact commercial-order snapshot, not fulfillment proof.")
-    subsystem: SubsystemType = Field(description="Exact architecture/component snapshot.")
-    test: SiteAcceptanceTestType = Field(description="Exact SAT execution/basis snapshot, not acceptance authority.")
-    configuration: FeatureConfigurationType = Field(description="Exact configuration object/version being checked.")
+    """Explicit supplied extension snapshots; canonical records are referenced, never embedded."""
+    schema_version: Literal["currentcraft-six-type-packet/v2"] = Field(default="currentcraft-six-type-packet/v2", description="Packet of composed extensions; v1 subclass packets are not upgraded.")
+    project: ProjectExtension = Field(description="Exact project extension snapshot.")
+    document: WorkingDocumentExtension = Field(description="Exact working-document extension snapshot.")
+    order: CommercialOrderExtension = Field(description="Exact commercial-order extension snapshot, not fulfillment proof.")
+    subsystem: SubsystemExtension = Field(description="Exact subsystem extension snapshot.")
+    test: SiteAcceptanceTestExtension = Field(description="Exact SAT extension snapshot, not acceptance authority.")
+    configuration: FeatureConfigurationExtension = Field(description="Exact configuration extension being checked.")
     graph: FeatureGraphRevision = Field(description="Exact feature graph for the selected configuration.")
+
+    def extensions(self):
+        return (self.project, self.document, self.order, self.subsystem, self.test, self.configuration)
 
 
 class SixTypeValidation(_Frozen):
-    """Consistency receipt: compatible model, source truth and release remain separate."""
-    schema_version: Literal["currentcraft-six-type-validation/v1"] = Field(default="currentcraft-six-type-validation/v1", description="Independent six-type consistency result family.")
-    project: VersionRef = Field(description="Exact project snapshot checked.")
+    """Consistency receipt between extensions. Canonical existence and ownership are resolved separately."""
+    schema_version: Literal["currentcraft-six-type-validation/v2"] = Field(default="currentcraft-six-type-validation/v2", description="Consistency result family for composed extensions.")
+    project: CanonicalRef = Field(description="Exact canonical project every extension must reference.")
     configuration: ConfigurationBinding = Field(description="Exact configuration and model/selection pin checked.")
-    checked_records: tuple[VersionRef, ...] = Field(description="Exact supplied record versions checked, not current-head certification.")
+    checked_extensions: tuple[VersionRef, ...] = Field(description="Exact extension identities/versions checked, not current-head certification.")
     consistency: Literal["consistent", "incomplete"] = Field(description="Incomplete means missing optional bindings; neither value is readiness or release.")
     gaps: tuple[str, ...] = Field(description="Deterministic missing/inferred binding codes without source identifiers or labels.")
     analysis: ConfigurationResult = Field(description="Existing restricted feature-model outcome; independent of packet consistency.")
@@ -36,20 +42,20 @@ class SixTypeValidation(_Frozen):
 
 
 def validate_six_type_packet(packet: SixTypePacket) -> SixTypeValidation:
-    """Fail known inconsistencies; report missing evidence without upgrading it."""
-    records = (packet.project, packet.document, packet.order, packet.subsystem, packet.test, packet.configuration)
-    if len({record.entity_id for record in records}) != len(records):
+    """Fail known inconsistencies between extensions; report missing evidence without upgrading it."""
+    extensions = packet.extensions()
+    ids = [e.extension_id for e in extensions]
+    if len(set(ids)) != len(ids):
         raise ValueError("packet_identity_collision")
-    project = record_ref(packet.project)
+    canonical = {use.reference.identity for e in extensions for use in e.references()}
+    if canonical & set(ids):
+        raise ValueError("packet_identity_collision")
+    project = packet.project.project
+    for label, extension in zip(("document", "order", "subsystem", "test", "configuration"), extensions[1:]):
+        if extension.project != project:
+            raise ValueError(label + "_project_version_mismatch")
     binding = packet.configuration.binding()
     gaps = []
-    for label in ("document", "order", "subsystem"):
-        record = getattr(packet, label)
-        if (record.project_id, record.project_revision) != (project.identity, project.version):
-            raise ValueError(label + "_project_version_mismatch")
-    for label in ("configuration", "test"):
-        if getattr(packet, label).project != project:
-            raise ValueError(label + "_project_version_mismatch")
 
     def check_fact(fact, label):
         if fact.value is None:
@@ -74,13 +80,18 @@ def validate_six_type_packet(packet: SixTypePacket) -> SixTypeValidation:
     if any(r.feature_id not in packet.configuration.selected for r in packet.subsystem.realizations):
         raise ValueError("realization_feature_not_selected")
     config = packet.configuration
-    request = ConfigurationRequest(configuration_id=config.entity_id, graph_id=config.graph_id,
+    request = ConfigurationRequest(configuration_id=config.extension_id, graph_id=config.graph_id,
         graph_revision=config.graph_revision, graph_digest=config.graph_digest, selected=config.selected)
     analysis = validate_configuration(packet.graph, request)
-    records = (packet.project, packet.document, packet.order, packet.subsystem, packet.test, config)
     return SixTypeValidation(project=project, configuration=binding,
-        checked_records=tuple(record_ref(record) for record in records),
+        checked_extensions=tuple(e.ref() for e in extensions),
         consistency="incomplete" if gaps else "consistent", gaps=tuple(sorted(set(gaps))), analysis=analysis)
+
+
+def resolve_six_type_packet(packet: SixTypePacket, port: CanonicalReferencePort, profile: OwnershipProfile,
+                            resolved_at: datetime) -> ResolutionReport:
+    """Resolve every canonical reference in the packet through the explicit port and pinned standard."""
+    return resolve_extensions(packet.extensions(), port, profile, resolved_at)
 
 
 CONTRACTS = (SixTypePacket, SixTypeValidation)
