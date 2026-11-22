@@ -559,6 +559,20 @@
           "title": "Target Id",
           "type": "string"
         },
+        "target_version": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact stored target version when pinned; null explicitly means an unversioned legacy relation.",
+          "title": "Target Version"
+        },
         "type": {
           "description": "Relation type, e.g. blocks, reply_to, produces.",
           "pattern": "^[A-Za-z0-9._:-]{1,80}$",
