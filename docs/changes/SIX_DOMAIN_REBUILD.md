@@ -16,6 +16,11 @@ status: unreleased, acceptance pending
   constraints, dated product observations, provenance and canonical snapshot digests.
 - Added selected-model validation, two-clock as-of reads, identity-level snapshot
   comparison and an append-only compare-and-swap synthetic memory repository.
+- Added an infrastructure-built immutable query index per exact graph revision for
+  direct revision lookup, selected-feature validation, constraint adjacency and
+  exact complete-observation lookup. Repeated validation no longer scans full
+  revision history or all constraints and observations; as-of history reads remain
+  linear in this synthetic adapter, and no latency benchmark is claimed.
 - Kept model validity separate from source observations and all order, installation,
   test and release authority. Unlisted features remain unknown; omission is not retirement.
 - Repaired malformed TOML and registered the new packages/release paths without
@@ -26,12 +31,11 @@ status: unreleased, acceptance pending
 
 ## Verification
 
-37 focused synthetic tests passed, zero skips, using the real Pydantic models,
-real application code and synthetic memory adapter, without dependency stubs.
-Generated reference --check, TOML parsing, Python compilation, shell syntax,
-limited release scan and toolkit 0.1.1 checks passed on the staged slice only.
-The toolkit archive checksum matched the registered 0.1.1 package. Five analytic
-controls passed; these control results are not evidence of product/process validity.
+37 focused synthetic tests passed before the query-index change. The query-index
+branch adds focused tests for immutable cached lookups, direct revision access,
+indexed/direct result parity, and no history scan during validation. Actual results
+for these tests, the full repository gate, governance and hosted CI must be reported
+against the final PR commit.
 
 ## Not run or claimed
 

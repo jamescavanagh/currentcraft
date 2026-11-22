@@ -84,6 +84,14 @@ or graph hydration, and does not claim that private sources have been moved.
 12. Only opaque references belong here. Actual source locators, enterprise terms,
     product identifiers and mappings remain private server-side. Recorded evidence
     is not verification of its truth or authorization to release work.
+13. Infrastructure builds one immutable query index per exact graph revision and
+    digest. It indexes feature identity/status, mandatory features, outgoing
+    constraint arcs, and complete observations by exact selected-feature set.
+    Validation uses direct revision lookup and this precompiled index, so repeated
+    checks visit selected features and their incident constraints rather than
+    rescanning every graph constraint and observation. Indexes never cross revisions.
+    As-of reconstruction still uses revision history; no end-to-end latency claim is
+    made until representative workloads are benchmarked.
 
 ## Acceptance and limits
 
@@ -92,11 +100,14 @@ hashing; stable identity and version immutability; introduce/carry/retire across
 three revisions; as-of/knowledge-cutoff reads; typed relations/provenance; selected
 model validation; unknown versus absent; allowed-but-unobserved and invalid-but-
 observed selections; frozen contracts; layering; and generated-reference drift.
+The query-index tests additionally verify exact-revision lookup, reusable immutable
+indexes, result parity with direct evaluation, and validation without a history scan.
 
 Implemented: reference/link contracts, graph snapshots, restricted validation,
-append/as-of/diff service and synthetic memory adapter. Deferred: private ingestion,
-SQL/HTTP integration, authentication, operational project/order/SAT workflows,
-adoption-lag estimation, feature-group/SAT encodings, labeling, three-body mappings,
-L-system productions, vocabulary promotion, simulation V3, merge and deployment.
-This is unreleased 0.11 groundwork, not completion of 0.11 or upstream acceptance.
-Package version stays 0.9.9; contract versions change independently.
+append/as-of/diff service, synthetic memory adapter, and per-revision indexed
+validation. Deferred: private ingestion, SQL/HTTP integration, authentication,
+operational project/order/SAT workflows, adoption-lag estimation, feature-group/SAT
+encodings, labeling, three-body mappings, L-system productions, vocabulary
+promotion, simulation V3, merge and deployment. This is unreleased 0.11 groundwork,
+not completion of 0.11 or upstream acceptance. Package version stays 0.9.9;
+contract versions change independently.

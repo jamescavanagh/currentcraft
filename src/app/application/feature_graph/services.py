@@ -4,36 +4,70 @@ from uuid import UUID
 
 from app.domain.operand.feature_graph import FeatureGraphRevision
 from .contracts import AsOfRequest, ConfigurationRequest, ConfigurationResult, FeatureGraphDiff
+from .query_index import ConstraintArc, FeatureGraphQueryIndex, compile_feature_graph
 
 
 class FeatureGraphRepository(Protocol):
     """Revision history port; adapter enforces append/CAS and history invariants."""
     def append(self, snapshot: FeatureGraphRevision, *, expected_revision: int) -> None: ...
     def history(self, graph_id: UUID) -> tuple[FeatureGraphRevision, ...]: ...
+    def get_revision(self, graph_id: UUID, revision: int) -> FeatureGraphRevision | None: ...
+    def query_index(self, graph_id: UUID, revision: int) -> FeatureGraphQueryIndex | None: ...
+
+
+def _validate_with_index(
+    graph: FeatureGraphRevision,
+    request: ConfigurationRequest,
+    index: FeatureGraphQueryIndex,
+) -> ConfigurationResult:
+    if (graph.graph_id, graph.revision) != (index.graph_id, index.revision):
+        raise ValueError("query index does not match this graph revision")
+    if (request.graph_id, request.graph_revision, request.graph_digest) != (
+        index.graph_id, index.revision, index.graph_digest
+    ):
+        raise ValueError("configuration request does not pin this exact graph")
+
+    selected = set(request.selected)
+    violations = {"unknown:" + str(key) for key in selected - index.feature_ids}
+    violations.update(
+        "retired:" + str(key) for key in selected & index.retired_feature_ids
+    )
+    violations.update(
+        "mandatory:" + str(key)
+        for key in index.mandatory_feature_ids - selected
+    )
+    for source in selected:
+        for arc in index.constraints_by_left.get(source, ()):
+            if arc.kind == "requires" and arc.target not in selected:
+                violations.add("requires:" + str(arc.constraint_id))
+            elif arc.kind == "excludes" and arc.target in selected:
+                violations.add("excludes:" + str(arc.constraint_id))
+
+    observations = index.complete_observations_by_selection.get(
+        frozenset(selected), ()
+    )
+    ordered_violations = tuple(sorted(violations))
+    allowed = not ordered_violations
+    return ConfigurationResult(
+        configuration_id=request.configuration_id,
+        graph_id=graph.graph_id,
+        graph_revision=graph.revision,
+        graph_digest=index.graph_digest,
+        request_digest=request.digest(),
+        model_outcome="allowed_by_model" if allowed else "violates_model",
+        evidence_status=(
+            "observed_configuration"
+            if observations
+            else ("possible" if allowed else "not_model_permitted")
+        ),
+        violations=ordered_violations,
+        observation_ids=observations,
+    )
 
 
 def validate_configuration(graph: FeatureGraphRevision, request: ConfigurationRequest) -> ConfigurationResult:
-    if (request.graph_id, request.graph_revision, request.graph_digest) != (graph.graph_id, graph.revision, graph.digest()):
-        raise ValueError("configuration request does not pin this exact graph")
-    selected = set(request.selected)
-    features = {f.feature_id: f for f in graph.features}
-    violations = ["unknown:" + str(key) for key in selected - features.keys()]
-    for feature in graph.features:
-        if feature.status == "retired" and feature.feature_id in selected:
-            violations.append("retired:" + str(feature.feature_id))
-        if feature.status == "active" and feature.mandatory and feature.feature_id not in selected:
-            violations.append("mandatory:" + str(feature.feature_id))
-    for constraint in graph.constraints:
-        if constraint.left in selected and ((constraint.kind == "requires" and constraint.right not in selected) or
-                                            (constraint.kind == "excludes" and constraint.right in selected)):
-            violations.append(constraint.kind + ":" + str(constraint.constraint_id))
-    observations = tuple(o.observation_id for o in graph.observations if o.complete and set(o.present) == selected)
-    allowed = not violations
-    return ConfigurationResult(configuration_id=request.configuration_id, graph_id=graph.graph_id,
-        graph_revision=graph.revision, graph_digest=graph.digest(), request_digest=request.digest(),
-        model_outcome="allowed_by_model" if allowed else "violates_model",
-        evidence_status="observed_configuration" if observations else ("possible" if allowed else "not_model_permitted"),
-        violations=tuple(sorted(violations)), observation_ids=observations)
+    """Compile and evaluate a standalone snapshot without repository caching."""
+    return _validate_with_index(graph, request, compile_feature_graph(graph))
 
 
 def compare_snapshots(before: FeatureGraphRevision, after: FeatureGraphRevision) -> FeatureGraphDiff:
@@ -63,7 +97,10 @@ class FeatureGraphService:
         return max(eligible, key=lambda s: (s.valid_from, s.revision)) if eligible else None
 
     def validate(self, request: ConfigurationRequest) -> ConfigurationResult:
-        for snapshot in self.repository.history(request.graph_id):
-            if snapshot.revision == request.graph_revision:
-                return validate_configuration(snapshot, request)
-        raise ValueError("selected graph revision not found")
+        snapshot = self.repository.get_revision(request.graph_id, request.graph_revision)
+        if snapshot is None:
+            raise ValueError("selected graph revision not found")
+        index = self.repository.query_index(request.graph_id, request.graph_revision)
+        if index is None:
+            index = compile_feature_graph(snapshot)
+        return _validate_with_index(snapshot, request, index)
