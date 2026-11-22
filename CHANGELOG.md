@@ -1,3 +1,11 @@
+# Unreleased: fail-closed Linux REF extraction
+
+- Require an explicit LinuxIsolation for the hostile RDF ingest-and-hydrate entry point. Missing delegated cgroup v2, dedicated secret-free runtime, Bubblewrap, namespaces or worker seccomp support fails closed; no in-process fallback. PDF/text isolation is not implemented and is rejected by this entry point.
+- Add fresh-process bootstrap/cgroup launch gating, 256 MiB memory/no swap, one-CPU rate, 5/6-second CPU and 10-second wall budgets, eight-task cap, bounded sealed input/result channels, minimal environment and whole-job kill/reap cleanup. Parent retains result verification, JSON publication, loader issuance and graph transactions.
+- Add bounded no-follow regular-file reads. Existing source/node identities remain unchanged. Existing synthetic extraction/store tests explicitly use trusted low-level primitives; they do not certify isolation.
+- Add unit rejection/binding/no-publication checks and an opt-in, fail-on-missing-prerequisites Linux live gate. Live cgroup/namespace/seccomp/OOM/CPU containment is pending on a configured runner, not claimed by ordinary CI or this environment.
+- No deployment, production security acceptance, merge, untrusted runtime acceptance or non-Linux fallback.
+
 # Unreleased: streaming RDF/XML validation
 
 - Replace full-tree RDF/XML parsing with namespace-aware Expat streaming callbacks and fixed policy `rdfxml-stream/1`: depth 128 (root is one), 100,000 elements including root, 64 attributes per element and 16,384 characters per attribute value.
