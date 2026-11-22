@@ -7,7 +7,7 @@ import os
 import re
 import tempfile
 import weakref
-import xml.etree.ElementTree as ET
+from xml.parsers import expat
 from dataclasses import dataclass
 from datetime import datetime
 from importlib.metadata import PackageNotFoundError, version
@@ -22,6 +22,13 @@ from app.application.ingest.reference_documents import (
 from app.application.persistence.contracts import CommandRecord
 
 MAX_JSON_BYTES = 128 * 1024 * 1024
+RDF_POLICY = "rdfxml-stream/1"
+RDF_CHUNK_CHARS = 16_384
+RDF_MAX_DEPTH = 128
+RDF_MAX_ELEMENTS = 100_000
+RDF_MAX_ATTRIBUTES = 64
+RDF_MAX_ATTRIBUTE_CHARS = 16_384
+_RDF_ROOT = "http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF"
 
 
 @dataclass(frozen=True, eq=False)
@@ -76,6 +83,61 @@ def _safe_path(root: Path, relative: str, *, must_exist: bool) -> tuple[Path, Pa
     return base, path
 
 
+def _validate_rdf_xml(text: str) -> None:
+    """Bounded-event source validation only: no tree, resolver, imports or reasoning."""
+    parser = expat.ParserCreate(namespace_separator="}")
+    parser.SetParamEntityParsing(expat.XML_PARAM_ENTITY_PARSING_NEVER)
+    depth = elements = namespace_declarations = 0
+
+    def forbidden(*_args):
+        raise ValueError("ontology declarations and external entities are not permitted")
+
+    def start(name, attributes):
+        nonlocal depth, elements, namespace_declarations
+        depth += 1
+        elements += 1
+        if elements == 1 and name != _RDF_ROOT:
+            raise ValueError("ontology source must have an RDF/XML root")
+        if depth > RDF_MAX_DEPTH:
+            raise ValueError("ontology source exceeds the XML depth limit")
+        if elements > RDF_MAX_ELEMENTS:
+            raise ValueError("ontology source exceeds the XML element limit")
+        if len(attributes) + namespace_declarations > RDF_MAX_ATTRIBUTES:
+            raise ValueError("ontology source exceeds the XML attribute limit")
+        namespace_declarations = 0
+        if any(len(value) > RDF_MAX_ATTRIBUTE_CHARS for value in attributes.values()):
+            raise ValueError("ontology source exceeds the XML attribute value limit")
+
+    def end(_name):
+        nonlocal depth
+        depth -= 1
+
+    def namespace(_prefix, uri):
+        nonlocal namespace_declarations
+        namespace_declarations += 1
+        if namespace_declarations > RDF_MAX_ATTRIBUTES:
+            raise ValueError("ontology source exceeds the XML attribute limit")
+        if len(uri or "") > RDF_MAX_ATTRIBUTE_CHARS:
+            raise ValueError("ontology source exceeds the XML attribute value limit")
+
+    parser.StartElementHandler = start
+    parser.EndElementHandler = end
+    parser.StartNamespaceDeclHandler = namespace
+    parser.StartDoctypeDeclHandler = forbidden
+    parser.EntityDeclHandler = forbidden
+    parser.ExternalEntityRefHandler = forbidden
+    malformed = False
+    try:
+        for offset in range(0, len(text), RDF_CHUNK_CHARS):
+            parser.Parse(text[offset:offset + RDF_CHUNK_CHARS], False)
+        parser.Parse("", True)
+    except expat.ExpatError:
+        malformed = True
+    # Raise outside the except block: no source-bearing parser exception chain.
+    if malformed:
+        raise ValueError("ontology source must be valid RDF/XML")
+
+
 def _extract(raw: bytes, suffix: str, profile: ReferenceIngestProfile) -> tuple[tuple[str, ...], str, str, str]:
     if suffix == ".pdf":
         try:
@@ -103,19 +165,13 @@ def _extract(raw: bytes, suffix: str, profile: ReferenceIngestProfile) -> tuple[
         fmt = "markdown" if suffix == ".md" else "text"
         extractor, extractor_version = "utf8", "stdlib-1"
         if suffix in {".owl", ".rdf"}:
-            # Capture exact RDF/XML source only. No DTDs, entity expansion, imports,
-            # network dereferencing, semantic triples or reasoning are executed.
-            if re.search(r"<!\s*(?:DOCTYPE|ENTITY)\b", text, re.IGNORECASE):
-                raise ValueError("ontology declarations are not permitted")
-            valid = False
-            try:
-                tree = ET.fromstring(text)
-                valid = tree.tag == "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF"
-            except ET.ParseError:
-                pass
-            if not valid:
-                raise ValueError("ontology source must be valid RDF/XML")
-            fmt, extractor = "owl", "rdfxml-source"
+            # Enforce decoded-source limits before allocating an XML parser.
+            if len(text) > profile.max_extracted_chars:
+                raise ValueError("extracted source exceeds the configured character limit")
+            if len(text) > 2_000_000:
+                raise ValueError("one extracted page exceeds the supported limit")
+            _validate_rdf_xml(text)
+            fmt, extractor, extractor_version = "owl", "rdfxml-source", RDF_POLICY
     if not pages or len(pages) > profile.max_pages:
         raise ValueError("source page count is outside the configured limit")
     if sum(len(page) for page in pages) > profile.max_extracted_chars:
