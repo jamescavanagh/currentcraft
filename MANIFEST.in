@@ -20,3 +20,8 @@ include .github/workflows/public-ci.yml
 
 include references/public/enterprise.synthetic.v1.1.json
 include references/public/framework.synthetic.v1.json
+
+# Exact synthetic framework fixtures needed by the packaged tests.
+include references/public/framework.meta.synthetic.v1.json
+include tests/fixtures/framework_profiles/framework.meta.synthetic.v1.json
+include tests/fixtures/framework_profiles/synthetic_profiles.json
