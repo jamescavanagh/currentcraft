@@ -57,19 +57,30 @@ class MemorySourceObjectRepository(_Repo):
         return tuple(self.s.objects.get(object_id, ()))
 
     def by_kind(self, kind: str, limit: int = 1000) -> tuple[DomainObject, ...]:
-        return tuple(o for _, o in sorted((k, v[-1]) for k, v in self.s.objects.items() if v[-1].kind == kind))[:limit]
+        return tuple(o for _, o in sorted((k, v[-1]) for k, v in self.s.objects.items()
+                     if v[-1].kind == kind and self._visible(v[-1])))[:limit]
+
+    def _visible(self, obj):
+        if obj.provenance.adapter != "ref_document_tree" or obj.kind == "reference_document":
+            return True
+        root = self.get(obj.provenance.source_id)
+        return (root is not None and root.provenance.adapter == "ref_document_tree"
+                and root.fields.get("payload_sha256") == obj.fields.get("payload_sha256"))
 
     def _current_edges(self):
         for oid, vs in self.s.objects.items():
+            if not self._visible(vs[-1]):
+                continue
             for i, r in enumerate(vs[-1].relations):
-                yield EdgeRecord(src_id=oid, rel_type=r.type, dst_id=r.target_id, evidence=r.evidence, src_version=len(vs)), i
+                yield EdgeRecord(src_id=oid, rel_type=r.type, dst_id=r.target_id, dst_version=r.target_version,
+                                 evidence=r.evidence, src_version=len(vs)), i
 
     def related(self, node_id: str, rel_type: Optional[str] = None, direction: Literal["out", "in"] = "out",
                 kind: Optional[str] = None) -> tuple[DomainObject, ...]:
         ids = {(e.dst_id if direction == "out" else e.src_id) for e, _ in self._current_edges()
                if (e.src_id if direction == "out" else e.dst_id) == node_id and (rel_type is None or e.rel_type == rel_type)}
         out = [self.get(i) for i in sorted(ids)]
-        return tuple(o for o in out if o is not None and (kind is None or o.kind == kind))
+        return tuple(o for o in out if o is not None and self._visible(o) and (kind is None or o.kind == kind))
 
 
 class MemoryGraphRepository(_Repo):
@@ -93,13 +104,13 @@ class MemoryGraphRepository(_Repo):
             nxt = set()
             for e in all_edges:
                 if getattr(e, near) in frontier:
-                    key = (e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version)
+                    key = (e.src_id, e.rel_type, e.dst_id, e.evidence, e.src_version, e.dst_version)
                     best.setdefault(key, depth)
                     nxt.add(getattr(e, far))
             frontier = nxt
             if not frontier:
                 break
-        return tuple(EdgeRecord(src_id=k[0], rel_type=k[1], dst_id=k[2], evidence=k[3], src_version=k[4], depth=d)
+        return tuple(EdgeRecord(src_id=k[0], rel_type=k[1], dst_id=k[2], evidence=k[3], src_version=k[4], dst_version=k[5], depth=d)
                      for k, d in sorted(best.items(), key=lambda kv: (kv[1], kv[0][0], kv[0][1], kv[0][2])))
 
 

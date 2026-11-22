@@ -9,7 +9,7 @@ import hashlib
 from datetime import datetime
 from typing import Annotated, ClassVar, Literal, Optional, Union
 
-from pydantic import Field, NonNegativeInt, StringConstraints, model_validator
+from pydantic import Field, NonNegativeInt, StringConstraints, model_serializer, model_validator
 
 from app.application.simulation.contracts import TensorContract
 from app.application.common.contracts import _Frozen
@@ -106,7 +106,15 @@ class TypedRelation(_Frozen):
 
     type: Level = Field(description="Relation type, e.g. blocks, reply_to, produces.")
     target_id: Ident = Field(description="Target object id.")
+    target_version: Optional[int] = Field(default=None, ge=1, strict=True, description="Exact stored target version when pinned; null explicitly means an unversioned legacy relation.")
     evidence: str = Field(min_length=1, max_length=200, description="Field or header the relation was read from.")
+
+    @model_serializer(mode="wrap")
+    def serialize(self, handler):
+        data = handler(self)
+        if self.target_version is None:
+            data.pop("target_version", None)
+        return data
 
 
 class DomainObject(_Frozen):
