@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import tempfile
 import weakref
 from xml.parsers import expat
@@ -274,13 +275,48 @@ def _make_tree(document_id: str, source_sha: str, source_name: str, pages: tuple
 
 def build_bundle(root: Path, source_relative: str, source_handle: str, expected_source_sha256: str,
                  profile: ReferenceIngestProfile) -> ReferenceDocumentBundle:
-    _, source_path = _safe_path(root, source_relative, must_exist=True)
-    if source_path.suffix.lower() not in {".pdf", ".txt", ".md", ".owl", ".rdf"}:
+    raw = _read_source_bytes(root, source_relative, profile.max_file_bytes)
+    return build_bundle_from_bytes(raw, source_relative, source_handle, expected_source_sha256, profile)
+
+
+def _read_source_bytes(root: Path, relative: str, limit: int) -> bytes:
+    """Bounded regular-file selection through pinned no-follow directory descriptors."""
+    base, _ = _safe_path(root, relative, must_exist=True)
+    directory = os.open(base, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    source_fd = None
+    try:
+        parts = Path(relative).parts
+        for part in parts[:-1]:
+            next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory)
+            os.close(directory)
+            directory = next_fd
+        source_fd = os.open(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+        info = os.fstat(source_fd)
+        if not stat.S_ISREG(info.st_mode):
+            raise ValueError("source must be a regular file")
+        if info.st_size > limit:
+            raise ValueError("source file exceeds the configured byte limit")
+        result = bytearray()
+        while len(result) <= limit:
+            block = os.read(source_fd, min(65_536, limit + 1 - len(result)))
+            if not block:
+                break
+            result.extend(block)
+        if len(result) > limit:
+            raise ValueError("source file exceeds the configured byte limit")
+        return bytes(result)
+    finally:
+        if source_fd is not None:
+            os.close(source_fd)
+        os.close(directory)
+
+
+def build_bundle_from_bytes(raw: bytes, source_relative: str, source_handle: str,
+                            expected_source_sha256: str, profile: ReferenceIngestProfile) -> ReferenceDocumentBundle:
+    """Trusted primitive shared by the isolated worker and synthetic tests, not a sandbox."""
+    suffix = Path(source_relative).suffix.lower()
+    if suffix not in {".pdf", ".txt", ".md", ".owl", ".rdf"}:
         raise ValueError("supported source formats are PDF, UTF-8 text, Markdown and RDF/XML")
-    size = source_path.stat().st_size
-    if size > profile.max_file_bytes:
-        raise ValueError("source file exceeds the configured byte limit")
-    raw = source_path.read_bytes()
     if len(raw) > profile.max_file_bytes:
         raise ValueError("source file exceeds the configured byte limit")
     if not raw:
@@ -288,7 +324,7 @@ def build_bundle(root: Path, source_relative: str, source_handle: str, expected_
     source_sha = _sha(raw)
     if source_sha != expected_source_sha256:
         raise ValueError("source document SHA-256 mismatch")
-    page_texts, fmt, extractor, extractor_version = _extract(raw, source_path.suffix.lower(), profile)
+    page_texts, fmt, extractor, extractor_version = _extract(raw, suffix, profile)
     if not any(page.strip() for page in page_texts):
         raise ValueError("source has no extractable text; OCR is not included")
     pages = tuple(ReferencePage(page_number=i, text=text) for i, text in enumerate(page_texts, start=1))
@@ -457,9 +493,24 @@ def hydrate_bundle(loaded: LoadedReferenceDocument, uow_factory: Callable, recor
 
 def ingest_and_hydrate(root: Path, source_relative: str, source_handle: str, output_relative: str,
                        expected_source_sha256: str, profile: ReferenceIngestProfile,
-                       uow_factory: Callable, recorded_at: datetime) -> tuple[ReferenceDocumentBundle, HydrationResult]:
-    """One explicit-source run: verify source, extract -> private JSON, verify JSON, then graph hydrate."""
-    bundle = build_bundle(root, source_relative, source_handle, expected_source_sha256, profile)
+                       uow_factory: Callable, recorded_at: datetime, *,
+                       isolation=None) -> tuple[ReferenceDocumentBundle, HydrationResult]:
+    """Hostile RDF entry point: mandatory Linux isolation; never falls back in-process."""
+    from app.infrastructure.ingest.ref_isolation import IsolationFailure, LinuxIsolation, SOURCE_BYTES
+    if type(isolation) is not LinuxIsolation:
+        raise IsolationFailure("isolation_unavailable")
+    isolation.check()
+    source_valid = False
+    try:
+        if Path(source_relative).suffix.lower() not in {".owl", ".rdf"}:
+            raise ValueError("format")
+        raw = _read_source_bytes(root, source_relative, min(profile.max_file_bytes, SOURCE_BYTES))
+        source_valid = bool(raw) and _sha(raw) == expected_source_sha256
+    except (ValueError, OSError):
+        pass
+    if not source_valid:
+        raise IsolationFailure("invalid_source")
+    bundle = isolation.extract(raw, source_relative, source_handle, expected_source_sha256, profile)
     json_sha = write_bundle(root, output_relative, bundle)
     loaded = load_bundle(root, output_relative, json_sha, recorded_at)
     result = hydrate_bundle(loaded, uow_factory, recorded_at)
