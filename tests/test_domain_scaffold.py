@@ -12,9 +12,9 @@ DOMAIN = ROOT / 'src/app/domain'
 
 class DomainScaffold(unittest.TestCase):
     def test_population(self):
-        self.assertEqual(len(ENTRIES), 94)
-        self.assertEqual(len({e['class_name'] for e in ENTRIES}), 94)
-        self.assertEqual(sum(e['source'] == 'addition' for e in ENTRIES), 12)
+        self.assertEqual(len(ENTRIES), 96)
+        self.assertEqual(len({e['class_name'] for e in ENTRIES}), 96)
+        self.assertEqual(sum(e['source'] == 'addition' for e in ENTRIES), 14)
         p4 = [e for e in ENTRIES if getattr(importlib.import_module(e['module']), e['class_name']).SCHEMA_STATUS == 'p4-proposal']
         self.assertEqual(len(p4), 17)
 

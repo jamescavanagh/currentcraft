@@ -2,6 +2,7 @@ numpy>=2.0,<3
 pydantic==2.13.4
 httpx>=0.27,<1
 jsonschema>=4.23,<5
+coverage[toml]>=7.6,<8
 # Run source-distribution regressions without fetching build tools at test time.
 setuptools>=69
 pypdf>=4,<7

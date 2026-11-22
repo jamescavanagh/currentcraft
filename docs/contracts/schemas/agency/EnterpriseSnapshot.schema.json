@@ -4848,6 +4848,10 @@
           "title": "Kind",
           "type": "string"
         },
+        "location_id": {
+          "$ref": "#/$defs/Fact_UUID_",
+          "description": "Explicit project-scoped Location, or an explicit unknown; never inferred."
+        },
         "name": {
           "$ref": "#/$defs/app__domain__shared__facts__Fact_Annotated_str__StringConstraints____1"
         },

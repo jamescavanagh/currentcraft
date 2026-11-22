@@ -1,4 +1,4 @@
-"""Generate (or --check) the readiness contract docs: evaluation and release ladder (later grammar).
+"""Generate (or --check) the readiness contract docs: evaluation, release ladder and L-system grammar.
 
 Self-contained helpers so the output depends only on these slices. JSON Schemas are not generated here yet.
 """
@@ -14,14 +14,17 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from app.application import evaluation as EV  # noqa: E402
 from app.application import ladder as LD  # noqa: E402
+from app.application import lsys as LS  # noqa: E402
 
 OUT = ROOT / "docs" / "contracts"
 TARGET = "READINESS_CONTRACTS.md"
 JUNK = ("typing.", "app.application.common.contracts.", "app.application.common.states.",
-        "app.application.evaluation.contracts.", "app.application.ladder.contracts.")
+        "app.application.evaluation.contracts.", "app.application.ladder.contracts.",
+        "app.application.lsys.contracts.", "app.application.lsys.alphabet.")
 
 SLICES = (("Evaluation harness", "architecture/EVALUATION.md", EV.SCHEMA_VERSION, EV.CONTRACTS),
-          ("Release ladder", "domain/RELEASE_LADDER.md", LD.SCHEMA_VERSION, LD.CONTRACTS))
+          ("Release ladder", "domain/RELEASE_LADDER.md", LD.SCHEMA_VERSION, LD.CONTRACTS),
+          ("L-system grammar", "domain/LSYS_DOMAIN_VOCABULARY.md", LS.SCHEMA_VERSION, LS.CONTRACTS))
 
 
 def _type(ann) -> str:

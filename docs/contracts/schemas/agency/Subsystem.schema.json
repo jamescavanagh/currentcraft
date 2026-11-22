@@ -280,6 +280,10 @@
       "title": "Kind",
       "type": "string"
     },
+    "location_id": {
+      "$ref": "#/$defs/Fact_UUID_",
+      "description": "Explicit project-scoped Location, or an explicit unknown; never inferred."
+    },
     "name": {
       "$ref": "#/$defs/Fact_Annotated_str__StringConstraints__"
     },

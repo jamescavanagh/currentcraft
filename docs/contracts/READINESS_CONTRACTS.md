@@ -187,3 +187,101 @@ One requested move for one work package.
 | `epistemic_status` | `Literal['computed', 'simulated', 'unknown']` | no (`'unknown'`) | Status of the work; simulated or unknown never becomes executable. |
 | `disposition` | `Optional[Literal['rework', 'rejected']]` | no | rework for return, rejected for reject; otherwise empty. |
 | `reason` | `Optional[str]` | no | Why work was returned or rejected. |
+
+## L-system grammar
+
+Design source: [domain/LSYS_DOMAIN_VOCABULARY.md](../domain/LSYS_DOMAIN_VOCABULARY.md). Schema version: `currentcraft-lsys/v1`.
+
+### `Production`
+
+One candidate rewrite: predecessor -> successor symbols. A candidate, never an accepted rule.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | `str` | yes | Profile-local production id, e.g. p1. |
+| `predecessor` | `str` | yes | Domain object kind rewritten; never a resource or the terminal o. |
+| `successor` | `tuple[str, ...]` | yes | Symbols grown per evidenced repetition; domain objects or o. |
+
+### `Expectation`
+
+An expected process effect over symbols. Only a recorded ProcessExecution makes it happen.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `verb` | `Literal['produces', 'consumes', 'reads', 'revises', 'holds', 'transfers', 'checks', 'im...` | yes | Process effect or impedance_match; gate decisions are not verbs. |
+| `args` | `tuple[str, ...]` | yes | Symbols the verb is expected over. |
+
+### `ProductionLink`
+
+How one successor symbol relates to its predecessor in the domain model.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `production_id` | `str` | yes | Production the successor belongs to. |
+| `successor` | `str` | yes | Successor symbol. |
+| `status` | `Literal['typed_link', 'terminal', 'gap']` | yes | typed_link (an existing typed field records it), terminal (object incidence) or gap. |
+| `link` | `Optional[str]` | no | Holder.field recording the link; empty for terminal and gap. |
+
+### `GrammarProfile`
+
+A versioned, digest-pinned grammar profile. Loaded data, never approval of any production.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `schema_version` | `Literal['currentcraft-lsys/v1']` | no (`'currentcraft-lsys/v1'`) | Payload schema. |
+| `profile_version` | `str` | yes | Profile semantic version (required). |
+| `source_digest` | `str` | yes | SHA-256 of the canonical profile content (required, verified). |
+| `axiom` | `str` | yes | Start object of growth; a domain object kind, never a resource or o. |
+| `productions` | `tuple[Production, ...]` | no (`()`) | Candidate productions. |
+| `expectations` | `tuple[Expectation, ...]` | no (`()`) | Expected process effects; carried, never executed. |
+
+### `GrowthCount`
+
+An evidenced repetition count for one production. Counts come from evidence, never defaults.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `production_id` | `str` | yes | Production the count applies to. |
+| `count` | `int` | yes | Repetitions of the successor group per predecessor node. |
+| `evidence_ids` | `tuple[str, ...]` | yes | Evidence the count was read from; required. |
+
+### `PossibleNode`
+
+A grown possibility. Not a record, not approved work and never above the possible rung.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `node_id` | `str` | yes | Deterministic id: derivation id plus breadth-first index. |
+| `path` | `str` | yes | Growth path from the axiom: production.repetition.position segments. |
+| `symbol` | `str` | yes | Domain object kind or o. |
+| `parent_id` | `Optional[str]` | no | Node this one was grown from; empty for the axiom. |
+| `production_id` | `Optional[str]` | no | Production that grew it; empty for the axiom. |
+| `depth` | `int` | yes | Rewrite depth from the axiom. |
+| `link_status` | `Optional[Literal['typed_link', 'terminal', 'gap']]` | no | Domain link status to the parent; empty for the axiom. |
+| `rung` | `Literal['possible']` | no (`'possible'`) | Always possible: growth never advances the ladder. |
+
+### `Unexpanded`
+
+A node that has a production but was not rewritten, and why.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `node_id` | `str` | yes | Node left unexpanded. |
+| `production_id` | `str` | yes | Production that was not applied. |
+| `reason` | `Literal['count_not_evidenced', 'depth_limit']` | yes | count_not_evidenced or depth_limit. |
+
+### `Derivation`
+
+One bounded, deterministic growth from a profile. Possibilities only; evidence and gates decide.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `schema_version` | `Literal['currentcraft-lsys/v1']` | no (`'currentcraft-lsys/v1'`) | Payload schema. |
+| `derivation_id` | `str` | yes | Stable id over profile digest, counts and depth. |
+| `profile_version` | `str` | yes | Profile version grown from. |
+| `profile_digest` | `str` | yes | Profile source_digest; every node inherits it. |
+| `max_depth` | `int` | yes | Rewrite depth bound. |
+| `counts` | `tuple[GrowthCount, ...]` | yes | Evidenced counts used. |
+| `nodes` | `tuple[PossibleNode, ...]` | yes | Grown possibilities in breadth-first order. |
+| `unexpanded` | `tuple[Unexpanded, ...]` | no (`()`) | Rewrites not applied, with reasons. |
+| `expectations` | `tuple[Expectation, ...]` | no (`()`) | Carried profile expectations; unmatched. |
