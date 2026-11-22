@@ -394,6 +394,7 @@ Project subsystem identity.
 | `project_id` | `app.domain.shared.identity.ProjectId` | yes |  |
 | `name` | `Fact[Annotated[str, StringConstraints]]` | no (`unknown()`) |  |
 | `system_id` | `Fact[UUID]` | no (`unknown()`) |  |
+| `location_id` | `Fact[UUID]` | no (`unknown()`) | Explicit project-scoped Location, or an explicit unknown; never inferred. |
 
 ### `Task`
 

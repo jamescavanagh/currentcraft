@@ -11,7 +11,7 @@ Design: [Six concrete domain types](../domain/SIX_DOMAIN_TYPES.md).
 Only new/overridden fields are listed; inherited fields remain in the full schema.
 Canonical fields: [Agency contracts](AGENCY_CONTRACTS.md). New fields all have descriptions.
 Domain values are not public DTOs. Structural schema does not prove evidence truth or authority.
-Use `--schema` for the combined JSON Schema. Schema SHA-256: `74a2b195d8dfb97a0d321c913812f7b14383abf10852774baea34773cec5e8ae`.
+Use `--schema` for the combined JSON Schema. Schema SHA-256: `1771e34349355bc08a62f555d20b3c44a0e202166bc54851a1be4b725a012d61`.
 
 ## `ConfigurationBinding`
 
