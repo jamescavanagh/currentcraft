@@ -1789,6 +1789,7 @@ A typed, evidenced relation from this object to another.
 | --- | --- | --- | --- |
 | `type` | `str` | yes | Relation type, e.g. blocks, reply_to, produces. |
 | `target_id` | `str` | yes | Target object id. |
+| `target_version` | `Optional[int]` | no | Exact stored target version when pinned; null explicitly means an unversioned legacy relation. |
 | `evidence` | `str` | yes | Field or header the relation was read from. |
 
 ### `DomainObject`
@@ -2142,6 +2143,7 @@ A typed, evidenced edge read from a stored object's relations, at the object ver
 | `dst_id` | `str` | yes | Target id (may not be stored yet). |
 | `evidence` | `str` | yes | Where the relation was read from. |
 | `src_version` | `int` | yes | Source object version that asserted the edge. |
+| `dst_version` | `Optional[int]` | no | Exact target version asserted by the relation; null for legacy unpinned edges. |
 | `depth` | `int` | no (`1`) | Hops from the start node in a traversal. |
 
 ### `VersionedRecord`

@@ -52,6 +52,7 @@ class EdgeRecord(_Frozen):
     dst_id: Ident = Field(description="Target id (may not be stored yet).")
     evidence: str = Field(min_length=1, max_length=200, description="Where the relation was read from.")
     src_version: PositiveInt = Field(description="Source object version that asserted the edge.")
+    dst_version: Optional[PositiveInt] = Field(default=None, description="Exact target version asserted by the relation; null for legacy unpinned edges.")
     depth: NonNegativeInt = Field(default=1, description="Hops from the start node in a traversal.")
 
 
