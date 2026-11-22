@@ -79,6 +79,7 @@ This section records the source state at merge `4e1982df8dc9c36fbc352a7a10888c31
 | Public meta-framework REF envelope | `references/public/framework.meta.synthetic.v1.json` | `tests/test_synthetic_meta_ref.py` |
 | Concurrent meta-framework test envelope | `tests/fixtures/framework_profiles/framework.meta.synthetic.v1.json` | `tests/test_synthetic_meta_framework.py` |
 | Synthetic primary, secondary and gap mappings | `tests/fixtures/framework_profiles/synthetic_profiles.json` | `tests/test_framework_profiles.py` |
+| Synthetic ownership rules bound to `SYN-A` | `tests/fixtures/framework_profiles/synthetic_ownership.json` | `tests/test_six_type_reference_resolution.py` |
 
 The two meta-framework envelopes have equal `meta_content` at the audited merge. Their `intended_visibility` labels differ. They are separate files, and no cross-copy drift assertion currently ties their content or provenance together. Their identity fields do not establish an authoritative production reference source.
 
@@ -135,6 +136,17 @@ No manifest, fixture, loader or test behavior is changed by this documentation u
 | `source_digest` | SHA-256 of the private source the mapping was built from |
 | `valid_from`, `valid_to` | timezone-aware validity window |
 | `concepts[]` | `concept_id`, `label`, `domain`, `maps_to` (an allowlisted domain class or `null`), `role`, `coverage`, optional `gap` |
+
+## Ownership profiles
+
+Ownership between canonical kinds (which kind owns which, through which owner field, and
+whether it is required) is read from the referenced standard, not hard-coded. An
+ownership profile has its own schema, `framework-ownership/0`, so `framework-profile/0`
+stays closed. It pins one framework profile exactly (`framework_id`, `framework_edition`,
+`profile_version`, `source_digest`); every rule cites a concept of that profile, and the
+concept must map to the rule's subject or owner. Six-type reference resolution applies it;
+see [Six concrete domain types](SIX_DOMAIN_TYPES.md#ownership-from-the-referenced-standard).
+Real ownership profiles are private REF data.
 
 ## Infrastructure
 
