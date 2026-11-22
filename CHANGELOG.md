@@ -1,3 +1,11 @@
+# Unreleased: close six private REF hydration gaps
+
+- Pin exact target versions on new REF parent edges, preserving them through memory/SQL edge and traversal reads; add migration 006. Historical unpinned edges remain null rather than guessed.
+- Exclude superseded REF descendants from current listings and graph reads by matching their current root payload, preserving direct reads and history; old replays do not restore old heads.
+- Require a loader-issued process-local capability, not just a self-consistent receipt. Record explicit full/partial/unknown coverage with reasons; accept bounded RDF/XML OWL source capture without network or reasoning; preserve 1,024-character locators independently of the 500-character title.
+- Replace six expected failures with required regressions, extend cross-store checks, retain source/node identities. Coverage metadata deliberately changes bundle/profile digests.
+- Not claimed: semantic ontology hydration/reasoning, historic snapshot traversal, real-source acceptance, private vocabulary certification, release, merge or deployment.
+
 # 0.10.0 release candidate (not released)
 
 - Adds the HTTP document API beside the ingestion worker: shared CLI/API identities, local shared bearer token, bounded text/XLSX upload, durable opaque intake receipts/retries/status and privacy-safe document/task/WBS/subject reads. A 202 is durable queue acceptance, not extraction; processed records are not approved work.
