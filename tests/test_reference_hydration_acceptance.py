@@ -25,8 +25,9 @@ from pathlib import Path
 
 from app.application.ingest.reference_documents import ReferenceDocumentSelection, ReferenceIngestProfile
 from app.infrastructure.ingest.reference_documents import (
-    LoadedReferenceDocument, build_bundle, hydrate_bundle, ingest_and_hydrate, load_bundle, write_bundle,
+    LoadedReferenceDocument, build_bundle, hydrate_bundle, load_bundle, write_bundle,
 )
+from tests.reference_test_support import trusted_ingest_and_hydrate as ingest_and_hydrate
 
 T0 = datetime(2026, 11, 21, 12, 0, tzinfo=timezone.utc)
 HANDLE = "ref_acceptance_doc_001"

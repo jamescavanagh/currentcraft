@@ -10,8 +10,9 @@ from pydantic import ValidationError
 
 from app.application.ingest.reference_documents import CONTRACTS, ReferenceIngestProfile
 from app.infrastructure.ingest.reference_documents import (
-    build_bundle, hydrate_bundle, ingest_and_hydrate, load_bundle, write_bundle,
+    build_bundle, hydrate_bundle, load_bundle, write_bundle,
 )
+from tests.reference_test_support import trusted_ingest_and_hydrate as ingest_and_hydrate
 from app.infrastructure.persistence.memory import MemoryStore
 
 WHEN = datetime(2026, 11, 21, 12, 0, tzinfo=timezone.utc)
