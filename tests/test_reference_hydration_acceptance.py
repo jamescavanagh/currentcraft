@@ -7,9 +7,8 @@ Every criterion runs against each unit-of-work implementation available:
 - DuckDB stand-in: when duckdb is installed (same SQL text as PostgreSQL; semantics, not compatibility);
 - PostgreSQL 18: only when DATAMESH_PG_DSN is set and psycopg 3 is installed.
 
-``OpenAcceptanceCriteria`` lists criteria PR #43 does not meet yet. Each is an expected failure, so the
-suite stays green while the gap is visible; when a gap closes, the unexpected success fails the run and
-the marker must be removed. The PR is acceptance-ready only when that class is empty.
+The six former expected failures are required passing regressions in ClosedAcceptanceCriteria.
+Store-specific fixes also run through the memory, DuckDB and gated PostgreSQL mixin.
 """
 import hashlib
 import importlib.util
@@ -44,7 +43,8 @@ SOURCE = (
     "2 Requirements\r\nLast paragraph.\r\n"
 )
 # Cross-version determinism: Python 3.11 and 3.12 must produce this exact payload digest.
-GOLDEN_PAYLOAD_SHA256 = "e5a3385c07be628a39504123b63ac6ac555848c210d2bb86c301eed326a07656"
+# Coverage is now explicit, including in the profile digest; identities/spans are unchanged.
+GOLDEN_PAYLOAD_SHA256 = "9c11bfd3d5809263905d489426e345f5af3a60e19b2c203d21f0342d09954a23"
 HAS_DUCKDB = importlib.util.find_spec("duckdb") is not None
 HAS_PYPDF = importlib.util.find_spec("pypdf") is not None
 PG_DSN = os.environ.get("DATAMESH_PG_DSN")
@@ -249,6 +249,74 @@ class HydrationAcceptance:
             self.assertFalse(forbidden & set(obj.fields))
             self.assertEqual(obj.resources, ())
 
+    def test_both_edge_versions_survive_revision_and_traversal(self):
+        first, _ = self.run_pipeline(out="derived/first.json")
+        second, _ = self.run_pipeline(text=SOURCE + "\nExtra.\n", out="derived/second.json")
+        with self.uow() as uow:
+            for node in second.nodes[1:]:
+                obj = uow.objects.get(node.node_id)
+                parent_versions = uow.objects.history(node.parent_node_id)
+                pin = obj.relations[0].target_version
+                self.assertEqual(pin, len(parent_versions))
+                self.assertEqual(parent_versions[pin - 1].fields["payload_sha256"], second.payload_sha256)
+                edge = uow.graph.edges(node.node_id)[0]
+                self.assertEqual(edge.dst_version, pin)
+                self.assertEqual(uow.graph.traverse(node.node_id, max_depth=1)[0].dst_version, pin)
+            old_child = first.nodes[1]
+            self.assertEqual(uow.objects.get(old_child.node_id).relations[0].target_version, 1)
+
+    def test_old_revision_excluded_from_current_views_not_history(self):
+        first, _ = self.run_pipeline(out="derived/first.json")
+        old = first.nodes[1]
+        second, _ = self.run_pipeline(text=SOURCE + "\nChanged.\n", out="derived/second.json")
+        with self.uow() as uow:
+            self.assertIsNotNone(uow.objects.get(old.node_id))
+            self.assertEqual(len(uow.objects.history(HANDLE)), 2)
+            for kind in ("section", "passage"):
+                self.assertEqual({o.object_id for o in uow.objects.by_kind("reference_" + kind)},
+                                 {n.node_id for n in second.nodes if n.kind == kind})
+            self.assertEqual(uow.graph.edges(old.node_id), ())
+            self.assertEqual(uow.graph.traverse(old.node_id), ())
+            self.assertNotIn(old.node_id, {o.object_id for o in uow.objects.related(HANDLE, direction="in")})
+        # Replaying an old receipt never restores the old revision as current.
+        path = self.root / "derived/first.json"
+        loaded = load_bundle(self.root, "derived/first.json", sha(path.read_bytes()), T0)
+        self.assertTrue(hydrate_bundle(loaded, self.uow, T0).replayed)
+        with self.uow() as uow:
+            self.assertEqual(uow.objects.get(HANDLE).fields["payload_sha256"], second.payload_sha256)
+
+    def test_current_selection_is_per_document_and_rollback_preserves_it(self):
+        first, _ = self.run_pipeline(out="derived/first.json")
+        other, _ = self.run_pipeline(handle="ref_other_source", out="derived/other.json")
+        rel, digest = self.source(text=SOURCE + "\nChanged.\n")
+        bundle = build_bundle(self.root, rel, HANDLE, digest, PROFILE)
+        pinned = write_bundle(self.root, "derived/failed.json", bundle)
+        loaded = load_bundle(self.root, "derived/failed.json", pinned, T0)
+        with self.assertRaises(RuntimeError):
+            hydrate_bundle(loaded, FailingPut(self.uow, fail_at=2), T0)
+        with self.uow() as uow:
+            expected = {n.node_id for b in (first, other) for n in b.nodes if n.kind == "section"}
+            self.assertEqual({o.object_id for o in uow.objects.by_kind("reference_section")}, expected)
+
+    def test_coverage_is_explicit_in_json_and_all_graph_nodes(self):
+        rel, digest = self.source()
+        for coverage, reason in (("unknown", None), ("full", None), ("partial", "Synthetic preview only")):
+            profile = ReferenceIngestProfile(profile_id="coverage", version="1", coverage=coverage, coverage_reason=reason)
+            bundle, result = ingest_and_hydrate(self.root, rel, HANDLE, "derived/coverage.json", digest,
+                                               profile, self.uow, T0)
+            self.assertEqual(bundle.coverage, coverage)
+            with self.uow() as uow:
+                self.assertTrue(all(uow.objects.get(i).fields["coverage"] == coverage for i in result.object_ids))
+
+    def test_owl_literal_capture_hydrates_without_reasoning(self):
+        xml = ('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
+               'xmlns:owl="http://www.w3.org/2002/07/owl#">'
+               '<owl:Ontology rdf:about="urn:synthetic:test"/></rdf:RDF>')
+        bundle, _ = self.run_pipeline(name="source.owl", text=xml, out="derived/ontology.json")
+        self.assertEqual(bundle.extractor_name, "rdfxml-source")
+        self.assertEqual(bundle.pages[0].text, xml)
+        self.assertEqual([n.kind for n in bundle.nodes], ["document", "passage"])
+
 
 class MemoryHydrationAcceptance(HydrationAcceptance, unittest.TestCase):
     def make(self):
@@ -420,8 +488,8 @@ class ExtractionAcceptance(unittest.TestCase):
         self.assertNotIn(CANARY, stderr.getvalue() + "\n".join(records))
 
 
-class OpenAcceptanceCriteria(unittest.TestCase):
-    """Criteria PR #43 does not meet yet. Remove each marker in the change that closes it."""
+class ClosedAcceptanceCriteria(unittest.TestCase):
+    """Six former gaps are now required passing regressions, never expected failures."""
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -436,16 +504,17 @@ class OpenAcceptanceCriteria(unittest.TestCase):
         path.write_bytes(text.encode() if isinstance(text, str) else text)
         return ingest_and_hydrate(self.root, name, HANDLE, out, sha(path.read_bytes()), PROFILE, self.store, at)
 
-    @unittest.expectedFailure
     def test_gap_edges_pin_both_endpoint_versions(self):
         """Contract: every edge pins source AND target versions. Today only the source version is recorded."""
         bundle, _ = self.hydrate(SOURCE, "derived/a.json")
         with self.store() as uow:
             child = uow.objects.get(bundle.nodes[1].node_id)
         relation = child.relations[0].model_dump()
-        self.assertIn("target_version", relation)
+        self.assertEqual(relation["target_version"], 1)
+        with self.store() as uow:
+            edge = uow.graph.edges(child.object_id)[0]
+            self.assertEqual((edge.src_version, edge.dst_version), (1, 1))
 
-    @unittest.expectedFailure
     def test_gap_superseded_revision_leaves_current_graph(self):
         """A new revision under the same handle must retire the prior revision's nodes from the current view."""
         self.hydrate(SOURCE, "derived/r1.json")
@@ -455,7 +524,6 @@ class OpenAcceptanceCriteria(unittest.TestCase):
             listed = {o.object_id for o in uow.objects.by_kind("reference_section")}
         self.assertEqual(listed, current)
 
-    @unittest.expectedFailure
     def test_gap_hydration_requires_loader_verified_receipt(self):
         """A self-consistent receipt built in memory, never read from disk, must not be hydrated."""
         path = self.root / "source.txt"
@@ -466,25 +534,60 @@ class OpenAcceptanceCriteria(unittest.TestCase):
         with self.assertRaises(ValueError):
             hydrate_bundle(LoadedReferenceDocument(bundle, forged), self.store, T0)
 
-    @unittest.expectedFailure
     def test_gap_partial_coverage_is_recorded(self):
         """Preview sources must carry explicit coverage status (full / partial) into JSON and the graph."""
         bundle, _ = self.hydrate(SOURCE, "derived/a.json")
-        self.assertIn("coverage", bundle.model_dump())
+        self.assertEqual(bundle.coverage, "unknown")
+        preview = ReferenceIngestProfile(profile_id="preview", version="1", coverage="partial",
+                                         coverage_reason="Synthetic excerpt only")
+        bundle, _ = ingest_and_hydrate(self.root, "source.txt", HANDLE, "derived/preview.json",
+                                       bundle.source_sha256, preview, self.store, T0)
+        self.assertEqual(bundle.coverage, "partial")
+        with self.store() as uow:
+            for node in bundle.nodes:
+                self.assertEqual(uow.objects.get(node.node_id).fields["coverage"], "partial")
 
-    @unittest.expectedFailure
     def test_gap_ontology_sources_are_supported(self):
         """OWL/RDF-XML reference sources must ingest under the same JSON and hydration contract."""
         owl = '<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>'
-        self.hydrate(owl, "derived/o.json", name="source.owl")
+        bundle, result = self.hydrate(owl, "derived/o.json", name="source.owl")
+        self.assertEqual(bundle.source_format, "owl")
+        self.assertEqual(bundle.pages[0].text, owl)
+        self.assertTrue(result.object_ids)
 
-    @unittest.expectedFailure
     def test_gap_long_private_locator_hydrates(self):
         """Bundle schema allows 1024-character locators, but the root node title caps at 500, so a valid locator fails."""
         name = "/".join(["n" * 120] * 5) + "/source.txt"
         (self.root / name).parent.mkdir(parents=True)
         self.assertGreater(len(name), 500)
-        self.hydrate(SOURCE, "derived/long.json", name=name)
+        bundle, _ = self.hydrate(SOURCE, "derived/long.json", name=name)
+        self.assertEqual(bundle.source_name, name)
+        self.assertLessEqual(len(bundle.nodes[0].title), 500)
+
+    def test_ontology_rejects_malformed_xml_dtd_entities_and_wrong_root(self):
+        for xml in ("<rdf:RDF", "<unrelated/>",
+                    '<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><x>&secret;</x>',
+                    '<!ENTITY x "nested">'):
+            with self.subTest(xml=xml), self.assertRaisesRegex(ValueError, "ontology"):
+                self.hydrate(xml, "derived/rejected.json", name="bad.owl")
+
+    def test_receipt_copy_or_roundtrip_cannot_mint_a_loader_capability(self):
+        from dataclasses import replace
+        self.hydrate(SOURCE, "derived/a.json")
+        path = self.root / "derived/a.json"
+        real = load_bundle(self.root, "derived/a.json", sha(path.read_bytes()), T0)
+        for forged in (replace(real), LoadedReferenceDocument(real.bundle,
+                       ReferenceDocumentSelection.model_validate_json(real.selection.model_dump_json()))):
+            with self.assertRaisesRegex(ValueError, "loader-issued"):
+                hydrate_bundle(forged, self.store, T0)
+        self.assertTrue(hydrate_bundle(real, self.store, T0).replayed)
+
+    def test_reference_node_identity_algorithm_is_unchanged(self):
+        bundle, _ = self.hydrate(SOURCE, "derived/ids.json")
+        for node in bundle.nodes[1:]:
+            material = (f"{HANDLE}|{bundle.source_sha256}|{node.kind}|{node.page_number}|"
+                        f"{node.start_offset}|{node.end_offset}|{node.ordinal}").encode()
+            self.assertEqual(node.node_id, "ref_" + sha(material)[:32])
 
 
 if __name__ == "__main__":
