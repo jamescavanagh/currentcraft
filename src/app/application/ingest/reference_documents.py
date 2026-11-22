@@ -34,9 +34,13 @@ class ReferenceIngestProfile(_Frozen):
     max_pages: PositiveInt = Field(default=2_000, le=20_000, description="Maximum extracted page count.")
     max_extracted_chars: PositiveInt = Field(default=20_000_000, le=100_000_000, description="Maximum total extracted characters.")
     max_chunk_chars: PositiveInt = Field(default=18_000, ge=256, le=20_000, description="Maximum passage length per graph node.")
+    coverage: Literal["full", "partial", "unknown"] = Field(default="unknown", description="Explicit source coverage from the reviewed manifest, never guessed from filenames or successful extraction.")
+    coverage_reason: str | None = Field(default=None, min_length=1, max_length=500, description="Private explanation of partial or unknown coverage; partial coverage requires a reason.")
 
     @model_validator(mode="after")
     def valid_heading_rule(self):
+        if self.coverage == "partial" and not (self.coverage_reason and self.coverage_reason.strip()):
+            raise ValueError("partial coverage requires a reason")
         if self.heading_pattern is not None:
             try:
                 rule = re.compile(self.heading_pattern)
@@ -96,9 +100,11 @@ class ReferenceDocumentBundle(_Frozen):
     schema_version: Literal["currentcraft-ref-document/v1"] = Field(default=SCHEMA_VERSION, description="Private reference document bundle schema.")
     document_id: str = Field(pattern=_ID, description="Opaque source/revision handle supplied by the private REF manifest; never inferred from filename or bytes.")
     source_name: str = Field(min_length=1, max_length=1024, description="Private source-relative locator label.")
-    source_format: Literal["pdf", "text", "markdown"] = Field(description="Read-only source format.")
+    source_format: Literal["pdf", "text", "markdown", "owl"] = Field(description="Read-only source format; owl means validated RDF/XML source capture, not ontology reasoning.")
+    coverage: Literal["full", "partial", "unknown"] = Field(default="unknown", description="Manifest-declared source coverage, not completeness or conformity certification.")
+    coverage_reason: str | None = Field(default=None, min_length=1, max_length=500, description="Private coverage explanation, required for partial sources.")
     source_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", description="SHA-256 of the exact source bytes.")
-    extractor_name: Literal["pypdf", "utf8"] = Field(description="Read-only extractor used.")
+    extractor_name: Literal["pypdf", "utf8", "rdfxml-source"] = Field(description="Read-only extractor used.")
     extractor_version: str = Field(min_length=1, max_length=80, description="Exact extractor implementation version.")
     profile_sha256: str = Field(pattern=r"^[0-9a-f]{64}$", description="Digest of the private extraction profile.")
     pages: tuple[ReferencePage, ...] = Field(min_length=1, max_length=20_000, description="Exact extracted page text, private by default.")
@@ -107,10 +113,14 @@ class ReferenceDocumentBundle(_Frozen):
 
     @model_validator(mode="after")
     def closed_tree(self):
+        if self.coverage == "partial" and not (self.coverage_reason and self.coverage_reason.strip()):
+            raise ValueError("partial coverage requires a reason")
         if tuple(p.page_number for p in self.pages) != tuple(range(1, len(self.pages) + 1)):
             raise ValueError("page numbers must be contiguous and one-based")
         if self.nodes[0].kind != "document" or sum(n.kind == "document" for n in self.nodes) != 1:
             raise ValueError("exactly one document root must be first")
+        if self.nodes[0].node_id != self.document_id:
+            raise ValueError("document root must match the manifest source handle")
         by_id: dict[str, ReferenceNode] = {}
         for node in self.nodes:
             if node.node_id in by_id:
