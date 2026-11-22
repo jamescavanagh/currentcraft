@@ -35,6 +35,39 @@ The private JSON preserves extracted page text, source-relative name, source and
 
 PDF text extraction uses the optional `pypdf` extra in strict, read-only mode; encrypted PDFs are rejected. UTF-8 text and Markdown are supported by the standard library. Scanned-PDF OCR, external links, macros, network retrieval and automatic source discovery are not supported. The exact extracted text, not binary layout, is the unit referenced by offsets.
 
+## Six acceptance corrections
+
+1. New REF parent relations pin `target_version`, stored as `dst_version` beside
+   `src_version` by migration 006. Parents are written before children; the actual
+   returned parent version is pinned. Legacy unpinned edges stay null, not guessed.
+   Current traversal is not a historical snapshot traversal.
+2. Current REF descendant listings, related reads, edges and traversals require their
+   payload digest to match their manifest handle's current root payload, identically
+   in memory and SQL. Direct lookup and history remain available. Nothing is deleted.
+   Earlier command replay cannot restore old heads; failed transactions roll back.
+3. The loader issues an identity-bound, weakly held process-local capability.
+   Hydration checks it as well as receipt/bundle consistency. Hand-built, copied and
+   JSON-round-tripped receipts cannot mint capabilities. Reload pinned files after a
+   process restart. This protects against caller data, not hostile Python code in the
+   same process; it is neither a digital signature nor a permission grant.
+4. Profiles declare `coverage` as full, partial or unknown. Partial requires a private
+   reason. Both coverage and reason propagate into JSON and every graph node. Preview
+   status must be declared at intake; no filename or parser success establishes full
+   coverage. Unspecified coverage stays unknown. Metadata changes bundle/profile
+   digests, not source handles or node identities; the determinism golden changes.
+5. `.owl` and `.rdf` accept exact UTF-8 RDF/XML source capture with a validated RDF
+   root. DTD/entity declarations are rejected before parsing; nothing dereferences
+   imports or external resources. Markup is retained as bounded source-literal
+   passages, not interpreted as semantic triples, class hierarchies or ownership.
+   Reasoning, Turtle and OWL Functional Syntax are not implemented.
+6. Full private locators up to 1,024 characters remain in `source_name`. Locators over
+   500 characters use the neutral root title `Reference document` without truncating
+   the locator.
+
+All six former expected failures are required passing regressions. Store-specific
+checks run against memory, DuckDB and the gated PostgreSQL acceptance class.
+Synthetic correctness does not establish real-standard completeness or authority.
+
 ## Composition
 
 `app.infrastructure.ingest.reference_documents.ingest_and_hydrate` accepts an absolute private root, explicit relative source/output paths, a manifest-supplied opaque source/revision handle, a separately configured expected source SHA-256, a reviewed `ReferenceIngestProfile`, the application's existing `UnitOfWorkFactory`, and an aware recording time. It returns the private bundle and a receipt containing opaque graph handles only. A production caller must pass its already configured durable UoW; the in-memory UoW is for tests only.
