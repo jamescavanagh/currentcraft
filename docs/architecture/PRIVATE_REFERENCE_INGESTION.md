@@ -56,7 +56,7 @@ PDF text extraction uses the optional `pypdf` extra in strict, read-only mode; e
    coverage. Unspecified coverage stays unknown. Metadata changes bundle/profile
    digests, not source handles or node identities; the determinism golden changes.
 5. `.owl` and `.rdf` accept exact UTF-8 RDF/XML source capture with a validated RDF
-   root. DTD/entity declarations are rejected before parsing; nothing dereferences
+   root. DTD/entity declarations are rejected by structural parser callbacks; nothing dereferences
    imports or external resources. Markup is retained as bounded source-literal
    passages, not interpreted as semantic triples, class hierarchies or ownership.
    Reasoning, Turtle and OWL Functional Syntax are not implemented.
@@ -67,6 +67,32 @@ PDF text extraction uses the optional `pypdf` extra in strict, read-only mode; e
 All six former expected failures are required passing regressions. Store-specific
 checks run against memory, DuckDB and the gated PostgreSQL acceptance class.
 Synthetic correctness does not establish real-standard completeness or authority.
+
+## Streaming RDF/XML validation (implementation candidate)
+
+Policy `rdfxml-stream/1` uses namespace-aware Expat event callbacks, not an
+ElementTree or DOM. It feeds at most 16,384 characters per call, discards element/text
+events immediately, and keeps only counters. Root depth is one; the RDF root counts
+toward the total. Reject depth above 128, more than 100,000 elements, more than 64
+attributes on one element, or an attribute value longer than 16,384 characters.
+These are fixed engine policy limits, not source-selected settings.
+
+Decoded source character and single-page limits are checked before parser creation.
+DTDs, entity declarations and external-entity callbacks fail closed; parameter-entity
+parsing is disabled explicitly. Comments/CDATA mentioning declaration-like text are
+ordinary source literals, not falsely rejected declarations. Malformed input raises
+fixed, source-free errors without retaining parser exception chains.
+
+This validates XML shape and resource counters, not RDF/OWL semantics. Imports,
+XInclude, schema locations and stylesheet instructions remain inert literals.
+Exact source text, offsets, source hashes and node identities are preserved.
+OWL extractor provenance changes to `rdfxml-stream/1`; OWL payload digests therefore
+change deliberately. Non-OWL bundles and profile digests remain unchanged.
+
+No CPU deadline, OS memory ceiling, subprocess isolation, public upload route or
+production hostile-input certification is added by this slice. Expat may buffer an
+individual token within the prechecked source-size ceiling. Runtime Expat patch
+maintenance and deployment-level resource isolation remain required separately.
 
 ## Composition
 
