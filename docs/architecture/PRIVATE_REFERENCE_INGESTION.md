@@ -94,6 +94,75 @@ production hostile-input certification is added by this slice. Expat may buffer 
 individual token within the prechecked source-size ceiling. Runtime Expat patch
 maintenance and deployment-level resource isolation remain required separately.
 
+## Fail-closed subprocess boundary (implementation candidate; live Linux acceptance pending)
+
+`ingest_and_hydrate` now requires an explicit `LinuxIsolation` configuration and
+accepts RDF/XML only. Missing Linux/cgroup v2 delegation, runtime, Bubblewrap,
+seccomp library or usable namespace setup stops extraction; there is no automatic
+in-process fallback. `build_bundle` remains a trusted low-level primitive for
+synthetic tests and offline development, not a hostile-input entry point.
+
+Fixed initial budget: source 2 MiB, decoded page 2,000,000 characters, result
+16 MiB, CPU 5 seconds soft/6 hard, wall time 10 seconds, cgroup memory 256 MiB,
+swap zero, one CPU rate and eight tasks including sandbox helpers. One active
+extraction per coordinator process; concurrent callers receive `busy` (no queue
+is added). Every job gets a fresh child cgroup and freshly exec'd interpreter.
+PDF/text hostile-file isolation is unsupported and rejected, not silently routed
+to the trusted primitive.
+
+An administrator supplies a dedicated, trusted, secret-free runtime root containing
+`/usr/bin/python3`, Python dependencies, `/opt/currentcraft/src`, libseccomp and an
+empty `/input.json` mountpoint.
+It must not be `/`, `/usr`, a REF directory or a broad host root. Runtime artifacts
+and Bubblewrap are trusted deployment inputs, not made trustworthy by a checksum
+of attacker-selected bytes. The sandbox binds only that runtime read-only and one
+sealed request as `/input.json`; it receives no REF mount or service credentials.
+Explicit user, PID, IPC, network, UTS and cgroup namespaces are mandatory, as are
+disabled nested user namespaces, dropped capabilities and parent-death cleanup.
+The worker applies no-new-privileges and seccomp denial of process creation,
+network sockets, exec and namespace/mount manipulation before reading source data.
+
+A trusted bootstrap joins the preconfigured job cgroup before reporting readiness.
+It blocks until the parent verifies membership; only then may it exec Bubblewrap.
+CPU and descriptor/core/file limits are applied before exec. The parent polls the
+aggregate cgroup CPU usage, monotonic deadline and bounded output, never captures
+raw stderr, kills the entire cgroup on failure/cancellation and reaps the launcher.
+`memory_limit` requires an increment in the cgroup OOM-kill counter, not merely
+SIGKILL. Cleanup failure is itself a failed job; no result may be published.
+
+The parent reads one regular, no-follow-selected source with a byte ceiling, hashes
+it, seals the request and treats the returned bundle as untrusted. Before atomic
+publication it checks closed schema, exact source/profile/locator binding, literal
+page text, deterministic identities, payload digest and bounded JSON. Existing
+parent-side loader issuance and hydration remain unchanged. No child can issue
+loader capabilities or commit graph records.
+
+Unit tests cover denied prerequisites and supervision decisions. Live tests are
+explicitly gated on an operator-provisioned delegated cgroup and runtime; enabling
+the live gate turns absent prerequisites into failures, not skips. This environment
+cannot exercise successful cgroup/Bubblewrap/seccomp enforcement. No production
+security acceptance, live OOM/CPU/network/filesystem containment or deployment is
+claimed until that gate runs on a configured Linux runner.
+
+Operator acceptance command (dedicated idle delegation and trusted runtime required):
+
+```bash
+DATAMESH_REQUIRE_REF_ISOLATION=1 \
+DATAMESH_REF_CGROUP_ROOT=/configured/delegation \
+DATAMESH_REF_RUNTIME_ROOT=/configured/secret-free-runtime \
+python -m unittest tests.test_reference_isolation.LiveLinuxIsolation -v
+```
+
+The runtime must provide current `ref_worker.py` and matching application sources,
+their Pydantic/numpy dependencies (single-threaded startup), a usable
+`libseccomp.so.2`, and the fixed `/usr/bin/python3` entry point. It is a trusted,
+operator-provisioned artifact, not a directory assembled from input source files.
+No privileged setup, cgroup delegation mutation, runtime image creation or workflow
+configuration is performed automatically by this patch. The dedicated live gate
+checks source roundtrip, CPU/wall/memory/output budgets, fork/network/file/write
+denial, cleanup and a successful job after failures. A green ordinary CI run with
+this gate disabled must never be reported as live isolation acceptance.
+
 ## Composition
 
 `app.infrastructure.ingest.reference_documents.ingest_and_hydrate` accepts an absolute private root, explicit relative source/output paths, a manifest-supplied opaque source/revision handle, a separately configured expected source SHA-256, a reviewed `ReferenceIngestProfile`, the application's existing `UnitOfWorkFactory`, and an aware recording time. It returns the private bundle and a receipt containing opaque graph handles only. A production caller must pass its already configured durable UoW; the in-memory UoW is for tests only.
