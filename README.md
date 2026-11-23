@@ -4,7 +4,7 @@
 
 It exposes situation, alternatives, readiness and decision rights. It does not decide for people: readiness is never a release, candidates are never approved work, and simulated work can never release.
 
-> **Status: alpha release candidate (`0.10.0`), not released.** Contracts, persistence, messaging, bounded HTTP intake and privacy-safe document reads are implemented. Hosted real-service smoke is recorded separately from synthetic tests; the private vocabulary release gate remains outstanding. No business or process validation is claimed. Mathematical models in this repository are exploratory lenses, not validated process facts.
+> **Status: alpha release candidate (`0.10.0`), not released.** Contracts, persistence, messaging, bounded HTTP intake and privacy-safe document reads are implemented. Hosted real-service smoke is recorded separately from synthetic tests; the [final enterprise information governance blocker](docs/releases/0.10.0-governance-blocker.md) remains open, including the private vocabulary gate. No business or process validation is claimed. Mathematical models in this repository are exploratory lenses, not validated process facts.
 
 Currentcraft was previously developed as DataMesh; older changelog entries and design pages keep that name.
 

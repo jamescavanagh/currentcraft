@@ -15,6 +15,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 
 ## Start here
 
+- [0.10.0 final governance blocker](releases/0.10.0-governance-blocker.md): OPEN; closure criteria, future implementation gates and final publication sign-off.
+
 - [0.10.0 candidate record](releases/0.10.0.md): exact-run evidence, versions/digests and outstanding private scan; not a published release.
 
 - [Document API prerequisites](architecture/API_PREREQUISITES.md): merged identity, inbox and quarantine groundwork.
