@@ -50,10 +50,40 @@ def channels(V, inflow, size, extent, softening, scale) -> np.ndarray:
     return np.stack([u, v, vx - uy, ux + vy, np.hypot(u, v)])
 
 
-def critical_points(V, inflow, softening, scale, seeds=40, extent=2.0, iters=40):
-    xs = np.linspace(-extent, extent, seeds)
-    X, Y = np.meshgrid(xs, xs)
-    x, y = X.ravel().copy(), Y.ravel().copy()
+def _seed_coordinates(points):
+    """Validate internal seed coordinates without echoing source values."""
+    try:
+        if isinstance(points, (list, tuple)) and points and isinstance(points[0], dict):
+            xy = np.array([[q["x"], q["y"]] for q in points], dtype=np.float64)
+        else:
+            xy = np.asarray(points, dtype=np.float64)
+        if xy.shape == (0,):
+            xy = xy.reshape(0, 2)
+        if xy.ndim != 2 or xy.shape[1] != 2 or not np.isfinite(xy).all():
+            raise ValueError
+    except (TypeError, ValueError, KeyError, OverflowError):
+        raise ValueError("Newton seeds must be finite coordinate pairs") from None
+    return xy
+
+
+def critical_points(V, inflow, softening, scale, seeds=40, extent=2.0, iters=40,
+                    warm_starts=None, seed_points=None):
+    """Solve from a grid (or explicit internal test seeds) plus warm coordinates.
+
+    Warm starts are re-solved and revalidated, never copied into the result.
+    No completeness or disappearance certification is implied.
+    """
+    if seed_points is None:
+        xs = np.linspace(-extent, extent, seeds)
+        X, Y = np.meshgrid(xs, xs)
+        xy = np.column_stack((X.ravel(), Y.ravel()))
+    else:
+        xy = _seed_coordinates(seed_points)
+        if not len(xy):
+            raise ValueError("Newton seed set must not be empty")
+    if warm_starts is not None:
+        xy = np.concatenate((xy, _seed_coordinates(warm_starts)), axis=0)
+    x, y = xy[:, 0].copy(), xy[:, 1].copy()
     for _ in range(iters):
         u, v, ux, uy, vx, vy = field(V, x, y, inflow, softening, scale)
         det = ux * vy - uy * vx
@@ -84,21 +114,48 @@ def critical_points(V, inflow, softening, scale, seeds=40, extent=2.0, iters=40)
     return pts
 
 
-def saddle_count(V, inflow, softening, scale, seeds=40, extent=2.0) -> int:
-    return sum(1 for q in critical_points(V, inflow, softening, scale, seeds, extent) if q["kind"] == "saddle")
+def saddle_count(V, inflow, softening, scale, seeds=40, extent=2.0,
+                 warm_starts=None, seed_points=None) -> int:
+    return sum(1 for q in critical_points(V, inflow, softening, scale, seeds, extent,
+                                         warm_starts=warm_starts, seed_points=seed_points)
+               if q["kind"] == "saddle")
 
 
-def collisions(V, inflows, counts, softening, scale, seeds=40, extent=2.0, refine=7):
+def collisions(V, inflows, counts, softening, scale, seeds=40, extent=2.0, refine=7,
+               slice_points=None, seed_points=None):
+    """Estimate changed-count event locations using both endpoint root sets.
+
+    Counts are numerical observations, not certified topology. Equal-count
+    intervals can hide events, and multi-count brackets can contain several.
+    """
+    if len(inflows) != len(counts) or (slice_points is not None and len(slice_points) != len(inflows)):
+        raise ValueError("Inconsistent event bracket lengths")
+    if any(b <= a for a, b in zip(inflows, inflows[1:])):
+        raise ValueError("Event inflows must be strictly increasing")
     out = []
     for i in range(len(inflows) - 1):
         if counts[i] != counts[i + 1]:
             lo, hi, c0 = inflows[i], inflows[i + 1], counts[i]
+            if slice_points is None:
+                left = critical_points(V, lo, softening, scale, seeds, extent, seed_points=seed_points)
+                right = critical_points(V, hi, softening, scale, seeds, extent,
+                                        warm_starts=left, seed_points=seed_points)
+            else:
+                left, right = slice_points[i], slice_points[i + 1]
+            if [sum(q["kind"] == "saddle" for q in pts) for pts in (left, right)] != list(counts[i:i + 2]):
+                raise ValueError("Unresolved event endpoint recovery")
             for _ in range(refine):
                 m = (lo + hi) / 2
-                if saddle_count(V, m, softening, scale, seeds, extent) == c0:
-                    lo = m
+                warm = np.concatenate((_seed_coordinates(left), _seed_coordinates(right)), axis=0)
+                mid = critical_points(V, m, softening, scale, seeds, extent,
+                                      warm_starts=warm, seed_points=seed_points)
+                cm = sum(q["kind"] == "saddle" for q in mid)
+                if not min(counts[i:i + 2]) <= cm <= max(counts[i:i + 2]):
+                    raise ValueError("Unresolved event midpoint recovery")
+                if cm == c0:
+                    lo, left = m, mid
                 else:
-                    hi = m
+                    hi, right = m, mid
             out.append(((lo + hi) / 2, counts[i], counts[i + 1]))
     return out
 
