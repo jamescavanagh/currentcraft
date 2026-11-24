@@ -95,7 +95,7 @@ Supply `DATAMESH_PG_DSN` and `DATAMESH_PSEUDONYM_SALT` securely to the worker pr
 .venv/bin/python scripts/jetstream_service.py ingest --blob-dir /srv/datamesh/blobs --once
 ```
 
-For PEW files: publisher adds `--format xlsx --mapping <profile-name> --binding <private-binding.json>`; worker adds `--profile <private-profile.json>`. Binding is an `IntakeBinding` JSON object naming an actual project or opportunity. The private profile is already shipped under `references/private/`; never infer the project's identity from the workbook. The generic CLI has no built-in JSON mapping or domain contract registry; compose those through `build_durable_ingest` in Python.
+For XLSX files: publisher adds `--format xlsx --mapping <profile-name> --binding <external-binding.json>`; worker adds `--profile <external-profile.json>`. Binding is an `IntakeBinding` JSON object naming an actual project or opportunity. The operator-supplied profile remains outside the public package; never infer the project's identity from the workbook. The generic CLI has no built-in JSON mapping or domain contract registry; compose those through `build_durable_ingest` in Python.
 
 `--server` is repeatable; `--credentials` supplies a protected NATS credentials file; `--ca-file` supplies TLS trust. Provision with separate administrator credentials. Runtime worker accounts need only their subjects, consumer operations, reply inboxes and JetStream API permissions. This release does not generate production account/JWT/ACL policy, install a broker systemd service, or deploy source connectors.
 
@@ -107,6 +107,6 @@ python -m unittest tests.test_durable_messaging -v
 DATAMESH_NATS_URL=nats://127.0.0.1:4222 python -m unittest tests.test_durable_messaging.JetStreamIntegration -v
 ```
 
-Local tests cover codec collisions, wildcard semantics, consumer independence, delayed retry, expiry, commit-before-ack, ack-loss replay, rollback/quarantine, outbox publish failure, PEW adapter persistence and blob integrity. Real-server integration tests storage confirmation, deduplication, redelivery, durable progress across **client** reconnect and replay from a sequence. Broker-node restart, cluster failover, TLS/ACLs, production load and PostgreSQL+NATS combined fault injection remain unproven. The GitHub `jetstream` job starts a disposable NATS 2.11 server; it has not run in this sandbox.
+Local tests cover codec collisions, wildcard semantics, consumer independence, delayed retry, expiry, commit-before-ack, ack-loss replay, rollback/quarantine, outbox publish failure, XLSX adapter persistence and blob integrity. Real-server integration tests storage confirmation, deduplication, redelivery, durable progress across **client** reconnect and replay from a sequence. Broker-node restart, cluster failover, TLS/ACLs, production load and PostgreSQL+NATS combined fault injection remain unproven. The GitHub `jetstream` job starts a disposable NATS 2.11 server; it has not run in this sandbox.
 
 References: https://docs.nats.io/concepts/jetstream ; https://nats-io.github.io/nats.py/modules.html
