@@ -1,3 +1,18 @@
+# Unreleased: seed-robust numerical recovery
+
+- Seed Newton from grid coordinates plus previously recovered critical points.
+  Carry roots across inflow slices and both ends of collision-refinement
+  brackets; re-solve and validate every warm start without changing the field,
+  Newton step, residual acceptance, deduplication or classification.
+- Add synthetic recovery controls, the joint node-order/35-seeding saddle
+  parity matrix, and an opt-in hash-pinned external private acceptance runner.
+  Request schemas, canonical node ordering and digests are unchanged.
+- Labels belong to independently matched tracks, not output tuple positions.
+  No persistent track identifiers or certified disappearance status are added.
+- Not claimed: first-slice completeness, core completeness across seedings,
+  hidden-event detection in equal-count intervals, private acceptance, release,
+  process validity, merge or deployment. See docs/changes/saddle_recovery.md.
+
 # Unreleased: fail-closed Linux REF extraction
 
 - Require an explicit LinuxIsolation for the hostile RDF ingest-and-hydrate entry point. Missing delegated cgroup v2, dedicated secret-free runtime, Bubblewrap, namespaces or worker seccomp support fails closed; no in-process fallback. PDF/text isolation is not implemented and is rejected by this entry point.

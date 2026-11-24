@@ -46,9 +46,13 @@ class NumpyNodeInteractionAdapter:
     def simulate(self, req: NodeInteractionRequest) -> NodeInteractionResult:
         V, p, specs = nodes_to_array(req.nodes), req.params, NodeInteractionResult.TENSORS
         extent = req.grid.extent if req.grid else 2.0
-        slices, vel, fields = [], [], []
+        slices, vel, fields, raw_slices = [], [], [], []
+        warm = None
         for inf in req.inflow.values:
-            pts = _points(req.nodes, K.critical_points(V, inf, p.softening, p.scale, p.seeds, extent))
+            raw = K.critical_points(V, inf, p.softening, p.scale, p.seeds, extent, warm_starts=warm)
+            raw_slices.append(raw)
+            warm = raw
+            pts = _points(req.nodes, raw)
             slices.append(InflowSlice(inflow=inf, saddle_count=sum(q.kind == PointKind.SADDLE for q in pts),
                                       core_count=sum(q.kind in CORE_KINDS for q in pts), points=pts))
             u, v, *_ = K.field(V, V[:, 0], V[:, 1], inf, p.softening, p.scale)
@@ -56,7 +60,8 @@ class NumpyNodeInteractionAdapter:
             if req.grid:
                 fields.append(K.channels(V, inf, req.grid.size, req.grid.extent, p.softening, p.scale))
         counts = [s.saddle_count for s in slices]
-        ev = K.collisions(V, list(req.inflow.values), counts, p.softening, p.scale, p.seeds, extent, req.refine_events)
+        ev = K.collisions(V, list(req.inflow.values), counts, p.softening, p.scale, p.seeds, extent,
+                          req.refine_events, slice_points=raw_slices)
         return NodeInteractionResult(
             frame_id=req.frame_id, request_digest=req.digest(), n_nodes=len(req.nodes), grid=req.grid,
             slices=tuple(slices), events=tuple(CollisionEvent(inflow=e[0], saddles_before=e[1], saddles_after=e[2]) for e in ev),
