@@ -53,7 +53,7 @@ DATAMESH_INPUT_FILE=example.txt DATAMESH_SOURCE_ID=example-document \
   docker compose -f deploy/local/compose.json --profile tools run --rm publisher
 ```
 
-For PEW, substitute your actual bundled profile filename and its internal name below, then publish with an actual intake binding (the example names are placeholders):
+For XLSX, substitute an operator-supplied profile filename and its internal name below, then publish with an explicit intake binding (the example names are placeholders):
 
 ```bash
 DATAMESH_WORKBOOK_PROFILES=/references/private/estimate-profile.json \
@@ -65,7 +65,7 @@ DATAMESH_BINDING_FILE=binding.json \
   docker compose -f deploy/local/compose.json --profile tools run --rm publisher
 ```
 
-`binding.json` lives under local/intake/ and follows `IntakeBinding`: subject_kind, subject_namespace, subject_ref, document_type, optional revision_label. Supply the real project/opportunity; do not use an example reference as a real identity. A workbook does not identify its own project. Publish confirmation means durable intake, not successful extraction; inspect the repository/quarantine for processing outcome. Without the private profile, unknown workbook mappings are rejected rather than guessed. Arbitrary JSON mappings and custom domain registries require Python composition rather than this generic publisher.
+`binding.json` lives under local/intake/ and follows `IntakeBinding`: subject_kind, subject_namespace, subject_ref, document_type, optional revision_label. Supply the real project/opportunity; do not use an example reference as a real identity. A workbook does not identify its own project. Publish confirmation means durable intake, not successful extraction; inspect the repository/quarantine for processing outcome. Without the selected profile, unknown workbook mappings are rejected rather than guessed. Arbitrary JSON mappings and custom domain registries require Python composition rather than this generic publisher.
 
 ## Operations and limits
 
