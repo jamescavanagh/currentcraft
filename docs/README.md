@@ -31,6 +31,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 
 | Page | Slice | Status |
 | --- | --- | --- |
+| [Synthetic models and evidence](pipelines/MODELS_EVIDENCE.md) | `app.application.models` | synthetic contracts and pure association checks; no sanitizer or training |
 | [Hierarchical evidence chunks](architecture/EVIDENCE_CHUNKS.md) | `app.application.evidence` | contracts only; extraction and persistence not implemented |
 | [Process-first domain](domain/PROCESS_FIRST.md) | `app.application.process` | implemented 0.5.0 |
 | [Plate and spatial isosceles](pipelines/PLATE_ISOSCELES.md) | `app.application.plate`, `app.infrastructure.plate` | implemented 0.5.0 |
@@ -67,6 +68,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Velocity winding](pipelines/VELOCITY_WINDING.md) | `app.application.gauge.winding` | sampled vs certified |
 
 ## Generated references (never edit by hand)
+
+- [Models and evidence contracts](contracts/MODELS_EVIDENCE_CONTRACTS.md): synthetic captures, manifests and assessments
 
 - [Evidence contracts](contracts/EVIDENCE_CONTRACTS.md): hierarchical chunks and provenance
 

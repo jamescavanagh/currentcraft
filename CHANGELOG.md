@@ -1,3 +1,15 @@
+# Unreleased: synthetic models and evidence contracts
+
+- Add three frozen, closed synthetic contracts for configuration artifact revisions,
+  dataset manifests and sanitization assessments, plus full-record fingerprints.
+- Add pure exact-reference/digest checks and an assessment-to-phase reading association;
+  existing phase contracts and persisted identities are unchanged.
+- Add generated reference/schemas, discovery-gated drift tests and packaging/release
+  registration. Processing is not safe clearance, evidence validity or training approval.
+- Not implemented: resolvers, storage, sanitizer, dataset generation, group-level split
+  validation, authorization, encoders, model training, live integration or deployment.
+- Package version remains unchanged; this is an unreleased synthetic alpha slice.
+
 # Unreleased: seed-robust numerical recovery
 
 - Seed Newton from grid coordinates plus previously recovered critical points.
