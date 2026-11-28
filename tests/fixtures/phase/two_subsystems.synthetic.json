@@ -1,0 +1,408 @@
+{
+ "description": "Synthetic two-subsystem phase fixture: three phases per subsystem, one cross-subsystem dependency (b.commission requires a.commission), one simulated return for rework, one hold, one independent ledger observation. Opaque fictional ids only.",
+ "schema_version": "currentcraft-phase/v1",
+ "revisions": [
+  {
+   "phase_id": "a.design",
+   "revision_id": "r1",
+   "subsystem_id": "a",
+   "ordinal": 1,
+   "entry_profile_version": "a.design-entry/1",
+   "requires_accepted": [],
+   "nucleated_from": null
+  },
+  {
+   "phase_id": "a.install",
+   "revision_id": "r1",
+   "subsystem_id": "a",
+   "ordinal": 2,
+   "entry_profile_version": "a.install-entry/1",
+   "requires_accepted": [
+    "a.design@r1"
+   ],
+   "nucleated_from": "a.design@r1"
+  },
+  {
+   "phase_id": "a.commission",
+   "revision_id": "r1",
+   "subsystem_id": "a",
+   "ordinal": 3,
+   "entry_profile_version": "a.commission-entry/1",
+   "requires_accepted": [
+    "a.install@r1"
+   ],
+   "nucleated_from": "a.install@r1"
+  },
+  {
+   "phase_id": "b.design",
+   "revision_id": "r1",
+   "subsystem_id": "b",
+   "ordinal": 1,
+   "entry_profile_version": "b.design-entry/1",
+   "requires_accepted": [],
+   "nucleated_from": null
+  },
+  {
+   "phase_id": "b.install",
+   "revision_id": "r1",
+   "subsystem_id": "b",
+   "ordinal": 2,
+   "entry_profile_version": "b.install-entry/1",
+   "requires_accepted": [
+    "b.design@r1"
+   ],
+   "nucleated_from": "b.design@r1"
+  },
+  {
+   "phase_id": "b.commission",
+   "revision_id": "r1",
+   "subsystem_id": "b",
+   "ordinal": 3,
+   "entry_profile_version": "b.commission-entry/1",
+   "requires_accepted": [
+    "a.commission@r1",
+    "b.install@r1"
+   ],
+   "nucleated_from": "b.install@r1"
+  }
+ ],
+ "readings": [
+  {
+   "reading_id": "rd.a.design.1",
+   "phase_ref": "a.design@r1",
+   "kind": "measurement",
+   "source_id": "plate-synthetic",
+   "source_version": "seed-6406-t6",
+   "mapping_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "config_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "method": "winding-det-sign/1",
+   "tolerances": [
+    [
+     "det",
+     1e-09
+    ]
+   ],
+   "coordinates": null,
+   "validity": "valid",
+   "run_ref": "run-synthetic-1",
+   "observed_at": "2026-01-05T09:00:00Z"
+  },
+  {
+   "reading_id": "rd.a.install.1",
+   "phase_ref": "a.install@r1",
+   "kind": "measurement",
+   "source_id": "plate-synthetic",
+   "source_version": "seed-6406-t6",
+   "mapping_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "config_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "method": "winding-det-sign/1",
+   "tolerances": [
+    [
+     "det",
+     1e-09
+    ]
+   ],
+   "coordinates": null,
+   "validity": "valid",
+   "run_ref": "run-synthetic-1",
+   "observed_at": "2026-01-05T09:00:00Z"
+  },
+  {
+   "reading_id": "rd.a.commission.1",
+   "phase_ref": "a.commission@r1",
+   "kind": "measurement",
+   "source_id": "plate-synthetic",
+   "source_version": "seed-6406-t6",
+   "mapping_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "config_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "method": "winding-det-sign/1",
+   "tolerances": [
+    [
+     "det",
+     1e-09
+    ]
+   ],
+   "coordinates": null,
+   "validity": "valid",
+   "run_ref": "run-synthetic-1",
+   "observed_at": "2026-01-05T09:00:00Z"
+  },
+  {
+   "reading_id": "rd.b.design.1",
+   "phase_ref": "b.design@r1",
+   "kind": "measurement",
+   "source_id": "plate-synthetic",
+   "source_version": "seed-6406-t6",
+   "mapping_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "config_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "method": "winding-det-sign/1",
+   "tolerances": [
+    [
+     "det",
+     1e-09
+    ]
+   ],
+   "coordinates": null,
+   "validity": "valid",
+   "run_ref": "run-synthetic-1",
+   "observed_at": "2026-01-05T09:00:00Z"
+  },
+  {
+   "reading_id": "rd.b.install.1",
+   "phase_ref": "b.install@r1",
+   "kind": "measurement",
+   "source_id": "plate-synthetic",
+   "source_version": "seed-6406-t6",
+   "mapping_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "config_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "method": "winding-det-sign/1",
+   "tolerances": [
+    [
+     "det",
+     1e-09
+    ]
+   ],
+   "coordinates": null,
+   "validity": "stale",
+   "run_ref": "run-synthetic-1",
+   "observed_at": "2026-01-05T09:00:00Z"
+  },
+  {
+   "reading_id": "rd.b.commission.1",
+   "phase_ref": "b.commission@r1",
+   "kind": "candidate",
+   "source_id": "plate-synthetic",
+   "source_version": "seed-6406-t6",
+   "mapping_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "config_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "method": "winding-det-sign/1",
+   "tolerances": [
+    [
+     "det",
+     1e-09
+    ]
+   ],
+   "coordinates": null,
+   "validity": "unknown",
+   "run_ref": "run-synthetic-1",
+   "observed_at": "2026-01-05T09:00:00Z"
+  }
+ ],
+ "events": [
+  {
+   "event_id": "ev.a.install.0",
+   "idempotency_key": "k.a.install.0",
+   "phase_ref": "a.install@r1",
+   "sequence": 0,
+   "prior_state": null,
+   "next_state": "possible",
+   "input_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-01T10:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.1",
+   "idempotency_key": "k.a.install.1",
+   "phase_ref": "a.install@r1",
+   "sequence": 1,
+   "prior_state": "possible",
+   "next_state": "conditional",
+   "input_digest": "1111111111111111111111111111111111111111111111111111111111111111",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-01T11:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.2",
+   "idempotency_key": "k.a.install.2",
+   "phase_ref": "a.install@r1",
+   "sequence": 2,
+   "prior_state": "conditional",
+   "next_state": "ready",
+   "input_digest": "2222222222222222222222222222222222222222222222222222222222222222",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-01T12:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.3",
+   "idempotency_key": "k.a.install.3",
+   "phase_ref": "a.install@r1",
+   "sequence": 3,
+   "prior_state": "ready",
+   "next_state": "executing",
+   "input_digest": "3333333333333333333333333333333333333333333333333333333333333333",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-01T13:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.4",
+   "idempotency_key": "k.a.install.4",
+   "phase_ref": "a.install@r1",
+   "sequence": 4,
+   "prior_state": "executing",
+   "next_state": "conditional",
+   "input_digest": "4444444444444444444444444444444444444444444444444444444444444444",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-02T10:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.5",
+   "idempotency_key": "k.a.install.5",
+   "phase_ref": "a.install@r1",
+   "sequence": 5,
+   "prior_state": "conditional",
+   "next_state": "ready",
+   "input_digest": "5555555555555555555555555555555555555555555555555555555555555555",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-02T11:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.6",
+   "idempotency_key": "k.a.install.6",
+   "phase_ref": "a.install@r1",
+   "sequence": 6,
+   "prior_state": "ready",
+   "next_state": "executing",
+   "input_digest": "6666666666666666666666666666666666666666666666666666666666666666",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [],
+   "decision_ref": null,
+   "occurred_at": "2026-01-02T12:00:00Z"
+  },
+  {
+   "event_id": "ev.a.install.7",
+   "idempotency_key": "k.a.install.7",
+   "phase_ref": "a.install@r1",
+   "sequence": 7,
+   "prior_state": "executing",
+   "next_state": "accepted",
+   "input_digest": "7777777777777777777777777777777777777777777777777777777777777777",
+   "transition_policy_version": "phase-policy/1",
+   "trace": "simulation",
+   "evidence_refs": [
+    "rd.a.install.1"
+   ],
+   "decision_ref": null,
+   "occurred_at": "2026-01-02T13:00:00Z"
+  }
+ ],
+ "decisions": [
+  {
+   "decision_id": "dec.a.design",
+   "phase_ref": "a.design@r1",
+   "outcome": "accept",
+   "scope": "Synthetic subsystem a design only.",
+   "authorized_role": "phase_reviewer",
+   "authority_ref": "authority.synthetic.1",
+   "entry_check_ref": "a.install-entry/1",
+   "evidence_refs": [
+    "rd.a.design.1"
+   ],
+   "rationale": "Synthetic fixture decision evaluated against the successor's published entry check.",
+   "conditions": [],
+   "decided_at": "2026-01-06T12:00:00Z",
+   "expires_at": null,
+   "recorded_by": "human"
+  },
+  {
+   "decision_id": "dec.a.install",
+   "phase_ref": "a.install@r1",
+   "outcome": "accept",
+   "scope": "Synthetic subsystem a install only.",
+   "authorized_role": "phase_reviewer",
+   "authority_ref": "authority.synthetic.1",
+   "entry_check_ref": "a.commission-entry/1",
+   "evidence_refs": [
+    "rd.a.install.1"
+   ],
+   "rationale": "Synthetic fixture decision evaluated against the successor's published entry check.",
+   "conditions": [],
+   "decided_at": "2026-01-06T12:00:00Z",
+   "expires_at": null,
+   "recorded_by": "human"
+  },
+  {
+   "decision_id": "dec.a.commission",
+   "phase_ref": "a.commission@r1",
+   "outcome": "accept",
+   "scope": "Synthetic subsystem a commissioning only.",
+   "authorized_role": "phase_reviewer",
+   "authority_ref": "authority.synthetic.1",
+   "entry_check_ref": "b.commission-entry/1",
+   "evidence_refs": [
+    "rd.a.commission.1"
+   ],
+   "rationale": "Synthetic fixture decision evaluated against the successor's published entry check.",
+   "conditions": [],
+   "decided_at": "2026-01-06T12:00:00Z",
+   "expires_at": null,
+   "recorded_by": "human"
+  },
+  {
+   "decision_id": "dec.b.design",
+   "phase_ref": "b.design@r1",
+   "outcome": "accept",
+   "scope": "Synthetic subsystem b design only.",
+   "authorized_role": "phase_reviewer",
+   "authority_ref": "authority.synthetic.1",
+   "entry_check_ref": "b.install-entry/1",
+   "evidence_refs": [
+    "rd.b.design.1"
+   ],
+   "rationale": "Synthetic fixture decision evaluated against the successor's published entry check.",
+   "conditions": [],
+   "decided_at": "2026-01-06T12:00:00Z",
+   "expires_at": null,
+   "recorded_by": "human"
+  },
+  {
+   "decision_id": "dec.b.install",
+   "phase_ref": "b.install@r1",
+   "outcome": "hold",
+   "scope": "Held: install evidence is stale.",
+   "authorized_role": "phase_reviewer",
+   "authority_ref": "authority.synthetic.1",
+   "entry_check_ref": "b.commission-entry/1",
+   "evidence_refs": [
+    "rd.b.install.1"
+   ],
+   "rationale": "Synthetic fixture decision evaluated against the successor's published entry check.",
+   "conditions": [],
+   "decided_at": "2026-01-06T12:00:00Z",
+   "expires_at": null,
+   "recorded_by": "human"
+  }
+ ],
+ "ledger_observations": [
+  {
+   "observation_id": "obs.1",
+   "subject_ref": "invoice.synthetic.1",
+   "status": "invoiced",
+   "source_id": "ledger-fixture",
+   "source_revision": "1",
+   "observed_at": "2026-01-07T08:00:00Z",
+   "related_phase_refs": [
+    "a.commission@r1"
+   ],
+   "epistemic_status": "synthetic_fixture"
+  }
+ ]
+}

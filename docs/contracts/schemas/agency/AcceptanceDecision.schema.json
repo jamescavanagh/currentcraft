@@ -1,0 +1,127 @@
+{
+  "additionalProperties": false,
+  "description": "A scoped human decision on one exact phase revision. Simulators, models, scores and labels cannot produce one.",
+  "properties": {
+    "authority_ref": {
+      "description": "Where that authority is recorded.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Authority Ref",
+      "type": "string"
+    },
+    "authorized_role": {
+      "description": "Role that holds the decision right (a role, not a person's name).",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Authorized Role",
+      "type": "string"
+    },
+    "conditions": {
+      "default": [],
+      "description": "Conditions attached to the decision.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Conditions",
+      "type": "array"
+    },
+    "decided_at": {
+      "description": "Timezone-aware decision time.",
+      "format": "date-time",
+      "title": "Decided At",
+      "type": "string"
+    },
+    "decision_id": {
+      "description": "Opaque decision id, referenced by governance events.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Decision Id",
+      "type": "string"
+    },
+    "entry_check_ref": {
+      "description": "Published entry-criteria version of the successor phase, or of integration acceptance, that this revision was evaluated against: the 'governs' link.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Entry Check Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "default": [],
+      "description": "Reading ids the decision relied on. Required for accept.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Timezone-aware expiry, after decided_at; None = no expiry.",
+      "title": "Expires At"
+    },
+    "outcome": {
+      "description": "accept closes the revision; hold keeps it; return sends it back for rework.",
+      "enum": [
+        "accept",
+        "hold",
+        "return"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "phase_ref": {
+      "description": "Exact revision decided on.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}@[A-Za-z0-9._:-]{1,120}$",
+      "title": "Phase Ref",
+      "type": "string"
+    },
+    "rationale": {
+      "description": "Why the decision was made.",
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "recorded_by": {
+      "const": "human",
+      "default": "human",
+      "description": "Only a human records a decision. No other value exists.",
+      "title": "Recorded By",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "currentcraft-phase/v1",
+      "default": "currentcraft-phase/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scope": {
+      "description": "What the decision covers and what it does not.",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Scope",
+      "type": "string"
+    }
+  },
+  "required": [
+    "decision_id",
+    "phase_ref",
+    "outcome",
+    "scope",
+    "authorized_role",
+    "authority_ref",
+    "entry_check_ref",
+    "rationale",
+    "decided_at"
+  ],
+  "title": "AcceptanceDecision",
+  "type": "object"
+}

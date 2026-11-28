@@ -1,0 +1,148 @@
+{
+  "additionalProperties": false,
+  "description": "A measurement or candidate offered as phase evidence, with its full envelope. Never an edge or a decision.",
+  "properties": {
+    "config_digest": {
+      "description": "SHA-256 of the run configuration.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Config Digest",
+      "type": "string"
+    },
+    "coordinates": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 8,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Sample coordinates on the synthetic plate, if any.",
+      "title": "Coordinates"
+    },
+    "epistemic_status": {
+      "const": "synthetic",
+      "default": "synthetic",
+      "description": "Alpha scope: synthetic fixtures only.",
+      "title": "Epistemic Status",
+      "type": "string"
+    },
+    "kind": {
+      "description": "measurement is computed from a source; candidate is a proposal (geometry link, traced lane, ranked pair) awaiting human review.",
+      "enum": [
+        "measurement",
+        "candidate"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "mapping_digest": {
+      "description": "SHA-256 of the mapping that translated source fields.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Mapping Digest",
+      "type": "string"
+    },
+    "method": {
+      "description": "Method name and version, e.g. 'winding-det-sign/1'.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Method",
+      "type": "string"
+    },
+    "observed_at": {
+      "description": "Timezone-aware time the reading was taken.",
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "phase_ref": {
+      "description": "Revision the reading is offered for.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}@[A-Za-z0-9._:-]{1,120}$",
+      "title": "Phase Ref",
+      "type": "string"
+    },
+    "reading_id": {
+      "description": "Opaque reading id, referenced by events and decisions.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Reading Id",
+      "type": "string"
+    },
+    "run_ref": {
+      "description": "Run that produced the reading.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Run Ref",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "currentcraft-phase/v1",
+      "default": "currentcraft-phase/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_id": {
+      "description": "Opaque source id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_version": {
+      "description": "Source version or revision the reading was taken from.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Source Version",
+      "type": "string"
+    },
+    "tolerances": {
+      "default": [],
+      "description": "(name, non-negative tolerance) pairs used by the method.",
+      "items": {
+        "maxItems": 2,
+        "minItems": 2,
+        "prefixItems": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "type": "array"
+      },
+      "title": "Tolerances",
+      "type": "array"
+    },
+    "validity": {
+      "description": "valid, stale, failed, unknown or inaccessible. These stay distinct; none is zero.",
+      "enum": [
+        "valid",
+        "stale",
+        "failed",
+        "unknown",
+        "inaccessible"
+      ],
+      "title": "Validity",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reading_id",
+    "phase_ref",
+    "kind",
+    "source_id",
+    "source_version",
+    "mapping_digest",
+    "config_digest",
+    "method",
+    "validity",
+    "run_ref",
+    "observed_at"
+  ],
+  "title": "PhaseReading",
+  "type": "object"
+}
