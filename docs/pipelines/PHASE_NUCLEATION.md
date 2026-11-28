@@ -1,14 +1,14 @@
 ---
 title: Synthetic phase nucleation
-version: 0.4.0
+version: 0.5.0
 tags: [automl, simulation, graph, governance]
-status: contracts, forward-dependency and predecessor-acceptance checks
+status: contracts, forward-dependency, predecessor-acceptance and event-chain checks
 ---
 
 # Synthetic phase nucleation
 
 > [!note]
-> Contracts, generated reference, forward-dependency and predecessor-acceptance checks and a synthetic two-subsystem fixture only (`app.application.phase`, schema `currentcraft-phase/v1`). No port, adapter, evaluator, model, live buffer, approval workflow or financial connector exists. Existing encoder interfaces remain ports only. No deployment, real records, or process-validity claims.
+> Contracts, generated reference, forward-dependency, predecessor-acceptance and event-chain checks and a synthetic two-subsystem fixture only (`app.application.phase`, schema `currentcraft-phase/v1`). No port, adapter, evaluator, model, live buffer, approval workflow or financial connector exists. Existing encoder interfaces remain ports only. No deployment, real records, or process-validity claims.
 
 ## Purpose
 
@@ -95,7 +95,19 @@ The synthetic fixture `tests/fixtures/phase/two_subsystems.synthetic.json` has t
 4. A revision is eligible to leave `possible` only when every required predecessor is `accepted`. Eligibility is a structural reading, not a release.
 5. A governance event that leaves `possible` is read at its own `occurred_at`, so a later decision cannot backdate it. Simulation events are ignored. An event for a revision outside the set is reported as `unknown_revision`.
 
-In the fixture, every predecessor is accepted except `b.install`, which is held on stale evidence, so `b.commission` is not eligible even though its cross-subsystem predecessor `a.commission` is accepted. Not checked: whether cited evidence exists, is accessible or is valid; whether the named role holds the authority it claims. Not implemented: sequence checks across stored event chains, budget, duplicate-spawn prevention and replay storage.
+In the fixture, every predecessor is accepted except `b.install`, which is held on stale evidence, so `b.commission` is not eligible even though its cross-subsystem predecessor `a.commission` is accepted. Not checked: whether cited evidence exists, is accessible or is valid; whether the named role holds the authority it claims.
+
+## Event chains
+
+`app.application.phase.chain` checks transition events in memory; it stores nothing:
+
+1. A chain is every event for one phase revision on one trace. Simulation and governance chains never mix, so a governance creation event cannot fork or extend a simulation chain.
+2. Retries are classified first with `replay_against`. The same idempotency key and input digest is a no-op; the canonically earliest event (by time, then event id) is the stored one. A changed input under the same key is a `key_conflict`. Reusing an event id under a different key is an `event_id_conflict`.
+3. Sequences start at 0 and are contiguous. A chain that does not start at 0 is `missing_creation`; a missing number is a `sequence_gap`; two different events at one number are a `sequence_fork`.
+4. Each event's prior state must equal the previous event's next state (`state_mismatch`), and time may not run backwards (`time_regression`).
+5. Replay fails closed: it returns each chain's final state, length and digest only when no issue exists. The digest is SHA-256 over the canonical, sequence-ordered chain, so input order and no-op retries do not change it; any content change does.
+
+The fixture chain for `a.install` replays to `accepted` in 8 events, including one return for rework, on the simulation trace only. Not implemented: budget, duplicate-spawn prevention and replay storage.
 
 ## Synthetic evaluation
 
@@ -111,4 +123,4 @@ Start with two subsystems, three phases each, one cross-subsystem dependency, on
 
 ## Build order
 
-Done: design page, described contracts, generated reference, forward-dependency and predecessor-acceptance checks and the two-subsystem fixture. Next: event-chain checks, then the array-free port and a deterministic infrastructure adapter. Evaluate the non-learning baseline before proposing an encoder or a viewer integration.
+Done: design page, described contracts, generated reference, forward-dependency, predecessor-acceptance and event-chain checks and the two-subsystem fixture. Next: budget and duplicate-spawn checks, then the array-free port and a deterministic infrastructure adapter. Evaluate the non-learning baseline before proposing an encoder or a viewer integration.
