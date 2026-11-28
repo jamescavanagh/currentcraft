@@ -1,0 +1,134 @@
+{
+  "additionalProperties": false,
+  "description": "One append-only state change of a phase revision, on either the simulation or the governance trace.",
+  "properties": {
+    "decision_ref": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Acceptance decision id. Required on the governance trace for 'executing' and 'accepted'; forbidden on the simulation trace.",
+      "title": "Decision Ref"
+    },
+    "event_id": {
+      "description": "Opaque event id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "default": [],
+      "description": "Reading ids the transition relied on.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "idempotency_key": {
+      "description": "Replay key. Same key and input digest is a no-op; a changed input is a conflict.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "input_digest": {
+      "description": "SHA-256 of the behaviour-affecting inputs.",
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Input Digest",
+      "type": "string"
+    },
+    "next_state": {
+      "description": "State after the event.",
+      "enum": [
+        "possible",
+        "conditional",
+        "ready",
+        "executing",
+        "accepted"
+      ],
+      "title": "Next State",
+      "type": "string"
+    },
+    "occurred_at": {
+      "description": "Timezone-aware event time.",
+      "format": "date-time",
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "phase_ref": {
+      "description": "Revision whose state changes.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}@[A-Za-z0-9._:-]{1,120}$",
+      "title": "Phase Ref",
+      "type": "string"
+    },
+    "prior_state": {
+      "anyOf": [
+        {
+          "enum": [
+            "possible",
+            "conditional",
+            "ready",
+            "executing",
+            "accepted"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "State before the event; None only for the creating event.",
+      "title": "Prior State"
+    },
+    "schema_version": {
+      "const": "currentcraft-phase/v1",
+      "default": "currentcraft-phase/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sequence": {
+      "description": "Position in the revision's event chain; 0 only for the creating event.",
+      "minimum": 0,
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "trace": {
+      "description": "simulation records synthetic dynamics and can never carry authority; governance records the human decision chain. They are distinct traces.",
+      "enum": [
+        "simulation",
+        "governance"
+      ],
+      "title": "Trace",
+      "type": "string"
+    },
+    "transition_policy_version": {
+      "description": "Version of the transition rules applied.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Transition Policy Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "idempotency_key",
+    "phase_ref",
+    "sequence",
+    "prior_state",
+    "next_state",
+    "input_digest",
+    "transition_policy_version",
+    "trace",
+    "occurred_at"
+  ],
+  "title": "PhaseTransitionEvent",
+  "type": "object"
+}

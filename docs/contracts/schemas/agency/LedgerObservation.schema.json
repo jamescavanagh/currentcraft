@@ -1,0 +1,81 @@
+{
+  "additionalProperties": false,
+  "description": "An independently supplied commercial observation (offline fixture). No amounts, no payment logic, never derived from a phase.",
+  "properties": {
+    "epistemic_status": {
+      "const": "synthetic_fixture",
+      "default": "synthetic_fixture",
+      "description": "Alpha scope: offline fixture only.",
+      "title": "Epistemic Status",
+      "type": "string"
+    },
+    "observation_id": {
+      "description": "Opaque observation id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Observation Id",
+      "type": "string"
+    },
+    "observed_at": {
+      "description": "Timezone-aware observation time.",
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "related_phase_refs": {
+      "default": [],
+      "description": "Revisions the observation is filed against, for reading only.",
+      "items": {
+        "pattern": "^[A-Za-z0-9._:-]{1,120}@[A-Za-z0-9._:-]{1,120}$",
+        "type": "string"
+      },
+      "title": "Related Phase Refs",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "currentcraft-phase/v1",
+      "default": "currentcraft-phase/v1",
+      "description": "Contract version.",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "source_id": {
+      "description": "Opaque id of the independent source.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_revision": {
+      "description": "Revision of that source when observed.",
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Source Revision",
+      "type": "string"
+    },
+    "status": {
+      "description": "Separate observations; none implies another.",
+      "enum": [
+        "invoiced",
+        "received",
+        "reconciled"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "subject_ref": {
+      "description": "Opaque commercial subject id, e.g. a synthetic invoice id.",
+      "pattern": "^[A-Za-z0-9._:-]{1,120}$",
+      "title": "Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "observation_id",
+    "subject_ref",
+    "status",
+    "source_id",
+    "source_revision",
+    "observed_at"
+  ],
+  "title": "LedgerObservation",
+  "type": "object"
+}

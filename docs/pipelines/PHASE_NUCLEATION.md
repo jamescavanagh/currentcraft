@@ -1,14 +1,14 @@
 ---
 title: Synthetic phase nucleation
-version: 0.1.0
+version: 0.2.0
 tags: [automl, simulation, graph, governance]
-status: proposed
+status: contracts only
 ---
 
 # Synthetic phase nucleation
 
 > [!note]
-> Design only. This slice proposes a synthetic, offline evaluator. It does not add a model, live buffer, approval workflow, or financial connector. Existing encoder interfaces remain ports only. No deployment, real records, or process-validity claims.
+> Contracts and generated reference only (`app.application.phase`, schema `currentcraft-phase/v1`). No port, adapter, evaluator, model, live buffer, approval workflow or financial connector exists. Existing encoder interfaces remain ports only. No deployment, real records, or process-validity claims.
 
 ## Purpose
 
@@ -35,17 +35,43 @@ flowchart LR
 
 The next phase's versioned entry criteria are available before the prior phase is accepted; no future execution or state is a prerequisite for that check. A `governs` edge points from that published check to the prior phase revision. It is not a forward scheduling dependency and never rewrites history. After a scoped human acceptance, a bounded rule can propose the next phase as `Possible`; a new phase is not automatically released. A later issue can open a new revision or exception without mutating the old acceptance. Forward `nucleates` and `requires_accepted` dependencies must be acyclic; check them separately from `governs` links and intra-phase rework.
 
-Suggested contract records:
-
-| Record | Required meaning |
-| --- | --- |
-| Phase revision | Opaque phase, subsystem and revision IDs; entry-profile version and required predecessor revisions. |
-| Reading or candidate | Source and version, mapping and configuration digests, sample coordinates if synthetic, method, tolerances, validity and run reference. |
-| Phase transition event | Prior and next state, phase revision, sequence, event and idempotency keys, input digest, transition-policy version, evidence and any required decision reference. |
-| Acceptance decision | Exact revision, scope, authorized role, evidence references, rationale, decision time and any conditions or expiry. |
-| Ledger observation | Offline fixture only: independent source revision, observation time and invoice, receipt or reconciliation status. No event writes or payment logic. |
-
 Append transitions with deterministic replay. Repeating the same key and input digest is a no-op; a changed input under the same key is a conflict. Unknown, inaccessible, stale and failed evidence stay distinct. Neither readiness nor an accepted subsystem proves integration acceptance. Invoiced, received and reconciled are separate observations, not consequences the simulator can assert.
+
+## Contracts
+
+Generated reference: [phase contracts](../contracts/PHASE_CONTRACTS.md). Every validator traces to a rule below.
+
+| Record | Contract | Required meaning |
+| --- | --- | --- |
+| Phase revision | `PhaseRevision` | Opaque phase, subsystem and revision IDs; entry-profile version and required predecessor revisions. |
+| Reading or candidate | `PhaseReading` | Source and version, mapping and configuration digests, sample coordinates if synthetic, method, tolerances, validity and run reference. |
+| Phase transition event | `PhaseTransitionEvent` | Prior and next state, phase revision, sequence, event and idempotency keys, input digest, transition-policy version, evidence and any required decision reference. |
+| Acceptance decision | `AcceptanceDecision` | Exact revision, scope, authorized role, evidence references, rationale, decision time and any conditions or expiry. |
+| Ledger observation | `LedgerObservation` | Offline fixture only: independent source revision, observation time and invoice, receipt or reconciliation status. No amounts, event writes or payment logic. |
+
+Contract rules:
+
+1. A revision is named `phase_id@revision_id`. It cannot require or nucleate itself; the revision that nucleated it must also be a required predecessor. Predecessor lists have no duplicates.
+2. Allowed transitions: none → `possible`; `possible` → `conditional`; `conditional` → `ready` or back to `possible`; `ready` → `executing` or back to `conditional`; `executing` → `accepted` or back to `conditional`. `accepted` is absorbing for a fixed revision; a later issue opens a new revision.
+3. Sequence 0 is the creating event and only it has no prior state.
+4. The simulation trace never carries a decision reference. On the governance trace, entering `executing` or `accepted` requires a decision reference, and a governance acceptance must cite evidence.
+5. An accept decision must cite evidence; expiry, if set, follows the decision time. A decision names a role, the record of its authority and the successor entry-check version it was evaluated against (the `governs` link). Only a human records a decision.
+6. Readings carry validity `valid`, `stale`, `failed`, `unknown` or `inaccessible`; tolerances are named once and non-negative. Readings and ledger observations are synthetic in this alpha. Ledger observations carry no amounts.
+7. Every timestamp is timezone-aware. Evidence, condition and reference lists have no duplicates.
+
+Replay classification:
+
+>>> from datetime import datetime, timezone
+>>> from app.application.phase import PhaseTransitionEvent
+>>> created = PhaseTransitionEvent(event_id="e1", idempotency_key="k1", phase_ref="design@r1", sequence=0,
+...     prior_state=None, next_state="possible", input_digest="a" * 64, transition_policy_version="1",
+...     trace="simulation", occurred_at=datetime(2026, 1, 1, tzinfo=timezone.utc))
+>>> created.replay_against(created)
+'noop'
+>>> created.replay_against(created.model_copy(update={"input_digest": "b" * 64}))
+'conflict'
+
+Contracts validate single records. Chain checks (acyclic forward dependencies, missing predecessor acceptance, monotone sequences, budget, duplicate spawns) belong to the future evaluator and are not implemented.
 
 ## Synthetic evaluation
 
@@ -59,6 +85,6 @@ Start with two subsystems, three phases each, one cross-subsystem dependency, on
 - Confirm that geometric proximity, scores and labels cannot write confirmed edges, release work, or create ledger observations. Cash reconciliation may appear only from the separately supplied observation, not from a phase outcome.
 - Before any use beyond synthetic fixtures, test two worlds that differ only in a restricted label or source record. To an unauthorized reviewer, derived counts, graph shape, scores, caches and exports must not reveal which world is present. Recheck source authorization before deriving or returning results, including after revocation; authorize positive controls separately. This document does not certify a permission boundary.
 
-## Build order after design review
+## Build order
 
-Design page, described contracts and generated reference, array-free port, deterministic infrastructure adapter, then synthetic fixture and regression tests. Evaluate the non-learning baseline before proposing an encoder or a viewer integration. No software behavior changes in this PR.
+Done: design page, described contracts and generated reference. Next: array-free port, deterministic infrastructure adapter, then synthetic fixture and regression tests. Evaluate the non-learning baseline before proposing an encoder or a viewer integration.
