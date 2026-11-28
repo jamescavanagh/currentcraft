@@ -31,6 +31,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 
 | Page | Slice | Status |
 | --- | --- | --- |
+| [Synthetic models and evidence](pipelines/MODELS_EVIDENCE.md) | `app.application.models` | synthetic contracts and pure association checks; no sanitizer or training |
 | [Hierarchical evidence chunks](architecture/EVIDENCE_CHUNKS.md) | `app.application.evidence` | contracts only; extraction and persistence not implemented |
 | [Process-first domain](domain/PROCESS_FIRST.md) | `app.application.process` | implemented 0.5.0 |
 | [Plate and spatial isosceles](pipelines/PLATE_ISOSCELES.md) | `app.application.plate`, `app.infrastructure.plate` | implemented 0.5.0 |
@@ -56,7 +57,7 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [HFGT capability graph](pipelines/HFGT_CAPABILITY_GRAPH.md) | `app.application.hfgt`, `app.infrastructure.hfgt` | implemented 0.9.9; structural reading, encoder deferred |
 | [Domain dependency graph](domain/DOMAIN_DEPENDENCY_GRAPH.md) | `app.domain` | proposed build order 0.9.1 |
 | [Ingestion](architecture/INGESTION.md) | `app.application.ingest`, `app.infrastructure.ingest` | implemented 0.8.0; hashing features, not an embedding model |
-| [JetStream broker adapter](architecture/JETSTREAM.md) | `app.application.messaging.durable`, `app.infrastructure.messaging.jetstream`, `app.application.ingest.durable` | implemented 0.9.3; server integration gated |
+| [JetStream broker adapter](architecture/JETSTREAM.md) | `app.application.messaging.durable`, `app.infrastructure.messaging.jetstream` | implemented 0.9.3; server integration gated |
 | [Persistence](architecture/PERSISTENCE.md) | `app.application.persistence`, `app.infrastructure.persistence` | implemented 0.9.2; PostgreSQL 18 SQL, proven only by the postgres-18 CI job |
 | [Message broker](architecture/MESSAGE_BROKER.md) | `app.application.messaging`, `app.infrastructure.messaging` | in-memory adapter 0.5.0; MQTT/IoT adapter planned |
 | [HTTP API](architecture/HTTP_API.md) | `app.interfaces.http` | bounded intake/status and privacy-safe reads; candidate live smoke recorded separately |
@@ -67,6 +68,8 @@ Open this folder as an Obsidian vault (or a folder inside one). Diagrams are `me
 | [Velocity winding](pipelines/VELOCITY_WINDING.md) | `app.application.gauge.winding` | sampled vs certified |
 
 ## Generated references (never edit by hand)
+
+- [Models and evidence contracts](contracts/MODELS_EVIDENCE_CONTRACTS.md): synthetic captures, manifests and assessments
 
 - [Evidence contracts](contracts/EVIDENCE_CONTRACTS.md): hierarchical chunks and provenance
 

@@ -13,7 +13,7 @@ def allowed(rel):
     if rel in {'deploy/local/compose.json','deploy/local/Dockerfile','deploy/local/runtime.py','deploy/local/init_postgres.sh'}:return True
     if rel.startswith('src/app/application/operand_compression/') or rel.startswith('src/app/application/feature_graph/') or rel.startswith('src/app/infrastructure/operand_compression/') or rel.startswith('src/app/infrastructure/feature_graph/'):
         return p.suffix == '.py'
-    if rel.startswith('src/app/application/evidence/'):
+    if rel.startswith(('src/app/application/evidence/','src/app/application/models/')):
         return p.suffix == '.py'
     if rel.startswith('src/app/application/queries/'):
         return p.suffix == '.py'
