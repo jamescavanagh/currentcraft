@@ -1,14 +1,14 @@
 ---
 title: Synthetic phase nucleation
-version: 0.2.0
+version: 0.3.0
 tags: [automl, simulation, graph, governance]
-status: contracts only
+status: contracts and forward-dependency checks
 ---
 
 # Synthetic phase nucleation
 
 > [!note]
-> Contracts and generated reference only (`app.application.phase`, schema `currentcraft-phase/v1`). No port, adapter, evaluator, model, live buffer, approval workflow or financial connector exists. Existing encoder interfaces remain ports only. No deployment, real records, or process-validity claims.
+> Contracts, generated reference, forward-dependency checks and a synthetic two-subsystem fixture only (`app.application.phase`, schema `currentcraft-phase/v1`). No port, adapter, evaluator, model, live buffer, approval workflow or financial connector exists. Existing encoder interfaces remain ports only. No deployment, real records, or process-validity claims.
 
 ## Purpose
 
@@ -71,7 +71,19 @@ Replay classification:
 >>> created.replay_against(created.model_copy(update={"input_digest": "b" * 64}))
 'conflict'
 
-Contracts validate single records. Chain checks (acyclic forward dependencies, missing predecessor acceptance, monotone sequences, budget, duplicate spawns) belong to the future evaluator and are not implemented.
+Contracts validate single records.
+
+## Chain checks
+
+`app.application.phase.graph` reads a set of revisions and checks forward dependencies only:
+
+1. Forward edges run predecessor → successor and come only from `requires_accepted` (which always includes `nucleated_from`). A decision's `entry_check_ref` (the `governs` link) and intra-phase rework are not forward edges, so neither can close a cycle.
+2. Duplicate revision references are rejected.
+3. A forward cycle is rejected and reported as an explicit path, starting from the first revision in sorted order, so the report does not depend on input order.
+4. A predecessor revision that is not in the set is returned as a `(successor, missing predecessor)` gap. It is never filled in, guessed or treated as acyclic evidence about the missing revision.
+5. A new revision of an existing phase is a new node; it does not rewrite the old revision's edges.
+
+The synthetic fixture `tests/fixtures/phase/two_subsystems.synthetic.json` has two subsystems with three phases each, one cross-subsystem dependency (`b.commission` requires `a.commission`), one simulated return for rework, one hold on stale evidence and one independent ledger observation. Not implemented: predecessor-acceptance checks against decisions, sequence checks across stored event chains, budget, duplicate-spawn prevention and replay storage.
 
 ## Synthetic evaluation
 
@@ -87,4 +99,4 @@ Start with two subsystems, three phases each, one cross-subsystem dependency, on
 
 ## Build order
 
-Done: design page, described contracts and generated reference. Next: array-free port, deterministic infrastructure adapter, then synthetic fixture and regression tests. Evaluate the non-learning baseline before proposing an encoder or a viewer integration.
+Done: design page, described contracts, generated reference, forward-dependency checks and the two-subsystem fixture. Next: predecessor-acceptance and event-chain checks, then the array-free port and a deterministic infrastructure adapter. Evaluate the non-learning baseline before proposing an encoder or a viewer integration.
